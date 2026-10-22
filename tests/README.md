@@ -1,31 +1,30 @@
-# MDUI 2.1.5 浏览器回归
+# MDUI 前端重构回归
 
-应用仍是零构建静态页面。以下依赖仅用于测试：Python 3、Python Playwright、Chromium。脚本自动启动本地静态服务，测试完成后关闭，不需要提前运行服务器。
+依赖仅用于开发检查：Python 3、Python Playwright 和 Chromium。应用本身无需安装依赖或构建。脚本自动启动静态服务器，完成后关闭。
 
 ```sh
-python3 tests/browser_audit.py --chromium /usr/bin/chromium
+python3 tests/browser_audit.py --chromium /usr/bin/chromium --artifacts /tmp/nekomi-browser
 ```
 
-可用 `--artifacts /tmp/nekomi-browser` 保存 6 个宽度的明暗截图。默认检查真实 CDN 请求，不忽略证书错误。
-
-若云代理的 CA 已被 curl 信任，但 Chromium 信任库未配置，可显式使用：
+默认使用真实 CDN 链路并保留证书验证。若云代理 CA 被 curl 信任而 Chromium 信任库未配置，可显式使用：
 
 ```sh
 python3 tests/browser_audit.py --chromium /usr/bin/chromium --verified-cdn --artifacts /tmp/nekomi-browser
 ```
 
-该选项让 curl 保持代理及 TLS 校验，取得 CDN 原始响应，再通过 Playwright 路由回放。它不修改应用 URL、组件资源或浏览器信任库；这种运行证明页面交互可用，不证明 Chromium 原生 CDN 链路可用。
+`--verified-cdn` 通过保留代理和 TLS 校验的 curl 获取原始 CDN 响应，再由 Playwright 回放。它不改变应用 URL、组件资源或浏览器信任库；这种运行验证页面行为，不代表 Chromium 原生 CDN 证书链已配置。
 
-脚本会检查：
+检查范围：
 
-- Tabs 点击、方向键 / Home / End、ARIA、标签筛选、深链接及前进后退。
-- 主题重复选择、两个 Menu 状态、刷新记忆、系统明暗与跨页面存储更新。
-- Menu 原生键盘导航、Dropdown Escape / 外部点击关闭与焦点恢复。
-- 搜索、空结果、内置清空、快捷键、Enter 进入结果与预览。
-- Drawer 焦点约束、全部关闭入口、断点关闭、搜索及 Drawer → Dialog 转换。
-- Dialog 焦点约束、关闭按钮 / Escape / 遮罩及焦点恢复。
-- 1440 / 1024 / 901 / 900 / 390 / 320px 的明暗布局，以及正常资源加载和 JavaScript 错误。
+- 原生 Tabs / Tab Panel 显隐、选中状态、ARIA、点击、键盘、URL 深链接与前进后退。
+- 两个原生主题 Menu 的同步、重复选择、键盘选择、关闭后的焦点、刷新记忆、系统主题及跨页面存储更新。
+- 搜索的准确结果数、空结果、原生清空、可删除 Chip、文章标签筛选、快捷键及首个结果焦点。
+- List Item、标题和按钮打开 Dialog；抽屉 → Dialog、Dialog → 搜索的焦点转换，关闭按钮、Escape 和遮罩。
+- Drawer 原生滚动锁定、焦点约束、自动聚焦搜索、各关闭入口及桌面断点关闭。
+- 原生导航吸顶、短屏侧栏滚动及底部主题菜单；桌面侧栏计算样式必须无背景、边框、圆角和阴影。
+- 1440 / 1024 / 861 / 860 / 390 / 320px 的明暗模式，页面无水平溢出，色彩使用当前 MD3 语义令牌。
+- 减少动效模式、坏图回退、友链 URL 过滤；正常页面无 JavaScript 错误和失败资源。
 
-审计参考：[Tabs](https://www.mdui.org/zh-cn/docs/2/components/tabs)、[Navigation Drawer](https://www.mdui.org/zh-cn/docs/2/components/navigation-drawer)、[Dropdown](https://www.mdui.org/zh-cn/docs/2/components/dropdown)、[Menu](https://www.mdui.org/zh-cn/docs/2/components/menu)、[Text Field](https://www.mdui.org/zh-cn/docs/2/components/text-field)、[Dialog](https://www.mdui.org/zh-cn/docs/2/components/dialog)、[setTheme](https://www.mdui.org/zh-cn/docs/2/functions/setTheme)、[Design Tokens](https://www.mdui.org/zh-cn/docs/2/styles/design-tokens)。
+测试依赖于本仓库的固定演示数据（例如 `CSS` 恰好匹配 2 篇）。更换内容后，应相应更新预期结果。
 
-版本差异以 [2.1.5 的组件元数据与源码](https://unpkg.com/mdui@2.1.5/custom-elements.json)为准。保留 Tabs 的键盘与 ARIA 补充、外置面板同步，以及 Menu / Dropdown 焦点竞争的针对性修复。
+参考：[MDUI 2 文档](https://www.mdui.org/zh-cn/docs/2/)与 [2.1.5 元数据](https://unpkg.com/mdui@2.1.5/custom-elements.json)。`a11y.js` 仅补齐该版本缺失能力；原生面板切换、组件视觉和模态焦点机制不由测试或适配重写。

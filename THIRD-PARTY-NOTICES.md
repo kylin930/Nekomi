@@ -6,7 +6,7 @@
 
 ### MDUI 2.1.5
 
-- 用途：Material Design 3 Web Components（Tabs、Text Field、Dropdown、Menu、Dialog、Navigation Drawer 等）与 MD3 Design Tokens。
+- 用途：Material Design 3 Web Components（Tabs / Tab Panel、Avatar、Card、List / List Item、Chip、Button、Text Field、Dropdown、Menu、Dialog、Navigation Drawer 等）与 MD3 Design Tokens。
 - 引入方式：unpkg CDN，固定版本，不使用 `latest`。
   - `https://unpkg.com/mdui@2.1.5/mdui.css`
   - `https://unpkg.com/mdui@2.1.5/mdui.global.js`
@@ -30,9 +30,10 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 
 ### Stellar
 
-- 参考范围：左侧整体式侧栏、内容区顶部切换栏、两栏比例、吸顶行为、内容层级。
+- 参考范围：融入页面的透明侧栏、内容区顶部切换栏、两栏布局、吸顶行为与内容层级。
 - 项目：https://github.com/xaoxuu/hexo-theme-stellar
-- 演示：https://xaoxuu.com/wiki/stellar/
+- 实际页面：https://xaoxuu.com/
+- 文档：https://xaoxuu.com/wiki/stellar/
 - 许可证：MIT
 - 复用情况：没有复制源码、CSS、模板、图片或字体资源。布局参数和交互模式为本项目重新实现。
 
@@ -45,7 +46,7 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 
 ## 开发与截图工具（非运行时依赖）
 
-- Playwright 1.61.1（Apache-2.0）与 Chromium（BSD-style licenses）用于本地打开页面、检查视口与生成截图。
+- Playwright 1.62.0（Apache-2.0）与 Chromium（BSD-style licenses）用于本地打开页面、检查视口与生成截图。
 - 这些工具不属于站点运行时，未随项目源码分发。
 
 ## 本项目许可

@@ -30,7 +30,8 @@ def value(page, expression, expected):
 def selected(page, name):
     value(page, "document.querySelector('#content-tabs').value", name)
     expect(page.locator(f"#panel-{name}")).to_be_visible()
-    expect(page.locator(".view-panel:visible")).to_have_count(1)
+    expect(page.locator("mdui-tab-panel:visible")).to_have_count(1)
+    expect(page.locator("mdui-tab-panel[active]")).to_have_count(1)
     expect(page.locator("mdui-tab[aria-selected=true]")).to_have_attribute("value", name)
     expect(page.locator('mdui-tab[tabindex="0"]')).to_have_count(1)
 
@@ -47,12 +48,12 @@ def desktop(page, context, url):
         selected(page, name)
         expect(page.locator(f"#tab-{name}")).to_be_focused()
     page.locator("#tab-tags").click()
-    page.locator("#tags-list [data-tag]").first.click()
+    page.locator("#tags-list [data-query]").first.click()
     selected(page, "recent")
-    expect(page.locator("#search-view")).to_be_visible()
+    expect(page.locator("#search-toolbar")).to_be_visible()
     page.locator("#tab-recent").focus()
     page.keyboard.press("Enter")
-    expect(page.locator("#search-view")).to_be_hidden()
+    expect(page.locator("#search-toolbar")).to_be_hidden()
     page.locator("#tab-categories").click()
     page.locator("#tab-archive").click()
     page.go_back()
@@ -62,13 +63,13 @@ def desktop(page, context, url):
     page.goto(url + "#tags", wait_until="networkidle")
     selected(page, "tags")
 
-    dropdown = page.locator(".theme-control--desktop mdui-dropdown")
+    dropdown = page.locator(".sidebar-settings mdui-dropdown")
     trigger = dropdown.locator("[slot=trigger]")
     for mode in ("dark", "auto", "light", "light", "auto", "dark"):
         trigger.click()
         dropdown.locator(f"mdui-menu-item[value={mode}]").click()
         value(page, "NekomiTheme.getMode()", mode)
-        page.wait_for_function("""mode => [...document.querySelectorAll('[data-theme-menu]')]
+        page.wait_for_function("""mode => [...document.querySelectorAll('[data-theme-control] mdui-menu')]
             .every(menu => menu.value === mode &&
                 [...menu.children].filter(item => item.selected).length === 1 &&
                 menu.querySelector('[selected]').value === mode)""", arg=mode)
@@ -106,13 +107,13 @@ def desktop(page, context, url):
     expect(page.locator("#tab-recent")).to_be_focused()
 
     page.keyboard.press("/")
-    field = page.locator("#sidebar-desktop mdui-text-field")
+    field = page.locator("[data-sidebar=desktop] mdui-text-field")
     expect(field.locator("input")).to_be_focused()
     field.locator("input").fill("CSS")
-    expect(page.locator("#search-results .post-card")).not_to_have_count(0)
-    value(page, "document.querySelector('#sidebar-drawer mdui-text-field').value", "CSS")
+    expect(page.locator("#post-list .post-card")).to_have_count(2)
+    value(page, "document.querySelector('[data-sidebar=mobile] mdui-text-field').value", "CSS")
     page.keyboard.press("Enter")
-    result = page.locator("#search-results [data-post-id]").first
+    result = page.locator("#post-list .post-title a").first
     expect(result).to_be_focused()
     page.keyboard.press("Enter")
     expect(page.locator("#dialog-close button")).to_be_focused()
@@ -124,14 +125,14 @@ def desktop(page, context, url):
     field.locator("input").fill("no-result-12345")
     expect(page.locator("#search-empty")).to_be_visible()
     field.locator("[part=clear-button]").click()
-    expect(page.locator("#search-view")).to_be_hidden()
+    expect(page.locator("#search-toolbar")).to_be_hidden()
     expect(field.locator("input")).to_be_focused()
     field.locator("input").fill("CSS")
     page.keyboard.press("Escape")
-    expect(page.locator("#search-view")).to_be_hidden()
+    expect(page.locator("#search-toolbar")).to_be_hidden()
     for name in ("categories", "archive"):
         page.locator(f"#tab-{name}").click()
-        post = page.locator(f"#{name}-list [data-post-id]").first
+        post = page.locator(f"#{name}-list [data-post]").first
         post.click()
         expect(page.locator("#dialog-close button")).to_be_focused()
         if name == "categories":
@@ -139,7 +140,10 @@ def desktop(page, context, url):
         else:
             page.locator("#post-dialog [part=overlay]").click(position={"x": 5, "y": 5})
         expect(page.locator("#post-dialog")).to_be_hidden()
-        expect(post).to_be_focused()
+        expect(post.locator("a")).to_be_focused()
+    # Only the exposed navigation container is a tablist; panels are siblings.
+    expect(page.get_by_role("tablist", name="博客内容")).to_have_count(1)
+    expect(page.get_by_role("tab")).to_have_count(4)
     print("PASS desktop: tabs, history, search, themes, menu keyboard and dialog")
 
 
@@ -147,6 +151,7 @@ def mobile(page):
     def open_drawer():
         page.locator("#menu-button").click()
         expect(page.locator("#menu-button")).to_have_attribute("aria-expanded", "true")
+        expect(page.locator("#menu-button button")).to_have_attribute("aria-expanded", "true")
         expect(page.locator("#drawer-close button")).to_be_focused()
 
     def closed():
@@ -154,6 +159,11 @@ def mobile(page):
         expect(page.locator("#menu-button")).to_have_attribute("aria-expanded", "false")
 
     open_drawer()
+    locked_scroll = page.evaluate("scrollY")
+    page.mouse.move(385, 700)
+    page.mouse.wheel(0, 500)
+    page.wait_for_timeout(150)  # Allow the browser to process the real wheel input.
+    assert page.evaluate("scrollY") == locked_scroll
     for key in ("Tab", "Shift+Tab"):
         for _ in range(15):
             page.keyboard.press(key)
@@ -169,15 +179,15 @@ def mobile(page):
     closed()
     page.locator("#tab-recent").focus()
     page.keyboard.press("/")
-    field = page.locator("#sidebar-drawer mdui-text-field")
+    field = page.locator("[data-sidebar=mobile] mdui-text-field")
     expect(field.locator("input")).to_be_focused()
     field.locator("input").fill("CSS")
     page.keyboard.press("Enter")
     closed()
-    expect(page.locator("#search-results [data-post-id]").first).to_be_focused()
-    page.locator("#search-view [data-action=clear-search]").first.click()
+    expect(page.locator("#post-list .post-title a").first).to_be_focused()
+    page.locator("#search-toolbar [data-clear-search]").first.click()
     open_drawer()
-    page.locator("#sidebar-drawer [data-post-id]").first.click()
+    page.locator("[data-sidebar=mobile] [data-post]").first.click()
     closed()
     expect(page.locator("#dialog-close button")).to_be_focused()
     for _ in range(5):
@@ -190,11 +200,47 @@ def mobile(page):
     page.set_viewport_size({"width": 1024, "height": 768})
     closed()
     page.set_viewport_size({"width": 390, "height": 844})
-    dropdown = page.locator(".mobile-bar mdui-dropdown")
+    dropdown = page.locator(".mobile-header mdui-dropdown")
     dropdown.locator("[slot=trigger]").click()
     dropdown.locator("mdui-menu-item[value=dark]").click()
     value(page, "NekomiTheme.getMode()", "dark")
     print("PASS mobile: modal focus, all drawer close paths, search and theme")
+
+
+def reading_checks(page, url):
+    page.locator("#tab-recent").click()
+    page.evaluate("scrollTo(0, 700)")
+    page.wait_for_function("Math.abs(document.querySelector('#content-tabs').shadowRoot.querySelector('[part=container]').getBoundingClientRect().top) < 1")
+    page.locator(".sidebar [data-search] input").fill("CSS")
+    expect(page.locator("#search-toolbar")).to_be_visible()
+    page.locator("#search-chip [part=delete-icon]").click()
+    expect(page.locator("#search-toolbar")).to_be_hidden()
+    expect(page.locator(".post-card")).to_have_count(10)
+    expect(page.locator("#feed-title")).to_be_focused()
+    page.locator(".post-footer mdui-chip").first.click()
+    expect(page.locator("#search-toolbar")).to_be_visible()
+    page.locator(".post-title a").first.click()
+    expect(page.locator("#dialog-close button")).to_be_focused()
+    page.locator("#preview-tags mdui-chip").first.click()
+    expect(page.locator("#post-dialog")).to_be_hidden()
+    expect(page.locator("#feed-title")).to_be_focused()
+    page.locator(".sidebar [data-search] input").fill("not-found-123")
+    page.keyboard.press("Enter")
+    expect(page.locator("#feed-title")).to_be_focused()
+    page.goto(url + "#preview/css-grid-two-column-blog", wait_until="networkidle")
+    expect(page.locator("#post-dialog")).to_be_visible()
+    expect(page.locator("#preview-title")).to_have_text("用 CSS Grid 搭一个稳定的两栏博客布局")
+    page.keyboard.press("Escape")
+    expect(page.locator("#post-dialog")).to_be_hidden()
+    page.set_viewport_size({"width": 1440, "height": 600})
+    assert page.locator(".sidebar").evaluate("el => el.scrollHeight > el.clientHeight")
+    page.locator(".sidebar").evaluate("el => el.scrollTop = el.scrollHeight")
+    expect(page.locator(".sidebar .friend-empty")).to_be_visible()
+    # A footer dropdown must remain usable inside the short sidebar.
+    page.locator(".sidebar-settings [slot=trigger]").click()
+    page.locator(".sidebar-settings mdui-menu-item[value=dark]").click()
+    value(page, "NekomiTheme.getMode()", "dark")
+    print("PASS reading: sticky tabs, chips, preview filters, empty focus, deep link, short sidebar")
 
 
 def main():
@@ -249,6 +295,7 @@ def main():
 
         context, page, errors = new_page(viewport={"width": 1440, "height": 900})
         desktop(page, context, url)
+        reading_checks(page, url)
         assert not errors, errors
         context.close()
         context, page, errors = new_page(viewport={"width": 390, "height": 844},
@@ -256,26 +303,53 @@ def main():
         mobile(page)
         assert not errors, errors
         context.close()
-        for width, height in ((1440, 900), (1024, 768), (901, 768),
-                              (900, 768), (390, 844), (320, 700)):
+        for width, height in ((1440, 900), (1024, 768), (861, 768),
+                              (860, 768), (390, 844), (320, 700)):
             context, page, errors = new_page(viewport={"width": width, "height": height})
             for mode in ("light", "dark"):
                 page.evaluate("mode => NekomiTheme.setMode(mode)", mode)
                 value(page, "getComputedStyle(document.documentElement).colorScheme", mode)
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-                # Wait for the existing color transitions before judging dark-mode rendering.
                 page.wait_for_function(r"""() => {
                     const normalize = value => value.replace(/\s/g, '');
-                    const card = getComputedStyle(document.querySelector('.post-card'));
-                    const title = getComputedStyle(document.querySelector('.post-title__button'));
-                    return normalize(card.backgroundColor) === normalize(card.getPropertyValue('--color-card')) &&
-                        normalize(title.color) === normalize(title.getPropertyValue('--color-text'));
+                    const body = getComputedStyle(document.body);
+                    return normalize(body.backgroundColor) === normalize('rgb(' + body.getPropertyValue('--mdui-color-surface') + ')') &&
+                        normalize(body.color) === normalize('rgb(' + body.getPropertyValue('--mdui-color-on-surface') + ')');
                 }""")
+                if width > 860:
+                    assert page.locator(".sidebar").evaluate("""element => {
+                        const css = getComputedStyle(element);
+                        return css.backgroundColor === 'rgba(0, 0, 0, 0)' &&
+                            css.borderTopWidth === '0px' && css.borderRadius === '0px' && css.boxShadow === 'none';
+                    }""")
                 if args.artifacts:
                     page.screenshot(path=str(args.artifacts / f"{width}-{mode}.png"), animations="disabled")
             assert not errors, errors
             context.close()
-        print("PASS layout: 6 viewport widths in light/dark; no JS or resource failures")
+        print("PASS layout: 6 viewport widths in light/dark; transparent sidebar; no JS or resource failures")
+        context, page, errors = new_page(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
+        mobile(page)
+        assert not errors, errors
+        context.close()
+
+        context, page, errors = new_page(viewport={"width": 1440, "height": 900})
+        fixture = (ROOT / "assets/js/data.js").read_text() + """
+            NekomiData.site.avatar = 'assets/missing-avatar.png';
+            NekomiData.posts[0].cover = 'assets/missing-cover.png';
+            NekomiData.friends = [
+                {name: '<script>unsafe</script>', url: 'javascript:alert(1)'},
+                {name: '友邻', url: 'https://example.com/', avatar: 'assets/missing-friend.png', description: '测试友链'}
+            ];
+        """
+        context.route("**/assets/js/data.js", lambda route: route.fulfill(body=fixture, content_type="text/javascript"))
+        page.reload(wait_until="networkidle")
+        expect(page.locator(".post-cover")).to_have_count(0)
+        expect(page.locator(".site-avatar img, .friend-avatar img")).to_have_count(0)
+        expect(page.locator('.sidebar a[href="https://example.com/"]')).to_have_count(1)
+        expect(page.locator('.sidebar mdui-list-item[href^="javascript:"]')).to_have_count(0)
+        assert not errors, errors
+        context.close()
+        print("PASS reduced motion, image fallbacks and safe friend links")
         browser.close()
     server.shutdown()
     server.server_close()

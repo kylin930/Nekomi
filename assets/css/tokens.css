@@ -1,81 +1,30 @@
-/*
- * Nekopara Theme — P0 Design Tokens
- * 颜色建立在 MDUI 2 的 MD3 令牌之上；页面只消费语义变量。
- * 默认主色调整为柔和的蓝紫色，浅色与深色各自保持足够对比度。
- */
-
+/* 页面仅定义布局与阅读尺度。全部色彩由 MDUI setColorScheme 生成。 */
 :root {
-  /* 柔和蓝紫色主色（覆盖 MDUI 默认的紫罗兰色） */
-  --mdui-color-primary-light: 82, 78, 183;
-  --mdui-color-on-primary-light: 255, 255, 255;
-  --mdui-color-primary-container-light: 228, 225, 255;
-  --mdui-color-on-primary-container-light: 39, 34, 96;
-  --mdui-color-surface-tint-color-light: 82, 78, 183;
-
-  --mdui-color-primary-dark: 198, 194, 255;
-  --mdui-color-on-primary-dark: 48, 43, 110;
-  --mdui-color-primary-container-dark: 66, 61, 138;
-  --mdui-color-on-primary-container-dark: 230, 227, 255;
-  --mdui-color-surface-tint-color-dark: 198, 194, 255;
-
-  /* 布局 */
-  --shell-max-width: 1200px;
-  --shell-padding: 28px;
-  --shell-gap: 28px;
-  --sidebar-width: 280px;
-  --mobile-bar-height: calc(56px + env(safe-area-inset-top, 0px));
-
-  /* 形状 */
-  --radius-sidebar: 20px;
-  --radius-card: 18px;
-  --radius-cover: 12px;
-  --radius-control: 12px;
-  --radius-pill: 999px;
-
-  /* 字体 */
-  --font-sans: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
-
-  /* 动效 */
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --duration-short: 160ms;
-  --duration-medium: 240ms;
+  --site-width: 1248px;
+  --sidebar-width: 248px;
+  --layout-gap: 56px;
+  --page-gutter: 40px;
+  --mobile-header-height: calc(60px + env(safe-area-inset-top, 0px));
+  --reading-font: "Segoe UI", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
-:root,
-.mdui-theme-light,
-.mdui-theme-dark,
-.mdui-theme-auto {
-  /* 页面与表面 */
-  --color-page: rgb(var(--mdui-color-surface));
-  --color-card: rgb(var(--mdui-color-surface-container-low));
-  --color-card-hover: rgb(var(--mdui-color-surface-container));
-  --color-card-active: rgb(var(--mdui-color-surface-container-high));
-  --color-inset: rgba(var(--mdui-color-surface-variant), 0.34);
-  --color-inset-strong: rgba(var(--mdui-color-surface-variant), 0.55);
-  --color-line: rgba(var(--mdui-color-outline-variant), 0.66);
-  --color-line-strong: rgba(var(--mdui-color-outline-variant), 0.92);
+@media (max-width: 1100px) {
+  :root { --layout-gap: 36px; --sidebar-width: 224px; --page-gutter: 28px; }
+}
 
-  /* 文字与强调 */
-  --color-text: rgb(var(--mdui-color-on-surface));
-  --color-text-muted: rgb(var(--mdui-color-on-surface-variant));
-  --color-primary: rgb(var(--mdui-color-primary));
-  --color-primary-soft: rgba(var(--mdui-color-primary), 0.08);
-  --color-primary-soft-strong: rgba(var(--mdui-color-primary), 0.14);
-  --color-primary-border: rgba(var(--mdui-color-primary), 0.32);
-  --color-on-primary-container: rgb(var(--mdui-color-on-primary-container));
-  --color-primary-container: rgb(var(--mdui-color-primary-container));
-  --color-focus-ring: rgba(var(--mdui-color-primary), 0.42);
-
-  /* 阴影与层次：只用极轻的层级，不做玻璃或重阴影 */
-  --shadow-card: 0 1px 2px rgba(var(--mdui-color-shadow), 0.04);
-  --shadow-sticky: 0 1px 0 var(--color-line), 0 8px 20px rgba(var(--mdui-color-shadow), 0.06);
-
-  /* 组件内使用的字体尺度 */
-  --text-card-title: 1.3125rem;
-  --text-card-title-mobile: 1.1875rem;
-  --text-body: 0.9375rem;
-  --text-meta: 0.78125rem;
-  --text-side: 0.875rem;
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mdui-motion-duration-short1: 1ms;
+    --mdui-motion-duration-short2: 1ms;
+    --mdui-motion-duration-short3: 1ms;
+    --mdui-motion-duration-short4: 1ms;
+    --mdui-motion-duration-medium1: 1ms;
+    --mdui-motion-duration-medium2: 1ms;
+    --mdui-motion-duration-medium3: 1ms;
+    --mdui-motion-duration-medium4: 1ms;
+    --mdui-motion-duration-long1: 1ms;
+    --mdui-motion-duration-long2: 1ms;
+    --mdui-motion-duration-long3: 1ms;
+    --mdui-motion-duration-long4: 1ms;
+  }
 }

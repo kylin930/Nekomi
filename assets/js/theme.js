@@ -1,177 +1,89 @@
-/**
- * 主题模式：浅色 / 深色 / 跟随系统
- * - 用 localStorage 记忆用户选择；
- * - 用 MDUI 2 的 mdui-theme-* 类切换颜色令牌；
- * - 桌面 Tabs 栏与移动端工具栏中的菜单共用同一状态。
- */
+/* MDUI 原生主题与菜单，两个入口共享一份用户偏好。 */
 (function () {
   'use strict';
+  if (!window.mdui) return;
 
-  var STORAGE_KEY = 'nekomi-theme';
+  var KEY = 'nekomi-theme';
   var MODES = {
-    light: { icon: 'light_mode', label: '浅色' },
-    dark: { icon: 'dark_mode', label: '深色' },
-    auto: { icon: 'contrast', label: '跟随系统' }
+    light: { label: '浅色', icon: 'light_mode' },
+    dark: { label: '深色', icon: 'dark_mode' },
+    auto: { label: '跟随系统', icon: 'contrast' }
   };
-
-  function isMode(value) {
-    return Object.prototype.hasOwnProperty.call(MODES, value);
-  }
-
-  function readStoredMode() {
+  function read() {
     try {
-      var value = localStorage.getItem(STORAGE_KEY);
-      return isMode(value) ? value : 'auto';
-    } catch (error) {
-      return 'auto';
-    }
+      var value = localStorage.getItem(KEY);
+      return Object.hasOwn(MODES, value) ? value : 'auto';
+    } catch (_) { return 'auto'; }
   }
+  var mode = read();
+  mdui.setColorScheme('#476756');
 
-  function writeStoredMode(value) {
-    try {
-      localStorage.setItem(STORAGE_KEY, value);
-    } catch (error) {
-      /* 隐私模式或禁用存储时忽略，本次会话仍然有效。 */
-    }
-  }
+  document.querySelectorAll('[data-theme-control]').forEach(function (container) {
+    var placement = container.closest('.sidebar') ? 'top-end' : 'bottom-end';
+    container.innerHTML = '<mdui-dropdown placement="' + placement + '">' +
+      '<mdui-button-icon slot="trigger" class="theme-trigger">' +
+        '<mdui-icon data-theme-glyph aria-hidden="true"></mdui-icon>' +
+        '<span class="visually-hidden" data-theme-label></span>' +
+      '</mdui-button-icon><mdui-menu selects="single" role="menu" aria-label="主题模式">' +
+      Object.entries(MODES).map(function (entry) {
+        return '<mdui-menu-item value="' + entry[0] + '" role="menuitemradio">' +
+          '<mdui-icon slot="icon" name="' + entry[1].icon + '" aria-hidden="true"></mdui-icon>' +
+          '<mdui-icon slot="selected-icon" name="check" aria-hidden="true"></mdui-icon>' +
+          entry[1].label + '</mdui-menu-item>';
+      }).join('') + '</mdui-menu></mdui-dropdown>';
+  });
 
-  function getMenus() {
-    return Array.prototype.slice.call(document.querySelectorAll('[data-theme-menu]'));
-  }
-
-  function getIcons() {
-    return Array.prototype.slice.call(document.querySelectorAll('[data-theme-icon]'));
-  }
-
-  var mode = readStoredMode();
-
-  function updateControls() {
-    var meta = MODES[mode];
-    var root = document.documentElement;
-
-    getIcons().forEach(function (button) {
-      button.querySelector('[data-theme-glyph]').setAttribute('name', meta.icon);
-      button.querySelector('[data-theme-label]').textContent = '切换主题（当前：' + meta.label + '）';
-      button.setAttribute('aria-label', '切换主题（当前：' + meta.label + '）');
-      button.setAttribute('title', '当前主题：' + meta.label);
-    });
-
-    getMenus().forEach(function (menu) {
-      // Menu.value 不反射到 HTML attribute；必须使用 property 同步。
-      menu.value = mode;
-      menu.querySelectorAll('mdui-menu-item').forEach(function (item) {
-        item.setAttribute('aria-checked', item.value === mode ? 'true' : 'false');
+  function sync() {
+    document.querySelectorAll('[data-theme-control]').forEach(function (container) {
+      container.querySelector('[data-theme-glyph]').name = MODES[mode].icon;
+      container.querySelector('[data-theme-label]').textContent = '切换主题，当前' + MODES[mode].label;
+      container.querySelector('mdui-menu').value = mode;
+      container.querySelectorAll('mdui-menu-item').forEach(function (item) {
+        item.setAttribute('aria-checked', String(item.value === mode));
       });
     });
-
-    root.dataset.theme = mode;
   }
-
-  function applyMode(next, options) {
-    if (!isMode(next)) {
-      return;
-    }
-
-    var opts = options || {};
+  function apply(next, persist) {
+    if (!Object.hasOwn(MODES, next)) return;
     mode = next;
-    // 首屏恢复在 HTML 中完成；加载后使用官方主题 API。
-    if (window.mdui) {
-      window.mdui.setTheme(mode);
-    } else {
-      // CDN 暂时不可用时，仍保留纯 CSS 的主题回退。
-      var root = document.documentElement;
-      root.classList.remove('mdui-theme-light', 'mdui-theme-dark', 'mdui-theme-auto');
-      root.classList.add('mdui-theme-' + mode);
+    mdui.setTheme(mode);
+    if (persist !== false) {
+      try { localStorage.setItem(KEY, mode); } catch (_) { /* 当前会话仍可切换。 */ }
     }
-
-    if (opts.persist !== false) {
-      writeStoredMode(mode);
-    }
-
-    updateControls();
+    sync();
   }
 
-  function bindMenu(menu) {
-    if (menu.dataset.themeBound === 'true') {
-      return;
-    }
-    menu.dataset.themeBound = 'true';
+  document.querySelectorAll('[data-theme-control] mdui-dropdown').forEach(function (dropdown) {
+    var trigger = dropdown.querySelector('[slot="trigger"]');
+    var menu = dropdown.querySelector('mdui-menu');
+    NekomiA11y.buttonState(trigger, { 'aria-haspopup': 'menu', 'aria-expanded': 'false' });
     menu.addEventListener('change', function (event) {
-      if (event.target !== menu) {
-        return;
-      }
-      var next = menu.value;
-      if (isMode(next) && next !== mode) {
-        applyMode(next);
+      if (event.target !== menu) return;
+      if (Object.hasOwn(MODES, menu.value) && menu.value !== mode) {
+        apply(menu.value);
       } else {
-        // 单选菜单允许取消选中；等本轮组件更新结束后恢复当前主题。
-        // 同步回写可能被 Lit 合并，导致 value 正确但 selected 仍为空。
-        window.requestAnimationFrame(updateControls);
+        // Menu 允许取消单选。下一帧恢复，避免 Lit 合并掉 value 的回写。
+        requestAnimationFrame(sync);
       }
     });
-  }
-
-  function initMenus() {
-    getMenus().forEach(bindMenu);
-    document.querySelectorAll('.theme-control mdui-dropdown').forEach(function (dropdown) {
-      var trigger = dropdown.querySelector('[slot="trigger"]');
-      ['open', 'close'].forEach(function (type) {
-        dropdown.addEventListener(type, function (event) {
-          if (event.target === dropdown) {
-            trigger.setAttribute('aria-expanded', type === 'open' ? 'true' : 'false');
-          }
-        });
-      });
-      dropdown.addEventListener('closed', function (event) {
-        if (event.target !== dropdown) {
-          return;
-        }
-        // 2.1.5 的 Menu 可能在 Dropdown 恢复焦点后异步聚焦已隐藏的菜单项。
-        // 仅修复丢失或仍留在隐藏菜单内的焦点，保留外部点击的目标。
-        var active = document.activeElement;
-        if ((active === document.body || dropdown.contains(active)) &&
-            trigger.getClientRects().length) {
-          trigger.focus({ preventScroll: true });
+    ['open', 'close'].forEach(function (type) {
+      dropdown.addEventListener(type, function (event) {
+        if (event.target === dropdown) {
+          NekomiA11y.buttonState(trigger, { 'aria-expanded': String(type === 'open') });
         }
       });
     });
-    updateControls();
-  }
-
-  function init() {
-    applyMode(mode, { persist: false });
-
-    var ready = window.customElements && window.customElements.whenDefined
-      ? window.customElements.whenDefined('mdui-menu')
-      : Promise.resolve();
-
-    ready.then(initMenus).catch(function () {
-      /* 组件加载失败时保留 CSS 主题切换能力。 */
-      updateControls();
-    });
-
-    window.addEventListener('storage', function (event) {
-      if (event.key === STORAGE_KEY || event.key === null) {
-        applyMode(readStoredMode(), { persist: false });
+    dropdown.addEventListener('closed', function (event) {
+      // 2.1.5 Menu 的异步聚焦可能晚于 Dropdown 的自动恢复，仅补救丢失的焦点。
+      if (event.target === dropdown && trigger.getClientRects().length &&
+          (document.activeElement === document.body || dropdown.contains(document.activeElement))) {
+        trigger.focus({ preventScroll: true });
       }
     });
-  }
-
-  window.NekomiTheme = {
-    getMode: function () {
-      return mode;
-    },
-    setMode: function (next) {
-      applyMode(next);
-    },
-    labelOf: function (value) {
-      return isMode(value) ? MODES[value].label : '';
-    }
-  };
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
-  } else {
-    init();
-  }
+  });
+  window.addEventListener('storage', function (event) {
+    if (event.key === KEY || event.key === null) apply(read(), false);
+  });
+  window.NekomiTheme = { getMode: function () { return mode; }, setMode: apply };
+  apply(mode, false);
 }());
