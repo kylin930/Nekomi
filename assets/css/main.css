@@ -146,35 +146,28 @@ mark { background: rgb(var(--mdui-color-primary-container)); color: rgb(var(--md
 .site-footer { padding: 32px 0 36px; font-size: 11px; line-height: 1.9; color: rgb(var(--mdui-color-outline)); }
 .site-footer p { margin: 0; }
 .footer-dot { margin: 0 8px; }
-.mobile-header { display: none; }
+/* App Bar 参与文档流，外层负责吸顶；避免 2.1.5 固定栏的占位在断点后残留。 */
+[data-site-appbar] { position: sticky; top: 0; z-index: 2000; }
+.site-appbar { display: none; position: relative; }
+.site-appbar mdui-top-app-bar-title { --mdui-typescale-title-large-size: 1.125rem; }
+.site-appbar mdui-top-app-bar-title a { text-decoration: none; }
+[data-theme-control] { display: flex; align-items: center; gap: 4px; }
+.theme-mode-label { font-size: 12px; }
+.site-appbar .theme-mode-label { display: none; }
 #mobile-drawer::part(panel) { width: min(328px, calc(100vw - 40px)); max-width: calc(100vw - 40px); }
 .drawer-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 12px 8px 24px; font-size: 12px; color: rgb(var(--mdui-color-on-surface-variant)); }
 .drawer-content { padding: 16px 16px 32px; }
-#post-dialog { --shape-corner: var(--mdui-shape-corner-extra-large); }
-#post-dialog::part(panel) { width: min(560px, calc(100vw - 40px)); }
-#post-dialog::part(headline) { font-size: 22px; line-height: 1.5; }
-.preview-meta { font-size: 12px; color: rgb(var(--mdui-color-on-surface-variant)); }
-.preview-excerpt { font-size: 16px; line-height: 1.9; margin: 24px 0; }
-.preview-tags { margin-bottom: 24px; }
-.preview-note { font-size: 12px; line-height: 1.8; color: rgb(var(--mdui-color-on-surface-variant)); }
 .loading-note { font-size: 14px; padding: 24px; }
 
 @media (max-width: 860px) {
   html { scroll-padding-top: calc(var(--mobile-header-height) + 64px); }
   .site-layout { display: block; padding: 0 24px; max-width: 760px; }
   .sidebar { display: none; }
-  .mobile-header {
-    position: sticky;
-    top: 0;
-    z-index: 20;
+  .site-appbar {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: var(--mobile-header-height);
-    padding: env(safe-area-inset-top, 0px) 12px 0;
-    background: rgb(var(--mdui-color-surface));
+    height: var(--mobile-header-height);
+    padding-top: calc(.75rem + env(safe-area-inset-top, 0px));
   }
-  .mobile-name { flex: 1; text-align: center; font-size: 16px; font-weight: 600; text-decoration: none; }
   #content-tabs::part(container) { top: var(--mobile-header-height); }
   .view-heading { padding: 24px 2px; }
 }

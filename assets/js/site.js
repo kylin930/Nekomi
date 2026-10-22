@@ -1,0 +1,176 @@
+/* 两个入口共用的页面外壳、侧栏、搜索入口与轻量交互。 */
+(function () {
+  'use strict';
+  if (!window.mdui || !window.NekomiData) return;
+  var data = NekomiData;
+  var site = data.site;
+  var posts = data.posts.slice().sort(function (a, b) { return b.date.localeCompare(a.date); });
+  var isHome = document.body.dataset.page === 'home';
+  var currentId = new URLSearchParams(location.search).get('post');
+  var mobile = matchMedia('(max-width: 860px)');
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  var searchValue = '';
+
+  function html(value) {
+    return String(value).replace(/[&<>"']/g, function (char) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char];
+    });
+  }
+  function safeUrl(value) {
+    if (!value || !String(value).trim()) return '';
+    try {
+      var url = new URL(value, location.href);
+      return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+    } catch (_) { return ''; }
+  }
+  function dateLabel(date) {
+    return new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
+      .format(new Date(date + 'T00:00:00Z'));
+  }
+  function icon(name, slot) {
+    return '<mdui-icon name="' + name + '" aria-hidden="true"' + (slot ? ' slot="' + slot + '"' : '') + '></mdui-icon>';
+  }
+  function postLink(post) { return 'article.html?post=' + encodeURIComponent(post.id); }
+  function filterLink(term) { return 'index.html?q=' + encodeURIComponent(term) + '#recent'; }
+  function avatar(src, fallback, label) {
+    return '<mdui-avatar class="site-avatar" role="img" aria-label="' + html(label) + '">' + html(fallback) +
+      (safeUrl(src) ? '<img src="' + html(safeUrl(src)) + '" alt="" data-avatar>' : '') + '</mdui-avatar>';
+  }
+  function listItem(post, description) {
+    return '<mdui-list-item rounded href="' + postLink(post) + '" data-post="' + html(post.id) +
+      '" headline="' + html(post.title) + '" headline-line="2" description="' + html(description) + '"' +
+      (currentId === post.id ? ' active' : '') + '></mdui-list-item>';
+  }
+  function chip(tag, count) {
+    return '<mdui-chip variant="suggestion" data-query="' + html(tag) + '"' +
+      (isHome ? '' : ' href="' + html(filterLink(tag)) + '"') + '>' + html(tag) +
+      (count ? '<span class="tag-count">' + count + '</span>' : '') + '</mdui-chip>';
+  }
+  function sidebarMarkup() {
+    var friends = data.friends.filter(function (friend) { return safeUrl(friend.url); }).slice(0, 5);
+    return '<div class="profile"><div class="profile-brand">' +
+      avatar(site.avatar, site.avatarFallback || '林', site.avatarAlt || site.name) +
+      '<div><p class="site-name">' + html(site.name) + '</p><p class="site-tagline">' + html(site.tagline) +
+      '</p></div></div><p class="site-intro">' + html(site.intro) + '</p></div>' +
+      '<div class="side-search"><mdui-text-field variant="outlined" type="search" placeholder="搜索文章…" clearable data-search>' +
+      icon('search', 'icon') + '<mdui-button-icon slot="clear-button" tabindex="-1">' + icon('cancel--outlined') +
+      '<span class="visually-hidden">清除搜索</span></mdui-button-icon></mdui-text-field></div>' +
+      '<section class="side-section"><div class="side-section-heading"><h2>最近更新</h2><span>最新 ' + Math.min(posts.length, 5) + ' 篇</span></div>' +
+      '<mdui-list>' + posts.slice(0, 5).map(function (post) { return listItem(post, dateLabel(post.date)); }).join('') + '</mdui-list></section>' +
+      '<section class="side-section"><div class="side-section-heading"><h2>友情链接</h2>' + icon('link') + '</div>' +
+      (friends.length ? '<mdui-list>' + friends.map(function (friend) {
+        var name = String(friend.name || '友邻');
+        return '<mdui-list-item rounded href="' + html(safeUrl(friend.url)) + '" target="_blank" rel="noopener noreferrer" headline="' +
+          html(name) + '" description="' + html(friend.description || '') + '">' +
+          avatar(friend.avatar, name.slice(0, 1), name).replace('class="site-avatar"', 'class="friend-avatar" slot="icon"') + '</mdui-list-item>';
+      }).join('') + '</mdui-list>' : '<p class="friend-empty">这里，留给有趣的邻居。<small>暂时还没有添加友链</small></p>') + '</section>';
+  }
+
+  document.querySelector('[data-site-appbar]').innerHTML = '<mdui-top-app-bar class="site-appbar" variant="small">' +
+    '<mdui-button-icon id="menu-button">' + icon('menu') + '<span class="visually-hidden">打开侧栏</span></mdui-button-icon>' +
+    '<mdui-top-app-bar-title><a href="index.html#recent" data-site-name>' + html(site.name) + '</a></mdui-top-app-bar-title>' +
+    '<div data-theme-control></div></mdui-top-app-bar>';
+  document.querySelector('[data-site-sidebar]').innerHTML = '<div data-sidebar="desktop">' + sidebarMarkup() + '</div>' +
+    '<div class="sidebar-settings"><span>外观</span><div data-theme-control></div></div>';
+  document.querySelector('[data-site-footer]').innerHTML = '<p>© 2026 ' + html(site.name) + '<span class="footer-dot">·</span>分享技术，也记录生活。</p>' +
+    '<p>本站文章、日期与叙事均为演示内容。</p>';
+  document.body.insertAdjacentHTML('beforeend', '<mdui-navigation-drawer id="mobile-drawer" modal close-on-esc close-on-overlay-click role="dialog" aria-modal="true" aria-label="站点侧栏">' +
+    '<div class="drawer-toolbar"><span>我的小窝</span><mdui-button-icon id="drawer-close" autofocus>' + icon('close') +
+    '<span class="visually-hidden">关闭侧栏</span></mdui-button-icon></div><div class="drawer-content" data-sidebar="mobile">' +
+    sidebarMarkup() + '</div></mdui-navigation-drawer><mdui-snackbar id="site-feedback" role="status" aria-live="polite" auto-close-delay="3000"></mdui-snackbar>');
+
+  var drawer = document.getElementById('mobile-drawer');
+  var menuButton = document.getElementById('menu-button');
+  var drawerClose = document.getElementById('drawer-close');
+  function setSearch(value) {
+    searchValue = String(value);
+    document.querySelectorAll('[data-search]').forEach(function (field) { field.value = searchValue; });
+  }
+  function dispatchSearch(value) {
+    setSearch(value);
+    document.dispatchEvent(new CustomEvent('nekomi:search', { detail: searchValue }));
+  }
+  function afterClose(component, callback) {
+    // 2.1.5 在 closed 前排入原生焦点恢复任务，下一任务再聚焦搜索结果。
+    component.addEventListener('closed', function () { setTimeout(callback, 0); }, { once: true });
+    component.open = false;
+  }
+  function openDrawer(search) {
+    drawerClose.autofocus = !search;
+    drawer.querySelector('[data-search]').autofocus = Boolean(search);
+    drawer.open = true;
+  }
+  function enter(element) {
+    if (!element || reduced.matches) return;
+    if (element.nekomiEntrance) element.nekomiEntrance.cancel();
+    element.nekomiEntrance = element.animate([
+      { opacity: 0, transform: 'translateX(12px)' }, { opacity: 1, transform: 'translateX(0)' }
+    ], { duration: 360, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+  }
+  function ready() {
+    document.getElementById('loading-note').hidden = true;
+    document.getElementById('main-content').setAttribute('aria-busy', 'false');
+    requestAnimationFrame(function () { enter(document.getElementById('main-content')); });
+  }
+  function notify(message) {
+    var feedback = document.getElementById('site-feedback');
+    feedback.textContent = message;
+    feedback.open = true;
+  }
+  menuButton.addEventListener('click', function () { openDrawer(false); });
+  drawerClose.addEventListener('click', function () { drawer.open = false; });
+  NekomiA11y.buttonState(menuButton, { 'aria-controls': 'mobile-drawer', 'aria-expanded': 'false', 'aria-haspopup': 'dialog' });
+  ['open', 'close'].forEach(function (type) {
+    drawer.addEventListener(type, function (event) {
+      if (event.target === drawer) NekomiA11y.buttonState(menuButton, { 'aria-expanded': String(type === 'open') });
+    });
+  });
+  mobile.addEventListener('change', function () { if (!mobile.matches) drawer.open = false; });
+  reduced.addEventListener('change', function () {
+    if (reduced.matches) document.getAnimations().forEach(function (animation) {
+      if (animation.effect && animation.effect.target && animation.effect.target.nekomiEntrance === animation) animation.cancel();
+    });
+  });
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) enter(document.getElementById('main-content'));
+  });
+  document.querySelectorAll('[data-search]').forEach(function (field) {
+    field.addEventListener('input', function () { dispatchSearch(field.value); });
+    field.addEventListener('keydown', function (event) {
+      if (event.isComposing) return;
+      if (event.key === 'Escape' && !drawer.open && searchValue) { event.preventDefault(); dispatchSearch(''); }
+      if (event.key === 'Enter' && searchValue.trim()) {
+        event.preventDefault();
+        if (isHome) document.dispatchEvent(new Event('nekomi:search-submit'));
+        else location.href = filterLink(searchValue);
+      }
+    });
+  });
+  document.addEventListener('keydown', function (event) {
+    var active = document.activeElement;
+    if (event.key !== '/' || event.isComposing || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey ||
+        active.isContentEditable || active.matches('input, textarea, select, mdui-text-field')) return;
+    event.preventDefault();
+    if (mobile.matches && !drawer.open) openDrawer(true);
+    else document.querySelector('[data-sidebar="' + (mobile.matches ? 'mobile' : 'desktop') + '"] [data-search]').focus();
+  });
+  document.addEventListener('error', function (event) {
+    var image = event.target;
+    if (!image.matches) return;
+    if (image.matches('[data-cover]')) image.closest('.post-cover').remove();
+    else if (image.matches('[data-avatar]')) image.remove();
+    else if (image.matches('[data-hero]')) image.closest('figure').remove();
+    else if (image.matches('.prose img')) {
+      var fallback = document.createElement('p');
+      fallback.className = 'image-fallback';
+      fallback.setAttribute('role', 'note');
+      fallback.textContent = '图片暂时无法显示' + (image.alt ? '：' + image.alt : '');
+      image.replaceWith(fallback);
+    }
+  }, true);
+  window.NekomiSite = {
+    html: html, safeUrl: safeUrl, dateLabel: dateLabel, icon: icon, postLink: postLink, filterLink: filterLink,
+    posts: posts, listItem: listItem, chip: chip, drawer: drawer, setSearch: setSearch,
+    afterClose: afterClose, enter: enter, ready: ready, notify: notify
+  };
+}());

@@ -23,30 +23,17 @@
   <script src="https://unpkg.com/mdui@2.1.5/mdui.global.js" defer></script>
   <script src="assets/js/data.js" defer></script>
   <script src="assets/js/a11y.js" defer></script>
+  <script src="assets/js/site.js" defer></script>
   <script src="assets/js/theme.js" defer></script>
   <script src="assets/js/app.js" defer></script>
 </head>
-<body>
+<body data-page="home">
   <a class="skip-link" href="#main-content">跳到主要内容</a>
-  <header class="mobile-header">
-    <mdui-button-icon id="menu-button" aria-controls="mobile-drawer" aria-expanded="false">
-      <mdui-icon name="menu" aria-hidden="true"></mdui-icon>
-      <span class="visually-hidden">打开侧栏</span>
-    </mdui-button-icon>
-    <a class="mobile-name" href="#recent" data-site-name>小林的小窝</a>
-    <div data-theme-control></div>
-  </header>
-
+  <div data-site-appbar></div>
   <div class="site-layout">
-    <aside class="sidebar" aria-label="站点信息">
-      <div data-sidebar="desktop"></div>
-      <div class="sidebar-settings">
-        <span>外观</span>
-        <div data-theme-control></div>
-      </div>
-    </aside>
+    <aside class="sidebar" aria-label="站点信息" data-site-sidebar></aside>
 
-    <main id="main-content" tabindex="-1">
+    <main id="main-content" tabindex="-1" aria-busy="true">
       <p id="loading-note" class="loading-note" role="status">正在载入文章…</p>
       <mdui-tabs id="content-tabs" value="recent" variant="secondary" aria-label="博客内容">
         <mdui-tab id="tab-recent" value="recent" role="tab" aria-controls="panel-recent">最近发布</mdui-tab>
@@ -91,33 +78,9 @@
           <div id="archive-list" class="collection-list"></div>
         </mdui-tab-panel>
       </mdui-tabs>
-      <footer class="site-footer">
-        <p>© 2026 <span data-site-name>小林的小窝</span><span class="footer-dot">·</span>分享技术，也记录生活。</p>
-        <p>文章与日期均为演示数据。阅读页仍在路上。</p>
-      </footer>
+      <footer class="site-footer" data-site-footer></footer>
     </main>
   </div>
-
-  <mdui-navigation-drawer id="mobile-drawer" modal close-on-esc close-on-overlay-click role="dialog" aria-modal="true" aria-label="站点侧栏">
-    <div class="drawer-toolbar">
-      <span>我的小窝</span>
-      <mdui-button-icon id="drawer-close" autofocus>
-        <mdui-icon name="close" aria-hidden="true"></mdui-icon>
-        <span class="visually-hidden">关闭侧栏</span>
-      </mdui-button-icon>
-    </div>
-    <div class="drawer-content" data-sidebar="mobile"></div>
-  </mdui-navigation-drawer>
-
-  <mdui-dialog id="post-dialog" close-on-esc close-on-overlay-click role="dialog" aria-modal="true" aria-labelledby="preview-title" aria-describedby="preview-excerpt">
-    <span slot="headline" id="preview-title"></span>
-    <div class="preview-meta" id="preview-meta"></div>
-    <p id="preview-excerpt" class="preview-excerpt"></p>
-    <div id="preview-tags" class="preview-tags"></div>
-    <mdui-divider></mdui-divider>
-    <p class="preview-note">你正在阅读演示文章的摘要。完整阅读页尚未实现。</p>
-    <mdui-button slot="action" variant="text" id="dialog-close" autofocus>返回列表</mdui-button>
-  </mdui-dialog>
   <noscript><p class="loading-note">请启用 JavaScript，以浏览文章和使用搜索。</p></noscript>
 </body>
 </html>

@@ -1,0 +1,10 @@
+<p>这篇演示笔记讨论吸顶状态的观察。一个标题看起来固定在顶部，并不意味着需要每一帧都执行 JavaScript。</p>
+<h2 id="css-first">先试 CSS sticky</h2><p>如果需求只是让导航停在某个位置，<code>position: sticky</code> 通常已经足够。需要注意滚动祖先的 overflow，以及固定顶部栏占用的高度。Nekomi 的首页 Tabs 使用原生组件的吸顶能力。</p>
+<h2 id="sentinel">确实需要状态时，再放一个哨兵</h2><p>例如只有导航吸顶后才显示边界提示，可以在导航前放置一个无视觉内容的观察点。观察回调只在交叉状态变化时执行，避免把简单的样式变化变成持续的布局计算。</p><pre><code class="language-javascript">const observer = new IntersectionObserver(([entry]) =&gt; {
+  nav.classList.toggle('is-stuck', !entry.isIntersecting);
+}, { threshold: 0 });
+
+observer.observe(sentinel);
+// 销毁页面功能时：observer.disconnect();</code></pre>
+<h3 id="limits">观察范围需要明确</h3><p>有独立滚动容器时，root 应指向真正的滚动区域。顶部固定元素遮挡内容时，也要检查 rootMargin。不要把一次交叉变化理解成连续的滚动进度。</p>
+<h2 id="section">章节高亮是另一类需求</h2><p>文章目录需要根据标题位置确定当前章节。可以使用观察器，也可以在滚动时合并到 requestAnimationFrame，并只做必要读取。应根据章节数量、边界行为和实际测试选择方式。</p><p>无论哪种方案，都要验证短章节、页面底部、直接打开锚点和浏览器返回。实现方式的名字不能代替行为验证。</p>

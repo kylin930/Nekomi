@@ -4,7 +4,7 @@
   --sidebar-width: 248px;
   --layout-gap: 56px;
   --page-gutter: 40px;
-  --mobile-header-height: calc(60px + env(safe-area-inset-top, 0px));
+  --mobile-header-height: calc(64px + env(safe-area-inset-top, 0px));
   --reading-font: "Segoe UI", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 

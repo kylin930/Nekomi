@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN" class="mdui-theme-auto">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="小林的小窝，分享前端技术、设计与生活。中文技术文章与长文阅读演示。">
+  <meta name="color-scheme" content="light dark">
+  <title>文章阅读 · 小林的小窝</title>
+  <link rel="icon" href="data:,">
+  <script>
+    try {
+      var savedTheme = localStorage.getItem('nekomi-theme');
+      document.documentElement.className = 'mdui-theme-' +
+        (['light', 'dark', 'auto'].includes(savedTheme) ? savedTheme : 'auto');
+    } catch (_) { /* 无存储权限时跟随系统。 */ }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Icons&family=Material+Icons+Outlined&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/mdui@2.1.5/mdui.css">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/article.css">
+  <script src="https://unpkg.com/mdui@2.1.5/mdui.global.js" defer></script>
+  <script src="assets/js/data.js" defer></script>
+  <script src="assets/js/a11y.js" defer></script>
+  <script src="assets/js/site.js" defer></script>
+  <script src="assets/js/theme.js" defer></script>
+  <script src="assets/js/article.js" defer></script>
+</head>
+<body data-page="article">
+  <a class="skip-link" href="#main-content">跳到文章正文</a>
+  <div data-site-appbar></div>
+  <div class="site-layout reading-layout">
+    <aside class="sidebar" aria-label="站点信息" data-site-sidebar></aside>
+    <main id="main-content" tabindex="-1" aria-busy="true">
+      <p id="loading-note" class="loading-note" role="status">正在载入文章…</p>
+      <article id="reader" class="reader" hidden>
+        <nav class="reader-breadcrumb" aria-label="返回导航">
+          <mdui-button variant="text" href="index.html#recent"><mdui-icon slot="icon" name="arrow_back" aria-hidden="true"></mdui-icon>返回文章列表</mdui-button>
+        </nav>
+        <header class="reader-header">
+          <div class="reader-kicker"><a id="article-category"></a><span>演示文章</span></div>
+          <h1 id="article-title"></h1>
+          <p class="reader-meta"><time id="article-date"></time><span aria-hidden="true">·</span><span id="article-source"></span></p>
+          <div id="article-tags" class="post-tags"></div>
+          <p class="article-demo-note">本文为主题演示内容，不代表站长的真实经历。</p>
+        </header>
+        <div id="article-hero"></div>
+        <mdui-card variant="outlined" class="toc-inline">
+          <mdui-collapse id="inline-toc" accordion>
+            <mdui-collapse-item value="contents" id="inline-toc-item">
+              <mdui-button slot="header" variant="text" class="toc-toggle" id="toc-toggle">
+                <span id="toc-toggle-label">文章目录</span><mdui-icon slot="end-icon" id="toc-toggle-icon" name="expand_more" aria-hidden="true"></mdui-icon>
+              </mdui-button>
+              <nav id="toc-inline-list" class="toc-content" aria-label="折叠文章目录"></nav>
+            </mdui-collapse-item>
+          </mdui-collapse>
+        </mdui-card>
+        <div id="article-body" class="prose"></div>
+        <footer class="reader-footer">
+          <p class="reader-endnote">本文仅用于阅读体验演示。感谢读到这里。</p>
+          <mdui-divider></mdui-divider>
+          <nav id="article-neighbors" class="article-neighbors" aria-label="相邻文章"></nav>
+          <mdui-button variant="tonal" href="index.html#recent">返回文章列表</mdui-button>
+        </footer>
+      </article>
+      <mdui-card id="article-error" variant="outlined" class="reader-error" hidden>
+        <mdui-icon name="article--outlined" aria-hidden="true"></mdui-icon>
+        <h1 id="article-error-title">没有找到这篇文章</h1>
+        <p id="article-error-message"></p>
+        <mdui-button variant="tonal" href="index.html#recent">返回文章列表</mdui-button>
+        <mdui-button id="article-retry" variant="text" hidden>重新加载</mdui-button>
+      </mdui-card>
+      <footer class="site-footer" data-site-footer></footer>
+    </main>
+    <aside class="reading-toc" id="reading-toc" aria-label="阅读辅助" hidden>
+      <p class="toc-label">本文目录</p>
+      <nav id="toc-desktop-list" aria-label="文章目录"></nav>
+    </aside>
+  </div>
+  <noscript><p class="loading-note">请启用 JavaScript，以载入文章正文与目录。</p></noscript>
+</body>
+</html>

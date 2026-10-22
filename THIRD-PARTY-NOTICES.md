@@ -6,7 +6,7 @@
 
 ### MDUI 2.1.5
 
-- 用途：Material Design 3 Web Components（Tabs / Tab Panel、Avatar、Card、List / List Item、Chip、Button、Text Field、Dropdown、Menu、Dialog、Navigation Drawer 等）与 MD3 Design Tokens。
+- 用途：Material Design 3 Web Components（Tabs / Tab Panel、Avatar、Card、List / List Item、Chip、Button、Text Field、Top App Bar、Collapse、Snackbar、Navigation Drawer 等）与 MD3 Design Tokens。
 - 引入方式：unpkg CDN，固定版本，不使用 `latest`。
   - `https://unpkg.com/mdui@2.1.5/mdui.css`
   - `https://unpkg.com/mdui@2.1.5/mdui.global.js`
@@ -30,7 +30,7 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 
 ### Stellar
 
-- 参考范围：融入页面的透明侧栏、内容区顶部切换栏、两栏布局、吸顶行为与内容层级。
+- 参考范围：融入页面的透明侧栏、内容区顶部切换栏、两栏布局、吸顶行为、文章辅助目录与内容层级。
 - 项目：https://github.com/xaoxuu/hexo-theme-stellar
 - 实际页面：https://xaoxuu.com/
 - 文档：https://xaoxuu.com/wiki/stellar/
@@ -39,7 +39,7 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 
 ### G
 
-- 参考范围：自然的文章卡片排版、标题 / 摘要 / 日期 / 标签的节奏、圆角卡片与阅读密度。
+- 参考范围：自然的文章卡片排版、标题 / 摘要 / 日期 / 标签的节奏、圆角卡片、正文阅读节奏与排版密度。
 - 项目：https://github.com/youranreus/G
 - 许可证：GPL-3.0
 - 复用情况：没有复制 G 的任何 PHP、CSS、JavaScript、图片或素材；本项目为纯静态 HTML/CSS/JS，不包含 GPL 代码。
