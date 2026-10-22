@@ -243,6 +243,40 @@ def reading_checks(page, url):
     print("PASS reading: sticky tabs, chips, preview filters, empty focus, deep link, short sidebar")
 
 
+def cover_checks(page):
+    for width, height in ((1440, 900), (1024, 768), (861, 768), (860, 768), (390, 844), (320, 700)):
+        page.set_viewport_size({"width": width, "height": height})
+        page.wait_for_function("document.querySelector('[data-cover]').complete && document.querySelector('[data-cover]').naturalWidth > 0")
+        geometry = page.locator(".post-card").first.evaluate("""card => {
+            const copy = card.querySelector('.post-copy').getBoundingClientRect();
+            const cover = card.querySelector('.post-cover').getBoundingClientRect();
+            const footer = card.querySelector('.post-footer').getBoundingClientRect();
+            return {cardWidth: card.getBoundingClientRect().width, copyX: copy.x, copyY: copy.y,
+                copyRight: copy.right, copyBottom: copy.bottom, coverX: cover.x, coverBottom: cover.bottom,
+                coverY: cover.y, coverWidth: cover.width, coverHeight: cover.height, footerY: footer.y};
+        }""")
+        if geometry["cardWidth"] >= 640:
+            assert geometry["coverX"] >= geometry["copyRight"] + 20, geometry
+            assert geometry["coverWidth"] <= 224, geometry
+        else:
+            assert geometry["coverBottom"] + 16 <= geometry["copyY"], geometry
+            assert geometry["coverHeight"] <= 240, geometry
+        assert geometry["footerY"] >= max(geometry["coverBottom"], geometry["copyBottom"]), geometry
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+    page.set_viewport_size({"width": 1440, "height": 900})
+    page.locator(".post-cover").first.click()
+    expect(page.locator("#dialog-close button")).to_be_focused()
+    page.keyboard.press("Escape")
+    expect(page.locator(".post-cover").first).to_be_focused()
+    page.evaluate("NekomiTheme.setMode('dark')")
+    page.locator(".post-cover").first.focus()
+    page.keyboard.press("Enter")
+    expect(page.locator("#dialog-close button")).to_be_focused()
+    page.keyboard.press("Escape")
+    expect(page.locator(".post-cover").first).to_be_focused()
+    print("PASS covers: wide/narrow card layout, landscape/portrait crop, footer flow and keyboard preview")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--chromium", default=shutil.which("chromium"))
@@ -344,12 +378,28 @@ def main():
         context.route("**/assets/js/data.js", lambda route: route.fulfill(body=fixture, content_type="text/javascript"))
         page.reload(wait_until="networkidle")
         expect(page.locator(".post-cover")).to_have_count(0)
+        assert page.locator(".post-card").first.evaluate("""card => {
+            const main = card.querySelector('.post-main').getBoundingClientRect();
+            const copy = card.querySelector('.post-copy').getBoundingClientRect();
+            return Math.abs(main.width - copy.width) < 1;
+        }""")
         expect(page.locator(".site-avatar img, .friend-avatar img")).to_have_count(0)
         expect(page.locator('.sidebar a[href="https://example.com/"]')).to_have_count(1)
         expect(page.locator('.sidebar mdui-list-item[href^="javascript:"]')).to_have_count(0)
         assert not errors, errors
         context.close()
         print("PASS reduced motion, image fallbacks and safe friend links")
+        context, page, errors = new_page(viewport={"width": 1440, "height": 900})
+        # Existing project screenshots are temporary media fixtures, never default post data.
+        fixture = (ROOT / "assets/js/data.js").read_text() + """
+            NekomiData.posts[0].cover = 'screenshots/desktop-light-1440x900.png';
+            NekomiData.posts[1].cover = 'screenshots/mobile-dark-390x844.png';
+        """
+        context.route("**/assets/js/data.js", lambda route: route.fulfill(body=fixture, content_type="text/javascript"))
+        page.reload(wait_until="networkidle")
+        cover_checks(page)
+        assert not errors, errors
+        context.close()
         browser.close()
     server.shutdown()
     server.server_close()

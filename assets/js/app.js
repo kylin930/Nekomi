@@ -79,15 +79,17 @@
   }
   function article(post) {
     var cover = safeUrl(post.cover);
-    return '<mdui-card variant="outlined" class="post-card"><article>' +
-      (cover ? '<img class="post-cover" src="' + html(cover) + '" alt="" loading="lazy" data-cover>' : '') +
-      '<div class="post-content"><div class="post-meta"><time datetime="' + html(post.date) + '">' + dateLabel(post.date) +
+    return '<mdui-card variant="outlined" class="post-card"><article class="post-content">' +
+      '<div class="post-main"><div class="post-copy"><div class="post-meta"><time datetime="' + html(post.date) + '">' + dateLabel(post.date) +
       '</time><span aria-hidden="true">/</span><span class="post-category">' + html(post.category) + '</span></div>' +
       '<h2 class="post-title"><a href="' + postLink(post) + '" data-post="' + html(post.id) + '" aria-haspopup="dialog">' + highlight(post.title) + '</a></h2>' +
-      '<p class="post-excerpt">' + highlight(post.excerpt) + '</p>' +
-      '<div class="post-footer"><div class="post-tags">' + post.tags.map(function (tag) { return chip(tag); }).join('') + '</div>' +
+      '<p class="post-excerpt">' + highlight(post.excerpt) + '</p></div>' +
+      (cover ? '<a class="post-cover" href="' + postLink(post) + '" data-post="' + html(post.id) +
+        '" aria-haspopup="dialog" aria-label="预览文章：' + html(post.title) + '">' +
+        '<img src="' + html(cover) + '" alt="" loading="lazy" decoding="async" data-cover></a>' : '') +
+      '</div><div class="post-footer"><div class="post-tags">' + post.tags.map(function (tag) { return chip(tag); }).join('') + '</div>' +
       '<mdui-button variant="text" data-post="' + html(post.id) + '" aria-haspopup="dialog">预览文章' + icon('arrow_forward', 'end-icon') +
-      '</mdui-button></div></div></article></mdui-card>';
+      '</mdui-button></div></article></mdui-card>';
   }
   function renderFeed() {
     var needle = query.trim().toLocaleLowerCase();
@@ -248,7 +250,9 @@
     else document.querySelector('[data-sidebar="' + (mobile.matches ? 'mobile' : 'desktop') + '"] [data-search]').focus();
   });
   document.addEventListener('error', function (event) {
-    if (event.target.matches && event.target.matches('[data-cover], [data-avatar]')) event.target.remove();
+    if (!event.target.matches) return;
+    if (event.target.matches('[data-cover]')) event.target.closest('.post-cover').remove();
+    if (event.target.matches('[data-avatar]')) event.target.remove();
   }, true);
   status.hidden = true;
   readLocation();

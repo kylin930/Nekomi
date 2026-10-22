@@ -29,6 +29,8 @@ python3 -m http.server 8080 --bind 127.0.0.1
 
 没有复制 G 的 PHP、CSS、JavaScript 或图片，也没有引入其他 UI 框架、插画、背景图或占位美术资源。参考范围与许可证见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
 
+封面布局示例：[桌面右侧封面](screenshots/cover-layout-desktop-1440x900.png) · [手机上方封面](screenshots/cover-layout-mobile-390x844.png)。示例仅在浏览器测试中临时引用本项目已有界面截图，默认演示文章保持无图状态；配置 `cover` 后自动采用该布局。
+
 ## 数据配置
 
 编辑 [`assets/js/data.js`](assets/js/data.js)：
@@ -47,7 +49,7 @@ site: {
 文章字段为 `id`、`title`、`excerpt`、`date`（`YYYY-MM-DD`）、`category`、`tags` 与可选的 `cover`。友链字段为 `name`、`url`、`avatar` 与 `description`。
 
 - 头像缺失或加载失败：回退为文字。
-- 封面缺失：不创建图片区域；有封面时显示在文章顶部，坏图自动移除。
+- 封面缺失：不创建图片区域；宽卡片封面在右，窄卡片在上，坏图连同链接区域自动移除。
 - 友链默认空，不编造真实站点。配置后显示最多 5 个。
 - 搜索标题、摘要、分类和标签；分类按钮、标签 Chip 可直接筛选。
 

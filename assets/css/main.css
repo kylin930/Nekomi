@@ -92,8 +92,11 @@ h1 { margin: 0; font-size: var(--mdui-typescale-headline-medium-size); line-heig
 .demo-note { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; font-size: 11px; color: rgb(var(--mdui-color-outline)); }
 .demo-note mdui-icon { font-size: 16px; }
 .post-list { display: grid; gap: 18px; }
-.post-card { display: block; --shape-corner: var(--mdui-shape-corner-large); }
+.post-card { display: block; container: article-card / inline-size; --shape-corner: var(--mdui-shape-corner-large); }
 .post-content { padding: 24px 28px 16px; }
+.post-main { display: grid; grid-template-areas: "copy"; }
+.post-copy { grid-area: copy; min-width: 0; }
+.post-main:has(.post-cover) { grid-template-areas: "cover" "copy"; gap: 18px; }
 .post-meta { display: flex; align-items: center; gap: 10px; font-size: 12px; color: rgb(var(--mdui-color-on-surface-variant)); }
 .post-category { color: rgb(var(--mdui-color-primary)); }
 .post-title { overflow-wrap: anywhere; margin: 12px 0 10px; font-size: var(--mdui-typescale-title-large-size); font-weight: 600; line-height: 1.5; letter-spacing: -.025em; }
@@ -103,7 +106,27 @@ h1 { margin: 0; font-size: var(--mdui-typescale-headline-medium-size); line-heig
 .post-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 16px; }
 .post-tags, .preview-tags { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
 .post-footer > mdui-button { flex-shrink: 0; }
-.post-cover { display: block; width: 100%; max-height: 280px; object-fit: cover; }
+.post-cover {
+  grid-area: cover;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 240px;
+  overflow: hidden;
+  border-radius: var(--mdui-shape-corner-medium);
+  background: rgb(var(--mdui-color-surface-container));
+}
+.post-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* 按卡片可用宽度决定构图；避免侧栏挤窄正文时仍强行并排。 */
+@container article-card (min-width: 640px) {
+  .post-main:has(.post-cover) {
+    grid-template-areas: "copy cover";
+    grid-template-columns: minmax(0, 1fr) min(28%, 224px);
+    gap: 24px;
+    align-items: center;
+  }
+  .post-cover { aspect-ratio: 4 / 3; }
+}
 .search-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-bottom: 22px; }
 mark { background: rgb(var(--mdui-color-primary-container)); color: rgb(var(--mdui-color-on-primary-container)); }
 .empty-state { display: block; padding: 48px 24px; text-align: center; }
