@@ -536,11 +536,15 @@ mdui-menu-item:focus-visible {
   --mdui-typescale-title-small-size: 0.9375rem;
   --mdui-typescale-title-small-weight: 500;
   --mdui-typescale-title-small-line-height: 1.25rem;
-  --mdui-color-surface-variant: var(--mdui-color-surface);
 }
 
 #content-tabs::part(container) {
   background: transparent;
+}
+
+/* 通过公开 part 调整分隔线，不改写传给子组件的语义颜色令牌。 */
+#content-tabs::part(container)::after {
+  background-color: transparent;
 }
 
 #content-tabs::part(indicator) {

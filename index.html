@@ -21,7 +21,6 @@
         root.classList.remove('mdui-theme-light', 'mdui-theme-dark', 'mdui-theme-auto');
         root.classList.add('mdui-theme-' + mode);
         root.dataset.theme = mode;
-        root.style.colorScheme = mode === 'auto' ? 'light dark' : mode;
       } catch (error) {
         document.documentElement.classList.add('mdui-theme-auto');
       }
@@ -41,15 +40,33 @@
 
   <!-- 移动端顶部工具栏：菜单、站点名、主题切换 -->
   <header class="mobile-bar" aria-label="移动端工具栏">
-    <mdui-button-icon id="menu-button" icon="menu" aria-label="打开侧栏" aria-controls="mobile-drawer" aria-expanded="false"></mdui-button-icon>
+    <mdui-button-icon id="menu-button" aria-label="打开侧栏" aria-controls="mobile-drawer" aria-expanded="false">
+      <mdui-icon name="menu" aria-hidden="true"></mdui-icon>
+      <span class="visually-hidden">打开侧栏</span>
+    </mdui-button-icon>
     <span class="mobile-brand" data-site-name>小林的小窝</span>
     <div class="theme-control">
       <mdui-dropdown placement="bottom-end">
-        <mdui-button-icon slot="trigger" icon="contrast" data-theme-icon aria-label="切换主题" title="切换主题"></mdui-button-icon>
-        <mdui-menu selects="single" value="auto" data-theme-menu aria-label="主题模式">
-          <mdui-menu-item value="light" icon="light_mode" selected-icon="check">浅色</mdui-menu-item>
-          <mdui-menu-item value="dark" icon="dark_mode" selected-icon="check">深色</mdui-menu-item>
-          <mdui-menu-item value="auto" icon="contrast" selected-icon="check">跟随系统</mdui-menu-item>
+        <mdui-button-icon slot="trigger" data-theme-icon aria-haspopup="menu" aria-expanded="false" aria-label="切换主题" title="切换主题">
+          <mdui-icon name="contrast" data-theme-glyph aria-hidden="true"></mdui-icon>
+          <span class="visually-hidden" data-theme-label>切换主题</span>
+        </mdui-button-icon>
+        <mdui-menu selects="single" value="auto" data-theme-menu role="menu" aria-label="主题模式">
+          <mdui-menu-item value="light" role="menuitemradio" aria-checked="false">
+            <mdui-icon slot="icon" name="light_mode" aria-hidden="true"></mdui-icon>
+            <mdui-icon slot="selected-icon" name="check" aria-hidden="true"></mdui-icon>
+            浅色
+          </mdui-menu-item>
+          <mdui-menu-item value="dark" role="menuitemradio" aria-checked="false">
+            <mdui-icon slot="icon" name="dark_mode" aria-hidden="true"></mdui-icon>
+            <mdui-icon slot="selected-icon" name="check" aria-hidden="true"></mdui-icon>
+            深色
+          </mdui-menu-item>
+          <mdui-menu-item value="auto" role="menuitemradio" aria-checked="false">
+            <mdui-icon slot="icon" name="contrast" aria-hidden="true"></mdui-icon>
+            <mdui-icon slot="selected-icon" name="check" aria-hidden="true"></mdui-icon>
+            跟随系统
+          </mdui-menu-item>
         </mdui-menu>
       </mdui-dropdown>
     </div>
@@ -84,11 +101,26 @@
 
           <div class="theme-control theme-control--desktop">
             <mdui-dropdown placement="bottom-end">
-              <mdui-button-icon slot="trigger" icon="contrast" data-theme-icon aria-label="切换主题" title="切换主题"></mdui-button-icon>
-              <mdui-menu selects="single" value="auto" data-theme-menu aria-label="主题模式">
-                <mdui-menu-item value="light" icon="light_mode" selected-icon="check">浅色</mdui-menu-item>
-                <mdui-menu-item value="dark" icon="dark_mode" selected-icon="check">深色</mdui-menu-item>
-                <mdui-menu-item value="auto" icon="contrast" selected-icon="check">跟随系统</mdui-menu-item>
+              <mdui-button-icon slot="trigger" data-theme-icon aria-haspopup="menu" aria-expanded="false" aria-label="切换主题" title="切换主题">
+                <mdui-icon name="contrast" data-theme-glyph aria-hidden="true"></mdui-icon>
+                <span class="visually-hidden" data-theme-label>切换主题</span>
+              </mdui-button-icon>
+              <mdui-menu selects="single" value="auto" data-theme-menu role="menu" aria-label="主题模式">
+                <mdui-menu-item value="light" role="menuitemradio" aria-checked="false">
+                  <mdui-icon slot="icon" name="light_mode" aria-hidden="true"></mdui-icon>
+                  <mdui-icon slot="selected-icon" name="check" aria-hidden="true"></mdui-icon>
+                  浅色
+                </mdui-menu-item>
+                <mdui-menu-item value="dark" role="menuitemradio" aria-checked="false">
+                  <mdui-icon slot="icon" name="dark_mode" aria-hidden="true"></mdui-icon>
+                  <mdui-icon slot="selected-icon" name="check" aria-hidden="true"></mdui-icon>
+                  深色
+                </mdui-menu-item>
+                <mdui-menu-item value="auto" role="menuitemradio" aria-checked="false">
+                  <mdui-icon slot="icon" name="contrast" aria-hidden="true"></mdui-icon>
+                  <mdui-icon slot="selected-icon" name="check" aria-hidden="true"></mdui-icon>
+                  跟随系统
+                </mdui-menu-item>
               </mdui-menu>
             </mdui-dropdown>
           </div>
@@ -156,15 +188,18 @@
   </div>
 
   <!-- 移动端侧栏抽屉，内容由与桌面侧栏相同的一份数据渲染 -->
-  <mdui-navigation-drawer id="mobile-drawer" modal close-on-esc close-on-overlay-click placement="left" aria-label="站点侧栏">
+  <mdui-navigation-drawer id="mobile-drawer" modal close-on-esc close-on-overlay-click placement="left" role="dialog" aria-modal="true" aria-label="站点侧栏">
     <div class="drawer-toolbar">
-      <mdui-button-icon id="drawer-close" icon="close" aria-label="关闭侧栏" autofocus></mdui-button-icon>
+      <mdui-button-icon id="drawer-close" aria-label="关闭侧栏" autofocus>
+        <mdui-icon name="close" aria-hidden="true"></mdui-icon>
+        <span class="visually-hidden">关闭侧栏</span>
+      </mdui-button-icon>
     </div>
     <div class="sidebar-inner drawer-inner" id="sidebar-drawer"></div>
   </mdui-navigation-drawer>
 
   <!-- 未实现正式文章页时的明确预览占位 -->
-  <mdui-dialog id="post-dialog" close-on-esc close-on-overlay-click>
+  <mdui-dialog id="post-dialog" role="dialog" aria-modal="true" aria-describedby="dialog-excerpt" close-on-esc close-on-overlay-click>
     <div class="dialog-body">
       <div class="dialog-meta" id="dialog-meta"></div>
       <p class="dialog-excerpt" id="dialog-excerpt"></p>
@@ -174,7 +209,7 @@
         <span>这是 P0 演示预览，完整文章页将在后续版本实现。</span>
       </p>
     </div>
-    <mdui-button slot="action" variant="tonal" id="dialog-close">关闭</mdui-button>
+    <mdui-button slot="action" variant="tonal" id="dialog-close" autofocus>关闭</mdui-button>
   </mdui-dialog>
 
   <script src="assets/js/data.js" defer></script>

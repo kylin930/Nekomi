@@ -219,6 +219,23 @@ friends: [
 
 ---
 
+### MDUI 2.1.5 组件审计与回归
+
+已对照 [MDUI 2 官方文档](https://www.mdui.org/zh-cn/docs/2/)及固定版本源码核对组件 API：
+
+- Drawer、Dialog 的焦点约束、Escape / 遮罩关闭与焦点恢复由组件负责；跨组件跳转等待 `closed`，移除固定动画延时。
+- Tabs 的激活统一走组件 `click()` / `change`；2.1.5 未提供的键盘导航及 ARIA 继续补齐。面板保留在吸顶导航之外，保持原布局。
+- 主题使用 `setTheme()`，Menu 使用 `value` property 同步，处理重复选择、跨页面存储更新及系统明暗变化；不再用内联 `color-scheme` 覆盖自动模式。
+- 修复 2.1.5 Menu 异步焦点更新与 Dropdown 关闭的竞争：仅在焦点丢失或仍在隐藏菜单内时恢复到触发按钮。
+- Text Field 直接消费内置清空操作的 `input` 事件；图标及清空按钮通过官方 slots 提供可读名称。
+- Design Tokens 名称与 2.1.5 一致；Tabs 分隔线改用公开 CSS Part，避免改写子组件继承的颜色令牌。
+
+可复现的浏览器回归见 [tests/README.md](tests/README.md)。本轮在 Chromium 中检查桌面、移动端、6 个宽度的明暗模式、主题记忆、键盘、搜索、URL 历史和模态交互；另检查短屏侧栏、减少动效及图片加载失败回退。
+
+云环境中 Chromium 原生 CDN 请求遇到代理证书信任问题，因此本轮使用 `--verified-cdn`：由保持 TLS 验证的 curl 获取原始 CDN 响应后，在浏览器测试中回放。应用的 unpkg 地址、MDUI 版本和加载方式均未更改；未验证其他浏览器或此环境的 Chromium 原生 CDN 链路。
+
+---
+
 ## 8. 已知问题 / P0 范围
 
 1. **没有文章阅读页**：这是明确的 P0 限制。标题与最近更新打开的是预览 Dialog，不是阅读页。

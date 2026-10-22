@@ -50,17 +50,21 @@
     var root = document.documentElement;
 
     getIcons().forEach(function (button) {
-      button.setAttribute('icon', meta.icon);
+      button.querySelector('[data-theme-glyph]').setAttribute('name', meta.icon);
+      button.querySelector('[data-theme-label]').textContent = '切换主题（当前：' + meta.label + '）';
       button.setAttribute('aria-label', '切换主题（当前：' + meta.label + '）');
       button.setAttribute('title', '当前主题：' + meta.label);
     });
 
     getMenus().forEach(function (menu) {
-      menu.setAttribute('value', mode);
+      // Menu.value 不反射到 HTML attribute；必须使用 property 同步。
+      menu.value = mode;
+      menu.querySelectorAll('mdui-menu-item').forEach(function (item) {
+        item.setAttribute('aria-checked', item.value === mode ? 'true' : 'false');
+      });
     });
 
     root.dataset.theme = mode;
-    root.style.colorScheme = mode === 'auto' ? 'light dark' : mode;
   }
 
   function applyMode(next, options) {
@@ -70,9 +74,15 @@
 
     var opts = options || {};
     mode = next;
-    var root = document.documentElement;
-    root.classList.remove('mdui-theme-light', 'mdui-theme-dark', 'mdui-theme-auto');
-    root.classList.add('mdui-theme-' + mode);
+    // 首屏恢复在 HTML 中完成；加载后使用官方主题 API。
+    if (window.mdui) {
+      window.mdui.setTheme(mode);
+    } else {
+      // CDN 暂时不可用时，仍保留纯 CSS 的主题回退。
+      var root = document.documentElement;
+      root.classList.remove('mdui-theme-light', 'mdui-theme-dark', 'mdui-theme-auto');
+      root.classList.add('mdui-theme-' + mode);
+    }
 
     if (opts.persist !== false) {
       writeStoredMode(mode);
@@ -86,16 +96,45 @@
       return;
     }
     menu.dataset.themeBound = 'true';
-    menu.addEventListener('change', function () {
+    menu.addEventListener('change', function (event) {
+      if (event.target !== menu) {
+        return;
+      }
       var next = menu.value;
       if (isMode(next) && next !== mode) {
         applyMode(next);
+      } else {
+        // 单选菜单允许取消选中；等本轮组件更新结束后恢复当前主题。
+        // 同步回写可能被 Lit 合并，导致 value 正确但 selected 仍为空。
+        window.requestAnimationFrame(updateControls);
       }
     });
   }
 
   function initMenus() {
     getMenus().forEach(bindMenu);
+    document.querySelectorAll('.theme-control mdui-dropdown').forEach(function (dropdown) {
+      var trigger = dropdown.querySelector('[slot="trigger"]');
+      ['open', 'close'].forEach(function (type) {
+        dropdown.addEventListener(type, function (event) {
+          if (event.target === dropdown) {
+            trigger.setAttribute('aria-expanded', type === 'open' ? 'true' : 'false');
+          }
+        });
+      });
+      dropdown.addEventListener('closed', function (event) {
+        if (event.target !== dropdown) {
+          return;
+        }
+        // 2.1.5 的 Menu 可能在 Dropdown 恢复焦点后异步聚焦已隐藏的菜单项。
+        // 仅修复丢失或仍留在隐藏菜单内的焦点，保留外部点击的目标。
+        var active = document.activeElement;
+        if ((active === document.body || dropdown.contains(active)) &&
+            trigger.getClientRects().length) {
+          trigger.focus({ preventScroll: true });
+        }
+      });
+    });
     updateControls();
   }
 
@@ -112,8 +151,8 @@
     });
 
     window.addEventListener('storage', function (event) {
-      if (event.key === STORAGE_KEY && isMode(event.newValue)) {
-        applyMode(event.newValue, { persist: false });
+      if (event.key === STORAGE_KEY || event.key === null) {
+        applyMode(readStoredMode(), { persist: false });
       }
     });
   }

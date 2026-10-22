@@ -41,7 +41,6 @@
   var state = {
     tab: 'recent',
     query: '',
-    dialogTrigger: null,
     focusSearchOnOpen: false
   };
 
@@ -164,14 +163,6 @@
     return bar ? bar.getBoundingClientRect().height : 56;
   }
 
-  function isVisible(element) {
-    if (!element || !element.isConnected) {
-      return false;
-    }
-    var style = window.getComputedStyle(element);
-    return style.display !== 'none' && style.visibility !== 'hidden' && element.getClientRects().length > 0;
-  }
-
   function isUpgraded(tagName) {
     return !!(window.customElements && window.customElements.get(tagName));
   }
@@ -290,8 +281,14 @@
       '</div>' +
       '<div class="side-rule" role="presentation"></div>' +
       '<div class="side-search">' +
-        '<mdui-text-field variant="outlined" type="search" icon="search" clearable ' +
-          'placeholder="搜索标题、摘要或标签" aria-label="搜索演示文章" data-role="search"></mdui-text-field>' +
+        '<mdui-text-field variant="outlined" type="search" clearable ' +
+          'placeholder="搜索标题、摘要或标签" aria-label="搜索演示文章" data-role="search">' +
+          '<mdui-icon slot="icon" name="search" aria-hidden="true"></mdui-icon>' +
+          '<mdui-button-icon slot="clear-button" tabindex="-1" title="清除搜索">' +
+            '<mdui-icon name="cancel--outlined" aria-hidden="true"></mdui-icon>' +
+            '<span class="visually-hidden">清除搜索</span>' +
+          '</mdui-button-icon>' +
+        '</mdui-text-field>' +
       '</div>' +
       '<div class="side-rule" role="presentation"></div>' +
       '<section class="side-section" aria-label="最近更新">' +
@@ -548,12 +545,10 @@
       setQuery(field.value);
     });
 
-    field.addEventListener('clear', function () {
-      setQuery('');
-      field.focus({ preventScroll: true });
-    });
-
     field.addEventListener('keydown', function (event) {
+      if (event.isComposing) {
+        return;
+      }
       if (event.key === 'Escape') {
         if (el.drawer && el.drawer.open) {
           return;
@@ -569,8 +564,7 @@
       if (event.key === 'Enter' && isSearching()) {
         event.preventDefault();
         if (el.drawer && el.drawer.open) {
-          setElementOpen(el.drawer, false);
-          window.setTimeout(focusFirstResult, 260);
+          closeDrawerThen(focusFirstResult);
         } else {
           focusFirstResult();
         }
@@ -601,6 +595,7 @@
     });
   }
 
+  // 面板位于吸顶工具栏之外，以保留当前布局；同步外置面板及 ARIA。
   function showPanel(tab) {
     el.panels.forEach(function (panel) {
       panel.hidden = panel.dataset.tab !== tab;
@@ -633,7 +628,7 @@
 
     updateTabAria();
 
-    if (opts.push) {
+    if (opts.push && readHashTab() !== tab) {
       history.pushState({ tab: tab }, '', '#' + tab);
     } else if (opts.replaceHash) {
       history.replaceState({ tab: tab }, '', '#' + tab);
@@ -675,7 +670,10 @@
   }
 
   function setupTabs() {
-    el.tabs.addEventListener('change', function () {
+    el.tabs.addEventListener('change', function (event) {
+      if (event.target !== el.tabs) {
+        return;
+      }
       var value = el.tabs.value;
       if (value && value !== state.tab) {
         switchTab(value, { push: true, scroll: true });
@@ -690,6 +688,8 @@
       }
     });
 
+    // MDUI 2.1.5 没有内置 Tabs 键盘导航或 ARIA；仅补齐这些能力。
+    // 激活仍通过组件的 click()/change 流程，避免维护第二套选中状态。
     el.tabs.addEventListener('keydown', function (event) {
       var tabs = getTabs();
       var current = event.target.closest ? event.target.closest('mdui-tab') : null;
@@ -709,17 +709,15 @@
         nextIndex = tabs.length - 1;
       } else if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        if (tabValue(current) !== state.tab) {
-          switchTab(tabValue(current), { push: true, scroll: true });
-        }
+        current.click();
         return;
       }
 
       if (nextIndex !== null) {
         event.preventDefault();
         var next = tabs[nextIndex];
-        switchTab(tabValue(next), { push: true, scroll: true });
         next.focus({ preventScroll: true });
+        next.click();
       }
     });
   }
@@ -759,8 +757,9 @@
       }
     });
 
-    el.drawer.addEventListener('closed', function () {
+    el.drawer.addEventListener('close', function () {
       el.menuButton.setAttribute('aria-expanded', 'false');
+      state.focusSearchOnOpen = false;
     });
 
     window.addEventListener('resize', function () {
@@ -769,45 +768,21 @@
       }
     });
 
-    el.drawer.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') {
-        if (el.drawer.open) {
-          event.preventDefault();
-          setElementOpen(el.drawer, false);
-        }
-        return;
-      }
-
-      if (event.key !== 'Tab' || !el.drawer.open) {
-        return;
-      }
-
-      var focusables = Array.prototype.slice.call(el.drawer.querySelectorAll(
-        'a[href], button:not([disabled]), mdui-button-icon, mdui-text-field, [tabindex]:not([tabindex="-1"])'
-      )).filter(isVisible);
-
-      if (!focusables.length) {
-        event.preventDefault();
-        return;
-      }
-
-      var first = focusables[0];
-      var last = focusables[focusables.length - 1];
-      var active = document.activeElement;
-
-      if (event.shiftKey && (active === first || active === el.drawer)) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && active === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    });
+    // modal、close-on-esc 和 close-on-overlay-click 负责焦点约束与关闭。
+    // MDUI 同时负责恢复打开前的焦点，不再另设 Tab/Escape 处理器。
   }
 
-  function showPostDialog(post, trigger) {
-    state.dialogTrigger = trigger || document.activeElement;
-    el.dialog.setAttribute('headline', post.title);
+  function closeDrawerThen(callback) {
+    el.drawer.addEventListener('closed', function () {
+      // 2.1.5 在 closed 前排入焦点恢复任务；等它完成后再执行页面跳转。
+      window.setTimeout(callback, 0);
+    }, { once: true });
+    setElementOpen(el.drawer, false);
+  }
+
+  function showPostDialog(post) {
+    el.dialog.headline = post.title;
+    el.dialog.setAttribute('aria-label', post.title);
     el.dialogMeta.innerHTML = '<time datetime="' + attr(post.date) + '">' + escapeHtml(formatDate(post.date)) + '</time>' +
       '<span class="meta-sep" aria-hidden="true">·</span>' +
       '<span>' + escapeHtml(post.category) + '</span>';
@@ -818,20 +793,20 @@
     setElementOpen(el.dialog, true);
   }
 
-  function openPost(postId, trigger) {
+  function openPost(postId) {
     var post = postById.get(postId);
     if (!post) {
       return;
     }
 
     if (el.drawer && el.drawer.open) {
-      var openAfterClose = function () {
-        showPostDialog(post, trigger);
-      };
-      el.drawer.addEventListener('closed', openAfterClose, { once: true });
-      setElementOpen(el.drawer, false);
+      closeDrawerThen(function () {
+        // 抽屉已隐藏，使用可见的打开按钮作为对话框返回焦点。
+        el.menuButton.focus({ preventScroll: true });
+        showPostDialog(post);
+      });
     } else {
-      showPostDialog(post, trigger);
+      showPostDialog(post);
     }
   }
 
@@ -846,18 +821,7 @@
       });
     }
 
-    el.dialog.addEventListener('closed', function () {
-      var target = state.dialogTrigger;
-      state.dialogTrigger = null;
-      if (isVisible(target)) {
-        target.focus({ preventScroll: true });
-      } else {
-        var recentTab = document.getElementById('tab-recent');
-        if (recentTab) {
-          recentTab.focus({ preventScroll: true });
-        }
-      }
-    });
+    // MDUI Dialog 内置焦点约束、Escape/遮罩关闭和触发器焦点恢复。
   }
 
   function setupDelegation() {
@@ -867,7 +831,7 @@
       var postButton = target.closest ? target.closest('[data-post-id]') : null;
       if (postButton) {
         event.preventDefault();
-        openPost(postButton.dataset.postId, postButton);
+        openPost(postButton.dataset.postId);
         return;
       }
 
@@ -887,7 +851,9 @@
     });
 
     document.addEventListener('keydown', function (event) {
-      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey ||
+          event.isComposing || event.defaultPrevented || el.dialog.open ||
+          document.querySelector('mdui-dropdown[open]')) {
         return;
       }
 
