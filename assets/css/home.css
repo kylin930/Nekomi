@@ -1,0 +1,99 @@
+/* 首页的个人气质：保留原生组件，仅调整内容尺度、公开变量与表面。 */
+.profile { padding: 4px 12px 0; margin-bottom: 28px; }
+.profile-brand { flex-direction: column; align-items: flex-start; gap: 18px; }
+.site-avatar {
+  width: 76px;
+  height: 76px;
+  font-size: 32px;
+  font-family: var(--identity-font);
+  --shape-corner: 26px 26px 26px 10px;
+  border: 4px solid rgb(var(--mdui-color-surface));
+  outline: 1px solid rgb(var(--mdui-color-primary-container));
+}
+.site-name { font-family: var(--identity-font); font-size: 26px; font-weight: 750; letter-spacing: -.03em; }
+.site-tagline { margin-top: 8px; line-height: 1.8; font-size: 12px; letter-spacing: .06em; }
+.site-intro { margin-top: 16px; padding-left: 12px; border-left: 2px solid rgb(var(--mdui-color-blossom-container, var(--mdui-color-tertiary-container))); font-size: 13px; line-height: 1.9; }
+.side-search mdui-text-field { background: rgba(var(--mdui-color-surface-container-lowest), .72); border-radius: var(--mdui-shape-corner-large); --mdui-color-outline: var(--mdui-color-outline-variant); }
+@media (min-width: 861px) {
+  .sidebar { display: flex; flex-direction: column; overflow: hidden; }
+  .sidebar > [data-sidebar="desktop"] { min-height: 0; overflow-y: auto; padding-bottom: 8px; scrollbar-width: thin; scroll-padding-block: 8px 16px; }
+  .sidebar-settings { flex-shrink: 0; margin-top: 16px; padding-top: 12px; }
+}
+.side-section-heading h2 { font-size: 12px; letter-spacing: .04em; }
+.side-section-heading span, .friend-empty small, .sidebar-settings { color: rgb(var(--mdui-color-on-surface-variant)); }
+.side-section mdui-list-item { --mdui-shape-corner-large: 12px; }
+#content-tabs::part(container) { gap: 8px; background: var(--site-canvas); border-bottom-color: rgba(var(--mdui-color-outline-variant), .7); }
+/* 原生 indicator 保留；选中表面与组件状态层叠加，不重做 Tabs 行为。 */
+mdui-tab::part(container) { min-height: 48px; padding-inline: 18px; border-radius: 14px 14px 0 0; }
+mdui-tab[active]::part(container) { background: rgba(var(--mdui-color-primary-container), .56); }
+.view-heading { padding: 30px 0 28px; }
+.view-heading h1 { font-family: var(--identity-font); font-size: 32px; font-weight: 750; }
+.eyebrow { margin-bottom: 10px; font-weight: 500; letter-spacing: .12em; }
+.demo-note { color: rgb(var(--mdui-color-on-surface-variant)); }
+.post-list { gap: 22px; }
+.post-card {
+  --post-accent: var(--mdui-color-primary);
+  --post-accent-container: var(--mdui-color-primary-container);
+  --post-on-accent-container: var(--mdui-color-on-primary-container);
+  --shape-corner: 22px;
+  --mdui-color-outline: var(--mdui-color-outline-variant);
+  background: var(--post-paper, var(--site-paper));
+}
+.post-card[data-tone="blossom"] {
+  --post-paper: color-mix(in srgb, rgb(var(--mdui-color-blossom-container, var(--mdui-color-tertiary-container))) 20%, var(--site-paper));
+  --post-accent: var(--mdui-color-blossom, var(--mdui-color-tertiary));
+  --post-accent-container: var(--mdui-color-blossom-container, var(--mdui-color-tertiary-container));
+  --post-on-accent-container: var(--mdui-color-on-blossom-container, var(--mdui-color-on-tertiary-container));
+}
+.post-card[data-tone="sky"] {
+  --post-paper: color-mix(in srgb, rgb(var(--mdui-color-sky-container, var(--mdui-color-secondary-container))) 20%, var(--site-paper));
+  --post-accent: var(--mdui-color-sky, var(--mdui-color-secondary));
+  --post-accent-container: var(--mdui-color-sky-container, var(--mdui-color-secondary-container));
+  --post-on-accent-container: var(--mdui-color-on-sky-container, var(--mdui-color-on-secondary-container));
+}
+.post-card[data-tone="secondary"] {
+  --post-accent: var(--mdui-color-secondary);
+  --post-accent-container: var(--mdui-color-secondary-container);
+  --post-on-accent-container: var(--mdui-color-on-secondary-container);
+}
+.post-latest { background: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 52%, var(--site-paper)); --shape-corner: 26px; }
+.post-content { padding: 26px 28px 18px; }
+.post-latest .post-content { padding: 30px 32px 22px; }
+.post-meta { flex-wrap: wrap; gap: 10px 12px; font-size: 11px; }
+.post-category { padding: 3px 9px; border-radius: 6px; background: rgb(var(--post-accent-container)); color: rgb(var(--post-on-accent-container)); font-size: 11px; font-weight: 600; letter-spacing: .05em; }
+.post-new { color: rgb(var(--mdui-color-primary)); margin-left: auto; font-size: 11px; }
+.post-title { margin-top: 16px; font-size: 23px; line-height: 1.55; letter-spacing: -.02em; }
+.post-latest .post-title { font-size: 27px; line-height: 1.5; }
+.post-title a:hover { color: rgb(var(--post-accent)); }
+.post-excerpt { font-size: 14px; line-height: 1.95; }
+.post-footer { margin-top: 20px; gap: 12px; }
+.post-tags mdui-chip { --shape-corner: var(--mdui-shape-corner-full); --mdui-color-outline: var(--mdui-color-outline-variant); font-size: 11px; }
+.post-tags mdui-chip::part(button) { padding-inline: 10px; }
+.post-cover { border-radius: 14px; }
+@container article-card (min-width: 640px) {
+  .post-latest .post-main:has(.post-cover) { grid-template-columns: minmax(0, 1fr) min(34%, 260px); }
+}
+.collection-card, .tag-surface, .empty-state { background: var(--site-paper); --mdui-color-outline: var(--mdui-color-outline-variant); }
+.site-appbar { background: var(--site-canvas); }
+.site-footer { color: rgb(var(--mdui-color-on-surface-variant)); }
+/* 壁纸本身由全站遮罩保证可读；内容表面保持近乎不透明。 */
+.has-wallpaper .post-card:not(.post-latest), .has-wallpaper .collection-card, .has-wallpaper .tag-surface, .has-wallpaper .empty-state { background: rgba(var(--mdui-color-surface), .97); }
+.has-wallpaper #content-tabs::part(container), .has-wallpaper .site-appbar { background: rgb(var(--mdui-color-surface)); }
+@media (max-width: 860px) {
+  #content-tabs::part(container) { gap: 4px; }
+  mdui-tab::part(container) { padding-inline: 16px; }
+  .view-heading { padding: 26px 2px; }
+  .profile-brand { flex-direction: row; align-items: center; gap: 16px; }
+  .site-avatar { width: 64px; height: 64px; font-size: 28px; --shape-corner: 22px 22px 22px 8px; }
+  .site-name { font-size: 24px; }
+}
+@media (max-width: 480px) {
+  .view-heading h1 { font-size: 28px; }
+  .eyebrow { font-size: 10px; letter-spacing: .08em; }
+  .post-list { gap: 18px; }
+  .post-content, .post-latest .post-content { padding: 22px 22px 14px; }
+  .post-title { font-size: 21px; }
+  .post-latest .post-title { font-size: 23px; }
+  .post-footer { margin-top: 14px; }
+  .post-new { font-size: 10px; }
+}

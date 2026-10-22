@@ -1,4 +1,4 @@
-"""P0/P1 browser regression checks against the pinned MDUI 2.1.5 runtime.
+"""P0/P0.5/P1 browser regression checks against the pinned MDUI 2.1.5 runtime.
 
 Requires Python Playwright and Chromium. See tests/README.md.
 """
@@ -418,6 +418,102 @@ def motion_checks(page, url):
     print('PASS transitions: nonlinear entrance; reduced-motion page/tab and native TOC behavior')
 
 
+def appearance_checks(page, context, url):
+    expect(page.locator('.site-wallpaper')).to_be_hidden()
+    expect(page.locator('.post-cover')).to_have_count(0)
+    # Selected tabs still use MDUI's indicator and expose a nontransparent tonal surface.
+    assert page.locator('#tab-recent').evaluate('e => getComputedStyle(e.shadowRoot.querySelector("[part=container]")).backgroundColor') != 'rgba(0, 0, 0, 0)'
+    page.set_viewport_size({'width': 1440, 'height': 600})
+    settings = page.locator('.sidebar-settings [data-theme-cycle]').bounding_box()
+    assert settings['y'] >= 0 and settings['y'] + settings['height'] <= 600
+    scroll_area = page.locator('.sidebar > [data-sidebar=desktop]')
+    assert scroll_area.evaluate('e => e.scrollHeight > e.clientHeight')
+    scroll_area.evaluate('e => e.scrollTop = e.scrollHeight')
+    expect(scroll_area.locator('.friend-empty')).to_be_in_viewport(ratio=1)
+    page.set_viewport_size({'width': 1440, 'height': 900})
+    original = (ROOT / 'assets/js/data.js').read_text()
+
+    def fixture(light, dark='', color='#8064b1', position='30% 25%'):
+        import json
+        config = {'color': color, 'wallpaper': {'light': light, 'dark': dark, 'position': position}}
+        context.unroute('**/assets/js/data.js')
+        context.route('**/assets/js/data.js', lambda r: r.fulfill(
+            body=original + '\nNekomiData.appearance = ' + json.dumps(config) + ';',
+            content_type='text/javascript'))
+
+    def wallpaper(name):
+        expect(page.locator('.site-wallpaper')).to_be_visible()
+        page.wait_for_function('name => document.querySelector(".site-wallpaper").style.backgroundImage.includes(name)', arg=name)
+        expect(page.locator('body')).to_have_class('has-wallpaper')
+
+    light = 'screenshots/desktop-light-1440x900.png'
+    dark = 'screenshots/desktop-dark-1440x900.png'
+    fixture(light, dark)
+    page.reload(wait_until='networkidle')
+    for width in (1440, 390):
+        page.set_viewport_size({'width': width, 'height': 900})
+        for mode, name in (('light', 'desktop-light'), ('dark', 'desktop-dark')):
+            page.evaluate('mode => NekomiTheme.setMode(mode)', mode)
+            wallpaper(name)
+            assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+            assert page.locator('.site-wallpaper').evaluate('e => getComputedStyle(e).backgroundPosition') == '30% 25%'
+            # Check the real computed overlay, including CSS variable validity, against
+            # both worst-case photo extremes. Small text must retain WCAG AA contrast.
+            contrast = page.evaluate('''() => {
+                const root = getComputedStyle(document.documentElement);
+                const token = name => root.getPropertyValue('--mdui-color-' + name).split(',').map(Number);
+                const surface = token('surface');
+                const scrim = getComputedStyle(document.querySelector('.site-wallpaper'), '::after').backgroundColor;
+                const alpha = Number(scrim.match(/[\\d.]+/g)[3]);
+                const luminance = rgb => rgb.map(c => c / 255).map(c => c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4)
+                    .reduce((sum, c, i) => sum + c * [.2126, .7152, .0722][i], 0);
+                const ratio = (a, b) => (Math.max(luminance(a), luminance(b)) + .05) / (Math.min(luminance(a), luminance(b)) + .05);
+                return { alpha, ratios: ['on-surface', 'on-surface-variant', 'primary'].flatMap(name =>
+                    [0, 255].map(photo => ratio(token(name), surface.map(c => c * alpha + photo * (1 - alpha))))),
+                    categories: ['primary', 'blossom', 'sky', 'secondary'].map(name => ratio(token('on-' + name + '-container'), token(name + '-container'))) };
+            }''')
+            assert contrast['alpha'] >= .9, contrast
+            assert min(contrast['ratios'] + contrast['categories']) >= 4.5, contrast
+    page.evaluate("NekomiTheme.setMode('auto')")
+    for mode in ('dark', 'light'):
+        page.emulate_media(color_scheme=mode)
+        wallpaper('desktop-' + mode)
+    page.goto(url + 'article.html?post=' + TECH, wait_until='networkidle')
+    expect(page.locator('#reader')).to_be_visible()
+    wallpaper('desktop-light')
+
+    # Dark mode falls back to the configured light image; a broken image is removed.
+    fixture(light)
+    page.goto(url, wait_until='networkidle')
+    page.evaluate("NekomiTheme.setMode('dark')")
+    wallpaper('desktop-light')
+    fixture('assets/missing-wallpaper.png', color='invalid-color', position='invalid-position')
+    page.reload(wait_until='networkidle')
+    expect(page.locator('.site-wallpaper')).to_be_hidden()
+    assert page.locator('body').evaluate('e => !e.classList.contains("has-wallpaper")')
+    expect(page.locator('.post-card')).to_have_count(10)
+    for unsafe in ('javascript:alert(1)', 'data:image/svg+xml,<svg></svg>'):
+        fixture(unsafe)
+        page.reload(wait_until='networkidle')
+        expect(page.locator('.site-wallpaper')).to_be_hidden()
+
+    # Complete an older load after a theme switch: it must not replace the new image.
+    pending = []
+    context.route('**/assets/wallpaper-slow.png', lambda r: pending.append(r))
+    fixture('assets/wallpaper-slow.png', dark)
+    page.evaluate("localStorage.setItem('nekomi-theme', 'light')")
+    with page.expect_request('**/assets/wallpaper-slow.png'):
+        page.reload(wait_until='domcontentloaded')
+        ready(page)
+    page.evaluate("NekomiTheme.setMode('dark')")
+    wallpaper('desktop-dark')
+    assert pending
+    pending[0].fulfill(body=(ROOT / light).read_bytes(), content_type='image/png')
+    page.wait_for_load_state('networkidle')
+    wallpaper('desktop-dark')
+    print('PASS appearance: native tab surface, light/dark/system wallpapers, contrast, global use, missing/unsafe images and stale loads')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--chromium", default=shutil.which("chromium"))
@@ -477,6 +573,7 @@ def main():
             ('media', {'width': 1440, 'height': 900}, media_checks),
             ('layouts', {'width': 1440, 'height': 900}, lambda p, c, u: layout_checks(p, u, args.artifacts)),
             ('motion', {'width': 1440, 'height': 900}, lambda p, c, u: motion_checks(p, u)),
+            ('appearance', {'width': 1440, 'height': 900}, appearance_checks),
         ]
         for name, viewport, check in cases:
             context, page, errors = new_page(viewport=viewport,

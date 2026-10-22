@@ -68,7 +68,9 @@
 
   document.querySelector('[data-site-appbar]').innerHTML = '<mdui-top-app-bar class="site-appbar" variant="small">' +
     '<mdui-button-icon id="menu-button">' + icon('menu') + '<span class="visually-hidden">打开侧栏</span></mdui-button-icon>' +
-    '<mdui-top-app-bar-title><a href="index.html#recent" data-site-name>' + html(site.name) + '</a></mdui-top-app-bar-title>' +
+    '<mdui-top-app-bar-title><a href="index.html#recent" class="appbar-brand" data-site-name>' +
+    avatar(site.avatar, site.avatarFallback || '林', site.avatarAlt || site.name).replace('class="site-avatar"', 'class="brand-avatar" aria-hidden="true"') +
+    '<span>' + html(site.name) + '</span></a></mdui-top-app-bar-title>' +
     '<div data-theme-control></div></mdui-top-app-bar>';
   document.querySelector('[data-site-sidebar]').innerHTML = '<div data-sidebar="desktop">' + sidebarMarkup() + '</div>' +
     '<div class="sidebar-settings"><span>外观</span><div data-theme-control></div></div>';

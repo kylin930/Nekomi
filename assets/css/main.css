@@ -5,11 +5,16 @@ html { scroll-padding-top: 80px; }
 body {
   margin: 0;
   min-width: 320px;
-  background: rgb(var(--mdui-color-surface));
+  min-height: 100dvh;
+  isolation: isolate;
+  background: var(--site-canvas);
   color: rgb(var(--mdui-color-on-surface));
   font-family: var(--reading-font);
   -webkit-font-smoothing: antialiased;
 }
+/* 壁纸与遮罩共处独立背景层，侧栏本身始终保持透明。 */
+.site-wallpaper { position: fixed; inset: 0; z-index: -1; pointer-events: none; background-size: cover; background-repeat: no-repeat; }
+.site-wallpaper::after { content: ""; position: absolute; inset: 0; background: rgba(var(--mdui-color-surface), .9); }
 a { color: inherit; }
 button, input { font: inherit; }
 :where(a, [tabindex]):focus-visible {
@@ -151,6 +156,8 @@ mark { background: rgb(var(--mdui-color-primary-container)); color: rgb(var(--md
 .site-appbar { display: none; position: relative; }
 .site-appbar mdui-top-app-bar-title { --mdui-typescale-title-large-size: 1.125rem; }
 .site-appbar mdui-top-app-bar-title a { text-decoration: none; }
+.appbar-brand { display: flex; align-items: center; gap: 10px; }
+.brand-avatar { width: 30px; height: 30px; font-size: 16px; --shape-corner: 10px 10px 10px 4px; }
 [data-theme-control] { display: flex; align-items: center; gap: 4px; }
 .theme-mode-label { font-size: 12px; }
 .site-appbar .theme-mode-label { display: none; }

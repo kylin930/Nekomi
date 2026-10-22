@@ -2,13 +2,18 @@
 
 基于 **MDUI 2.1.5 / Material Design 3** 的原创静态博客主题。参考 Stellar 的融入式侧栏、内容导航与辅助目录，以及 G 的文章信息层次和阅读节奏；所有页面代码独立实现。
 
-P0 首页与 P1 阅读页已打通。继续使用 HTML、CSS、原生 JavaScript，不绑定博客框架，没有构建步骤。全部文章、日期与叙事均为演示，不代表站长的真实经历。
+P0.5 首页视觉增强与 P1 阅读页已打通。继续使用 HTML、CSS、原生 JavaScript，不绑定博客框架，没有构建步骤。全部文章、日期与叙事均为演示，不代表站长的真实经历。
 
-![桌面文章阅读页](screenshots/article-desktop-light-1440x1000.png)
-
-[桌面深色阅读](screenshots/article-desktop-dark-1440x1000.png) · [手机浅色阅读](screenshots/article-mobile-light-390x844.png) · [手机深色阅读](screenshots/article-mobile-dark-390x844.png) · [技术正文](screenshots/article-code-desktop-1440x1000.png) · [手机表格](screenshots/article-table-mobile-390x844.png) · [普通长文](screenshots/article-essay-desktop-1440x1000.png) · [无效文章](screenshots/article-not-found-390x844.png)
+![首页桌面浅色](screenshots/desktop-light-1440x900.png)
 
 [首页桌面浅色](screenshots/desktop-light-1440x900.png) · [首页桌面深色](screenshots/desktop-dark-1440x900.png) · [首页手机浅色](screenshots/mobile-light-390x844.png) · [首页手机深色](screenshots/mobile-dark-390x844.png) · [手机抽屉](screenshots/mobile-drawer-390x844.png) · [分类](screenshots/desktop-categories-1440x900.png) · [手机搜索](screenshots/mobile-search-390x844.png)
+
+<details>
+<summary>P1 阅读页初版截图（本轮更新首页）</summary>
+
+[桌面浅色阅读](screenshots/article-desktop-light-1440x1000.png) · [桌面深色阅读](screenshots/article-desktop-dark-1440x1000.png) · [手机浅色阅读](screenshots/article-mobile-light-390x844.png) · [手机深色阅读](screenshots/article-mobile-dark-390x844.png) · [技术正文](screenshots/article-code-desktop-1440x1000.png) · [手机表格](screenshots/article-table-mobile-390x844.png) · [普通长文](screenshots/article-essay-desktop-1440x1000.png) · [无效文章](screenshots/article-not-found-390x844.png)
+
+</details>
 
 ## 本地开发
 
@@ -29,15 +34,37 @@ python3 -m http.server 8080 --bind 127.0.0.1
 ## 页面与原生组件
 
 - **公共外壳**：`site.js` 为两个入口生成同一套侧栏、移动 App Bar、Navigation Drawer、页尾和反馈 Snackbar；侧栏无整体背景、边框、圆角与阴影，超高时独立滚动。
-- **首页**：保留现有 Tabs / Tab Panel、outlined Card、Chip、List / List Item。分类、标签、归档和最近更新由同一份元数据推导；标题、封面、按钮和原生列表项均使用真实文章链接。
+- **首页**：保留 Tabs / Tab Panel、Card、Chip、List / List Item；浅紫色页面搭配樱粉、清蓝分类色，首篇使用原生 filled Card，其余文章保留轻轮廓。个人资料使用更醒目的文字头像与衬线名字，有图与无图布局均完整。分类、标签、归档和最近更新由同一份元数据推导；标题、封面、按钮和原生列表项均使用真实文章链接。
 - **阅读页**：标题、日期、分类、标签、可选头图；正文提供多级标题、段落、引用、列表、图片、分割线、表格与代码排版。桌面正文上限 760px，手机保持单列。
 - **目录**：按 h2–h6 自动生成嵌套列表，支持当前章节、标题永久链接与焦点定位。1360px 起放在右侧，较窄屏幕使用原生 Collapse；不挤占正文空间。
 - **技术内容**：代码块显示语言，原生 Button 复制原始文本，Snackbar 反馈；长代码和宽表格在自身区域横向滚动，支持键盘访问。
 - **移动端**：860px 及以下使用原生 Top App Bar 和模态 Navigation Drawer；App Bar 在文档流中占位并吸顶，组件负责抽屉焦点约束、滚动锁定、Escape / 遮罩关闭。
-- **主题**：图标按钮依次切换“浅色 → 深色 → 跟随系统”，同时显示当前模式与下次动作；`setColorScheme('#476756')` 生成语义色，`setTheme()` 管理主题，偏好跨页面保存。没有主题下拉菜单。
+- **主题**：图标按钮依次切换“浅色 → 深色 → 跟随系统”，同时显示当前模式与下次动作；`setColorScheme()` 从可配置主色生成语义色，并通过官方 `customColors` 生成樱粉与清蓝的明暗角色，`setTheme()` 管理主题，偏好跨页面保存。没有主题下拉菜单。
+- **壁纸**：全站可配置浅色 / 深色图片和裁切位置，默认不加载背景图。使用主题语义表面遮罩和近乎不透明的卡片维持可读性；图片失败恢复默认表面。
 - **过渡**：页面内容与首页 Tab 面板使用短暂的非线性滑入，正常文档链接保留分享、新标签页和浏览器历史；减少动态效果偏好下禁用自定义过渡。
 
 CSS 主要负责布局与文章排版，组件调整使用官方公开 CSS Parts / 变量。没有复制 G 的 PHP、CSS、JavaScript 或素材，也没有添加其他 UI 框架或美术资源。许可与参考范围见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+
+## 配色与全站壁纸
+
+在 `assets/js/data.js` 的 `appearance` 中配置：
+
+```js
+appearance: {
+  color: '#8064b1',
+  wallpaper: {
+    light: 'assets/images/wallpapers/day.webp',
+    dark: 'assets/images/wallpapers/night.webp',
+    position: 'center'
+  }
+}
+```
+
+默认 `light`、`dark` 均留空，无需补图。图片由站长自行提供并确认授权；仓库不包含动漫人物、壁纸、SVG 插画或占位美术资源。主色接受 3 位或 6 位十六进制值，无效值回退默认色。
+
+`dark` 留空时沿用 `light`；仅配置 `dark` 时浅色模式保持无壁纸。跟随系统模式会同时切换色板与壁纸。图片成功载入后才显示，失败恢复默认背景；快速切换时不会让旧图片覆盖新主题。`position` 接受 CSS `background-position` 值，例如 `center top` 或 `65% 30%`。采用 `cover` 铺满视口，手机使用同一套遮罩，不增加图片选择器或悬浮工具栏。
+
+默认无背景也有完整的表面层次；壁纸模式保留透明侧栏，正文、辅助文字和链接的遮罩对比度由浏览器回归检查。首页视觉集中在 `home.css`，公共色板与背景复用现有主题入口，不引入新依赖。
 
 ## 数据与正文
 
@@ -83,11 +110,11 @@ MDUI 2.1.5 尚未提供完整的 Tabs 键盘 / ARIA 与图标按钮 ARIA 转发�
 python3 tests/browser_audit.py --chromium /usr/bin/chromium --artifacts /tmp/nekomi-browser
 ```
 
-覆盖 P0 与 P1 的浏览器回归，详见 [tests/README.md](tests/README.md)。截图由实际 Chromium 页面生成，包含桌面与手机明暗模式。
+覆盖 P0 / P0.5 / P1 的浏览器回归，详见 [tests/README.md](tests/README.md)。截图由实际 Chromium 页面生成，包含桌面与手机明暗模式。
 
 当前云环境使用 `--verified-cdn`：curl 保持代理与 TLS 校验，取得原始 CDN 响应后在 Chromium 中回放。它不更改应用的 CDN 地址、资源或浏览器信任库，不关闭证书验证；测试验证页面行为，不代表 Chromium 原生 CDN 证书链已配置。Firefox / Safari 尚未实测。
 
-本轮止于 P1：未开发评论、后台、分页、服务端搜索或静态生成器。正文载入与公共组件增强依赖 JavaScript；生产环境的静态正文、SEO 与路由输出留给未来选定的生成器。
+当前功能边界为首页与文章阅读：未开发评论、后台、分页、服务端搜索或静态生成器。正文载入与公共组件增强依赖 JavaScript；生产环境的静态正文、SEO 与路由输出留给未来选定的生成器。
 
 ## 文件
 
@@ -96,11 +123,12 @@ index.html                首页 Tabs 与索引容器
 article.html              阅读页语义结构
 assets/css/tokens.css     共用布局尺度与减少动效令牌
 assets/css/main.css       公共布局、首页和公开 CSS Parts
+assets/css/home.css       首页身份区、文章节奏与 Tabs 表面
 assets/css/article.css    阅读排版与目录响应式布局
 assets/js/data.js         文章元数据索引
 assets/js/site.js         公共外壳、真实路由与搜索入口
 assets/js/a11y.js         固定 MDUI 版本的必要无障碍补充
-assets/js/theme.js        MD3 色板与三态主题按钮
+assets/js/theme.js        MD3 色板、三态主题按钮与壁纸载入
 assets/js/app.js          首页渲染、筛选与 URL 状态
 assets/js/article.js      正文载入、目录、锚点与复制
 content/posts/            独立、可信的演示正文片段

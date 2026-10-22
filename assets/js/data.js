@@ -13,6 +13,16 @@ window.NekomiData = {
   demo: true,
   demoNotice: '本页文章、日期、分类与标签均为演示数据。',
 
+  // 全站外观：壁纸由站长提供；留空时使用主题本身的表面层次。
+  appearance: {
+    color: '#8064b1',
+    wallpaper: {
+      light: '',
+      dark: '', // 留空时沿用 light；图片失败则恢复无壁纸状态。
+      position: 'center'
+    }
+  },
+
   site: {
     name: '小林的小窝',
     tagline: '分享技术、日常',

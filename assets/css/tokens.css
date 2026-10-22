@@ -5,7 +5,22 @@
   --layout-gap: 56px;
   --page-gutter: 40px;
   --mobile-header-height: calc(64px + env(safe-area-inset-top, 0px));
+  /* 由 MDUI 色板推导的页面表面，明暗模式共用同一语义关系。 */
+  --site-canvas: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 24%, rgb(var(--mdui-color-surface)));
+  --site-paper: rgb(var(--mdui-color-surface-container-lowest));
+  --identity-font: "Noto Serif CJK SC", "Songti SC", "STSong", ui-serif, serif;
   --reading-font: "Segoe UI", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.mdui-theme-dark {
+  --site-canvas: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 12%, rgb(var(--mdui-color-surface-dim)));
+  --site-paper: rgb(var(--mdui-color-surface-container-low));
+}
+@media (prefers-color-scheme: dark) {
+  .mdui-theme-auto {
+    --site-canvas: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 12%, rgb(var(--mdui-color-surface-dim)));
+    --site-paper: rgb(var(--mdui-color-surface-container-low));
+  }
 }
 
 @media (max-width: 1100px) {

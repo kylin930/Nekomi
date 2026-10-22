@@ -42,6 +42,27 @@ site: {
 
 建议：横向 4:3 或 16:9、宽度至少 800px 的 WebP/AVIF；主体尽量靠近中央，以适应不同尺寸的裁切。无封面时不用补图。
 
+## 全站背景壁纸
+
+自行提供有授权的图片，例如放在 `assets/images/wallpapers/`，然后配置：
+
+```js
+appearance: {
+  color: '#8064b1',
+  wallpaper: {
+    light: 'assets/images/wallpapers/day.webp',
+    dark: 'assets/images/wallpapers/night.webp',
+    position: '65% 30%'
+  }
+}
+```
+
+- `light` 与 `dark` 默认空，不会请求占位图片。
+- 深色图片留空时沿用浅色图片；也可以只提供深色图片。
+- 跟随系统时同步切换壁纸。图片加载失败会恢复默认背景，旧请求不会覆盖快速切换后的新图片。
+- 按 `cover` 铺满视口，使用 `position` 控制裁切焦点。全站主题遮罩负责文字可读性，卡片表面保持稳定；侧栏不添加整体卡片背景。
+- 建议压缩为 WebP / AVIF，避免超大原图；图片路径相对于 HTML 入口。优先使用本地素材，不依赖未经授权的外链图片。
+
 ## 友链头像
 
 ```js

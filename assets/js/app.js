@@ -21,10 +21,13 @@
       html(text.slice(index + query.trim().length));
   }
   function article(post) {
+    var tone = ({ '设计': 'blossom', '日常': 'sky', '工程': 'secondary' })[post.category] || 'primary';
+    var latest = post.id === posts[0].id;
     var cover = safeUrl(post.cover);
-    return '<mdui-card variant="outlined" class="post-card"><article class="post-content">' +
-      '<div class="post-main"><div class="post-copy"><div class="post-meta"><time datetime="' + html(post.date) + '">' + dateLabel(post.date) +
-      '</time><span aria-hidden="true">/</span><span class="post-category">' + html(post.category) + '</span></div>' +
+    return '<mdui-card variant="' + (latest ? 'filled' : 'outlined') + '" class="post-card' + (latest ? ' post-latest' : '') + '" data-tone="' + tone + '"><article class="post-content">' +
+      '<div class="post-main"><div class="post-copy"><div class="post-meta"><span class="post-category">' + html(post.category) + '</span>' +
+      '<time datetime="' + html(post.date) + '">' + dateLabel(post.date) + '</time>' +
+      (latest ? '<span class="post-new">最新一篇</span>' : '') + '</div>' +
       '<h2 class="post-title"><a href="' + postLink(post) + '" data-post="' + html(post.id) + '">' + highlight(post.title) + '</a></h2>' +
       '<p class="post-excerpt">' + highlight(post.excerpt) + '</p></div>' +
       (cover ? '<a class="post-cover" href="' + postLink(post) + '" data-post="' + html(post.id) +
