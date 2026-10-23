@@ -1,0 +1,206 @@
+{
+  "default": [
+    {
+      "viewport": "1440x900",
+      "mode": "light",
+      "name": "Nekomi",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    },
+    {
+      "viewport": "1440x900",
+      "mode": "dark",
+      "name": "Nekomi",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    },
+    {
+      "viewport": "390x844",
+      "mode": "light",
+      "name": "Nekomi",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    },
+    {
+      "viewport": "390x844",
+      "mode": "dark",
+      "name": "Nekomi",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    }
+  ],
+  "fresh": [
+    {
+      "viewport": "1440x900",
+      "mode": "light",
+      "name": "青苔手记",
+      "page": "/#recent",
+      "primary": "#427f79",
+      "radius": 24
+    },
+    {
+      "viewport": "1440x900",
+      "mode": "dark",
+      "name": "青苔手记",
+      "page": "/#recent",
+      "primary": "#427f79",
+      "radius": 24
+    },
+    {
+      "viewport": "390x844",
+      "mode": "light",
+      "name": "青苔手记",
+      "page": "/#recent",
+      "primary": "#427f79",
+      "radius": 24
+    },
+    {
+      "viewport": "390x844",
+      "mode": "dark",
+      "name": "青苔手记",
+      "page": "/#recent",
+      "primary": "#427f79",
+      "radius": 24
+    }
+  ],
+  "minimal": [
+    {
+      "viewport": "1440x900",
+      "mode": "light",
+      "name": "纸页",
+      "page": "/#recent",
+      "primary": "#596477",
+      "radius": 12
+    },
+    {
+      "viewport": "1440x900",
+      "mode": "dark",
+      "name": "纸页",
+      "page": "/#recent",
+      "primary": "#596477",
+      "radius": 12
+    },
+    {
+      "viewport": "390x844",
+      "mode": "light",
+      "name": "纸页",
+      "page": "/#recent",
+      "primary": "#596477",
+      "radius": 12
+    },
+    {
+      "viewport": "390x844",
+      "mode": "dark",
+      "name": "纸页",
+      "page": "/#recent",
+      "primary": "#596477",
+      "radius": 12
+    }
+  ],
+  "custom": [
+    {
+      "viewport": "1440x900",
+      "mode": "light",
+      "name": "海棠笔记",
+      "page": "/Nekomi/#recent",
+      "primary": "#a24e70",
+      "radius": 18
+    },
+    {
+      "viewport": "1440x900",
+      "mode": "dark",
+      "name": "海棠笔记",
+      "page": "/Nekomi/#recent",
+      "primary": "#a24e70",
+      "radius": 18
+    },
+    {
+      "viewport": "390x844",
+      "mode": "light",
+      "name": "海棠笔记",
+      "page": "/Nekomi/#recent",
+      "primary": "#a24e70",
+      "radius": 18
+    },
+    {
+      "viewport": "390x844",
+      "mode": "dark",
+      "name": "海棠笔记",
+      "page": "/Nekomi/#recent",
+      "primary": "#a24e70",
+      "radius": 18
+    }
+  ],
+  "empty": [
+    {
+      "viewport": "1440x900",
+      "mode": "light",
+      "name": "Nekomi",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    },
+    {
+      "viewport": "1440x900",
+      "mode": "dark",
+      "name": "Nekomi",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    },
+    {
+      "viewport": "390x844",
+      "mode": "light",
+      "name": "Nekomi",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    },
+    {
+      "viewport": "390x844",
+      "mode": "dark",
+      "name": "Nekomi",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    }
+  ],
+  "personal": [
+    {
+      "viewport": "1440x900",
+      "mode": "light",
+      "name": "小林的小窝",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    },
+    {
+      "viewport": "1440x900",
+      "mode": "dark",
+      "name": "小林的小窝",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    },
+    {
+      "viewport": "390x844",
+      "mode": "light",
+      "name": "小林的小窝",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    },
+    {
+      "viewport": "390x844",
+      "mode": "dark",
+      "name": "小林的小窝",
+      "page": "/#recent",
+      "primary": "#8064b1",
+      "radius": 20
+    }
+  ]
+}

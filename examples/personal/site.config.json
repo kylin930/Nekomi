@@ -1,0 +1,44 @@
+{
+  "demo": true,
+  "demoNotice": "本页文章、日期、分类与标签均为演示数据。",
+  "publishing": {
+    "url": "",
+    "base": "/",
+    "language": "zh-CN",
+    "indexing": false,
+    "pageSize": 6,
+    "author": "",
+    "authorUrl": "",
+    "socialImage": ""
+  },
+  "appearance": {
+    "color": "#8064b1",
+    "wallpaper": {
+      "enabled": true,
+      "light": "https://www.nekopara.uk/pic_api",
+      "dark": "",
+      "position": "center",
+      "fit": "cover",
+      "lightOverlay": 0.6,
+      "darkOverlay": 0.68,
+      "lightSurface": 0.84,
+      "darkSurface": 0.88,
+      "cacheHours": 24,
+      "lightReaderSurface": 0.97,
+      "darkReaderSurface": 0.97
+    }
+  },
+  "site": {
+    "name": "小林的小窝",
+    "tagline": "分享技术、日常",
+    "intro": "前端开发，偶尔记录生活。",
+    "avatar": "",
+    "avatarAlt": "小林的小窝站点头像",
+    "avatarFallback": "林"
+  },
+  "friends": [],
+  "comments": {
+    "anchorsEnabled": false,
+    "items": []
+  }
+}

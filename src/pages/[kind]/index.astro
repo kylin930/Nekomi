@@ -1,9 +1,10 @@
 ---
 import type { GetStaticPaths } from 'astro';
+import { config } from '../../config/site';
 import BlogHome from '../../components/BlogHome.astro';
 import { getPosts } from '../../lib/posts';
 import { listing } from '../../lib/pagination';
-export const getStaticPaths = (() => ['categories', 'tags', 'archive'].map(kind => ({ params: { kind } }))) satisfies GetStaticPaths;
+export const getStaticPaths = (() => ['categories', 'tags', 'archive'].filter(kind => kind === 'archive' || config.content[kind as 'categories' | 'tags']).map(kind => ({ params: { kind } }))) satisfies GetStaticPaths;
 const feed = listing(await getPosts());
 ---
 <BlogHome feed={feed} initialTab={Astro.params.kind} />

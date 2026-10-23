@@ -54,7 +54,7 @@ export function createFeed(site, signal, saved) {
     more.hidden = !hasMore() && !failed;
     more.disabled = busy || deferred; more.loading = busy || deferred;
     more.textContent = failed ? '重试加载' : '加载更多';
-    status.textContent = failed ? '暂时没能加载，点击重试。' : busy || deferred ? '正在加载文章…' : hasMore() ? `已显示 ${list.children.length} / ${searching ? matches.length : root.dataset.total} 篇` : '已经读到最后了';
+    status.textContent = failed ? '暂时没能加载，点击重试。' : busy || deferred ? '正在加载文章…' : hasMore() ? `已显示 ${list.children.length} / ${searching ? matches.length : root.dataset.total} 篇` : (site.data.posts.length ? '已经读到最后了' : '');
     root.setAttribute('aria-busy', String(busy || deferred));
     if (focusPending && !busy && !deferred) queueMicrotask(focusResult);
   }
@@ -143,7 +143,7 @@ export function createFeed(site, signal, saved) {
   }
   restore(saved); controls();
   more.addEventListener('click', () => load(shown === 0 && Boolean(query.trim()), true), { signal });
-  if ('IntersectionObserver' in window) {
+  if (site.data.content.infiniteScroll && 'IntersectionObserver' in window) {
     observer = new IntersectionObserver(entries => {
       if (entries.some(entry => entry.isIntersecting) && root.getClientRects().length && !failed && !deferred) load(shown === 0 && Boolean(query.trim()));
     }, { rootMargin: '360px 0px' });

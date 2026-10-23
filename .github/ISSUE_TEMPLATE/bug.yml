@@ -1,0 +1,22 @@
+name: Bug report / 问题反馈
+description: 报告可复现的问题
+body:
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 重现步骤、预期和实际结果
+      description: 附上最小配置和 Markdown，移除私密信息。
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境
+      description: 提交版本、Node/npm、浏览器、视口、主题模式、根域或子路径。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 日志或截图
+      description: 配置错误请保留字段路径，不要上传密钥。

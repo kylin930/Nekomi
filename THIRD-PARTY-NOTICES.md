@@ -66,3 +66,14 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 - 默认入口：https://www.nekopara.uk/pic_api
 - 站长明确要求接入；图片由接口重定向至外部存储，不随主题源码打包。交付截图与录屏包含接口实际返回的图片。
 - 素材权利归各自权利人，不属于主题 MIT 许可，也不表示主题获得了随机池内所有图片的再分发授权。可配置站长已审核的固定图片替换。
+
+
+## P2.5 通用模板与第三方服务
+
+默认配置不含个人域名、邮箱、头像 URL 或随机壁纸请求；外部统计脚本 / 评论服务默认关闭。原站完整配置位于 examples/personal，启用前由部署者自行确认图片服务使用权。入门文章均为项目原创示例，明确 demo:true，不进入正式索引。旧十篇示例与项目自身界面截图保留用于迁移 / 回归，不包含打包的第三方动漫原图。
+
+可选 Umami 集成只按用户配置加载其部署提供的脚本；本仓库不复制或捆绑 Umami 源码，部署者需遵守对应服务和隐私要求。Material Icons 的 Google Fonts 请求仍然存在；没有默默新增分析请求。
+
+配置校验使用 Astro 公开的 astro/zod 导出（Zod，MIT，https://github.com/colinhacks/zod）。Node 内置模块、Astro 官方 RSS / Sitemap 仅参与构建。生产输出没有 Python 测试、screenshots、examples 或配置源文件；图片说明已移至 docs/，不进入生产输出。
+
+构建会运行 `npm run licenses`，在静态产物输出 THIRD-PARTY-LICENSES.txt，保留浏览器分发代码的许可与版权。完整直接依赖及构建工具特殊许可清单见 [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md)，不将 Sharp / 图像编解码器的 LGPL 或 MPL 依赖误标为 MIT。

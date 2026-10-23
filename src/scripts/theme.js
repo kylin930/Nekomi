@@ -9,14 +9,15 @@ export function createTheme(data) {
   var labels = { light: '浅色', dark: '深色', auto: '跟随系统' };
   var icons = { light: 'light_mode', dark: 'dark_mode', auto: 'contrast' };
   function read() {
-    try { var value = localStorage.getItem(KEY); return modes.includes(value) ? value : 'auto'; }
-    catch (_) { return 'auto'; }
+    try { var value = localStorage.getItem(KEY); return modes.includes(value) ? value : data.appearance.mode; }
+    catch (_) { return data.appearance.mode; }
   }
   var mode = read();
   var appearance = data.appearance;
   var baseUrl = new URL(data.base, location.origin);
   var source = /^#(?:[a-f0-9]{3}|[a-f0-9]{6})$/i.test(appearance.color || '') ? appearance.color : '#8064b1';
   setColorScheme(source, { customColors: [
+    ...(appearance.secondary ? [{ name: 'accent', value: appearance.secondary }] : []),
     { name: 'blossom', value: '#b65e82' }, { name: 'sky', value: '#427f9d' }
   ] });
   var wallpaper = appearance.wallpaper || {};
@@ -121,6 +122,9 @@ export function createTheme(data) {
   }
   function syncDocument() {
     setTheme(mode);
+    if (appearance.secondary) {
+      for (const [role, accent] of [['secondary', 'accent'], ['on-secondary', 'on-accent'], ['secondary-container', 'accent-container'], ['on-secondary-container', 'on-accent-container']]) document.documentElement.style.setProperty('--mdui-color-' + role, `var(--mdui-color-${accent})`);
+    }
     document.body.classList.toggle('has-wallpaper', !layer.hidden);
     var nextLabel = labels[modes[(modes.indexOf(mode) + 1) % modes.length]];
     document.querySelectorAll('[data-theme-control]').forEach(function (container) {
@@ -134,6 +138,7 @@ export function createTheme(data) {
     if (event.key === KEY || event.key === null) apply(read(), false);
   });
   function prepareSwap(newDocument) {
+    newDocument.documentElement.style.cssText = document.documentElement.style.cssText;
     newDocument.documentElement.className = document.documentElement.className;
     // MDUI generates this palette only once. Give Astro a matching persistent head node.
     newDocument.head.append(palette.cloneNode(true));

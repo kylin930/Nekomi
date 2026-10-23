@@ -1,0 +1,142 @@
+{
+  "$schema": "../site.schema.json",
+  "demo": true,
+  "demoNotice": "示例内容，请替换为自己的文章。",
+  "site": {
+    "name": "Nekomi",
+    "tagline": "分享技术、日常",
+    "intro": "在这里，记录想分享的事。",
+    "avatar": "",
+    "avatarAlt": "站点头像",
+    "avatarFallback": "N",
+    "email": "",
+    "social": []
+  },
+  "publishing": {
+    "url": "",
+    "base": "/",
+    "language": "zh-CN",
+    "indexing": false,
+    "pageSize": 6,
+    "author": "",
+    "authorUrl": "",
+    "socialImage": ""
+  },
+  "appearance": {
+    "preset": "default",
+    "color": "#8064b1",
+    "secondary": "",
+    "mode": "auto",
+    "font": "\"Segoe UI\", system-ui, -apple-system, \"PingFang SC\", \"Microsoft YaHei\", sans-serif",
+    "headingFont": "\"Noto Serif CJK SC\", \"Songti SC\", \"STSong\", ui-serif, serif",
+    "radius": 20,
+    "wallpaper": {
+      "enabled": false,
+      "light": "",
+      "dark": "",
+      "position": "center",
+      "fit": "cover",
+      "lightOverlay": 0.6,
+      "darkOverlay": 0.68,
+      "lightSurface": 0.84,
+      "darkSurface": 0.88,
+      "lightReaderSurface": 0.97,
+      "darkReaderSurface": 0.97,
+      "cacheHours": 24
+    }
+  },
+  "layout": {
+    "width": 1440,
+    "readerWidth": 760,
+    "sidebarWidth": 320,
+    "modules": [
+      "profile",
+      "social",
+      "search",
+      "tabs"
+    ],
+    "sidebarTabs": [
+      "updates",
+      "friends",
+      "comments"
+    ]
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "id": "recent",
+        "label": "全部文章",
+        "enabled": true
+      },
+      {
+        "id": "categories",
+        "label": "分类",
+        "enabled": true
+      },
+      {
+        "id": "tags",
+        "label": "标签",
+        "enabled": true
+      },
+      {
+        "id": "archive",
+        "label": "归档",
+        "enabled": true
+      }
+    ],
+    "links": []
+  },
+  "home": {
+    "eyebrow": "技术、灵感，还有日常",
+    "description": "",
+    "emptyTitle": "这里还很安静",
+    "emptyDescription": "第一篇文章，正在路上。"
+  },
+  "cards": {
+    "cover": "auto",
+    "excerpt": true,
+    "date": true,
+    "category": true,
+    "tags": true,
+    "readMore": true,
+    "latest": true
+  },
+  "reading": {
+    "toc": true,
+    "copyCode": true,
+    "cover": true,
+    "metadata": true,
+    "neighbors": true,
+    "motion": true
+  },
+  "content": {
+    "infiniteScroll": true,
+    "excerptLength": 140,
+    "categories": true,
+    "tags": true
+  },
+  "features": {
+    "search": true,
+    "rss": true,
+    "sitemap": true
+  },
+  "footer": {
+    "enabled": true,
+    "since": 2026,
+    "text": "分享技术，也记录生活。",
+    "copyright": "",
+    "links": []
+  },
+  "friends": [],
+  "comments": {
+    "provider": "none",
+    "anchorsEnabled": false,
+    "items": []
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": "umami",
+    "scriptUrl": "",
+    "websiteId": ""
+  }
+}

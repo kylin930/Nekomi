@@ -55,7 +55,7 @@ function createSite() {
   const menu = document.getElementById('menu-button');
   const drawerClose = document.getElementById('drawer-close');
   const friendsDialog = document.getElementById('friends-dialog');
-  [drawer, friendsDialog].forEach(component => component.addEventListener('close', () => { waitForClosed(component); }));
+  [drawer, friendsDialog].forEach(component => component?.addEventListener('close', () => { waitForClosed(component); }));
   const mobile = matchMedia('(max-width: 1119px)');
   let search = '';
   let pendingSearchFocus = '';
@@ -64,7 +64,7 @@ function createSite() {
     if (target && location.href === target) queueMicrotask(() => document.dispatchEvent(new Event('nekomi:search-submit')));
   });
   function setSearch(value) { search = String(value); document.querySelectorAll('[data-search]').forEach(field => { field.value = search; }); }
-  function openDrawer(find = false) { drawerClose.autofocus = !find; drawer.querySelector('[data-search]').autofocus = find; drawer.open = true; }
+  function openDrawer(find = false) { drawerClose.autofocus = !find; const field = drawer.querySelector('[data-search]'); if (field) field.autofocus = find; drawer.open = true; }
   function notify(text) { const feedback = document.getElementById('site-feedback'); feedback.textContent = text; feedback.open = true; }
   document.querySelectorAll('.sidebar-tabs').forEach(tabs => {
     a11y.tabs(tabs);
@@ -92,6 +92,7 @@ function createSite() {
     if (target?.matches('[data-friends-all]') && !target.disabled) { await closeModal(drawer); friendsDialog.open = true; }
     if (target?.id === 'friends-close') friendsDialog.open = false;
   });
+  if (data.features.search && data.layout.modules.includes('search')) {
   document.addEventListener('input', event => {
     const field = event.target.closest('[data-search]');
     if (!field) return;
@@ -110,10 +111,11 @@ function createSite() {
       return;
     }
     const active = document.activeElement;
-    if (event.key !== '/' || event.isComposing || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || active.isContentEditable || active.matches('input, textarea, select, mdui-text-field')) return;
+    if (!data.features.search || event.key !== '/' || event.isComposing || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || active.isContentEditable || active.matches('input, textarea, select, mdui-text-field')) return;
     event.preventDefault();
-    if (mobile.matches && !drawer.open) openDrawer(true); else document.querySelector(`[data-sidebar="${mobile.matches ? 'mobile' : 'desktop'}"] [data-search]`).focus();
+    if (mobile.matches && !drawer.open) openDrawer(true); else document.querySelector(`[data-sidebar="${mobile.matches ? 'mobile' : 'desktop'}"] [data-search]`)?.focus();
   });
+  }
   document.addEventListener('error', event => imageFailure(event.target), true);
   // Top App Bar Title clones its content into its own shadow root. Image error
   // events are not composed, so handle those copies at that root as well.

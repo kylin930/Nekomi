@@ -1,0 +1,317 @@
+import { z } from "astro/zod";
+// Shared by astro.config, Content Collections and server components. No browser bundle.
+const text = (fallback = "") => z.string().max(1000).default(fallback);
+const flag = (fallback = true) => z.boolean().default(fallback);
+/** @template {import('astro/zod').z.ZodRawShape} T @param {T} shape */
+const section = (shape) => z.strictObject(shape).prefault({});
+const color = z
+  .string()
+  .regex(/^#[\da-f]{6}$/i, "Use a six-digit hex color, e.g. #8064b1.");
+const image = z
+  .string()
+  .max(2048)
+  .refine((v) => {
+    if (!v) return true;
+    if (/^https?:\/\//.test(v)) {
+      try {
+        const u = new URL(v);
+        return !u.username && !u.password;
+      } catch {
+        return false;
+      }
+    }
+    return (
+      !v.startsWith("//") && !/[<>:\\]/.test(v) && !v.split("/").includes("..")
+    );
+  }, "Use an HTTP(S) URL or a local image path without ../ segments.")
+  .default("");
+const link = z
+  .string()
+  .max(2048)
+  .refine(
+    (v) => /^(https?:\/\/[^\s]+|mailto:[^\s]+|\/(?!\/)[^\s]*)$/.test(v),
+    "Use an HTTP(S), mailto: or site-relative / URL.",
+  );
+const web = z.url({ protocol: /^https?$/ });
+const font = z
+  .string()
+  .min(1)
+  .max(256)
+  .regex(
+    /^[^;{}<>@\n\r\\]+$/,
+    "Use a CSS font-family stack, without CSS declarations.",
+  );
+/** @template {import('astro/zod').z.ZodType} T @param {T} schema */
+const unique = (schema) =>
+  z.array(schema).superRefine((items, ctx) => {
+    if (
+      new Set(items.map((v) => (typeof v === "string" ? v : v.id))).size !==
+      items.length
+    )
+      ctx.addIssue({
+        code: "custom",
+        message: "Entries must have unique IDs.",
+      });
+  });
+const tab = z.enum(["recent", "categories", "tags", "archive"]);
+const sidebarTab = z.enum(["updates", "friends", "comments"]);
+export const originSchema = z.string().refine((value) => {
+  if (!value) return true;
+  try {
+    const u = new URL(value);
+    return (
+      ["http:", "https:"].includes(u.protocol) &&
+      !u.username &&
+      !u.password &&
+      u.pathname === "/" &&
+      !u.search &&
+      !u.hash
+    );
+  } catch {
+    return false;
+  }
+}, "Use an HTTP(S) origin without a path; put the path in publishing.base.");
+export const baseSchema = z
+  .string()
+  .regex(/^\/(?:[\w.~\-]+\/)*$/, "Start and end with /, e.g. /Nekomi/.")
+  .refine(
+    (value) => !value.split("/").some((part) => part === "." || part === ".."),
+    "Do not use . or .. path segments.",
+  );
+const languageSchema = z.string().refine((value) => {
+  try {
+    new Intl.Locale(value);
+    return true;
+  } catch {
+    return false;
+  }
+}, "Use a valid BCP 47 language, e.g. zh-CN.");
+export const readingSchema = z.strictObject({
+  toc: z.boolean().optional(),
+  copyCode: z.boolean().optional(),
+  cover: z.boolean().optional(),
+  metadata: z.boolean().optional(),
+  neighbors: z.boolean().optional(),
+  motion: z.boolean().optional(),
+});
+export const configSchema = section({
+  $schema: z.string().optional(),
+  demo: flag(true),
+  demoNotice: text("示例内容，请替换为自己的文章。"),
+  site: section({
+    name: z.string().min(1).max(80).default("Nekomi"),
+    tagline: text("分享技术、日常"),
+    intro: text("在这里，记录想分享的事。"),
+    avatar: image,
+    avatarAlt: text("站点头像"),
+    avatarFallback: z.string().max(2).default("N"),
+    email: z.union([z.literal(""), z.email()]).default(""),
+    social: z
+      .array(
+        z.strictObject({
+          name: z.string().min(1).max(40),
+          url: link,
+          icon: z
+            .string()
+            .regex(/^[\w-]+$/)
+            .default("link"),
+        }),
+      )
+      .default([]),
+  }),
+  publishing: section({
+    url: originSchema.default(""),
+    base: baseSchema.default("/"),
+    language: languageSchema.default("zh-CN"),
+    indexing: flag(false),
+    pageSize: z.number().int().min(2).max(24).default(6),
+    author: text(),
+    authorUrl: z.union([z.literal(""), web]).default(""),
+    socialImage: image,
+  }),
+  appearance: section({
+    preset: z.enum(["default", "fresh", "minimal"]).default("default"),
+    color: color.default("#8064b1"),
+    secondary: z.union([z.literal(""), color]).default(""),
+    mode: z.enum(["auto", "light", "dark"]).default("auto"),
+    font: font.default(
+      '"Segoe UI", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif',
+    ),
+    headingFont: font.default(
+      '"Noto Serif CJK SC", "Songti SC", "STSong", ui-serif, serif',
+    ),
+    radius: z.number().int().min(8).max(28).default(20),
+    wallpaper: section({
+      enabled: flag(false),
+      light: image,
+      dark: image,
+      position: z
+        .string()
+        .max(80)
+        .regex(/^[\w.% -]+$/)
+        .default("center"),
+      fit: z.enum(["cover", "contain"]).default("cover"),
+      lightOverlay: z.number().min(0).max(1).default(0.6),
+      darkOverlay: z.number().min(0).max(1).default(0.68),
+      lightSurface: z.number().min(0.65).max(1).default(0.84),
+      darkSurface: z.number().min(0.65).max(1).default(0.88),
+      lightReaderSurface: z.number().min(0.85).max(1).default(0.97),
+      darkReaderSurface: z.number().min(0.85).max(1).default(0.97),
+      cacheHours: z.number().min(0).max(168).default(24),
+    }),
+  }),
+  layout: section({
+    width: z.number().int().min(1360).max(1600).default(1440),
+    readerWidth: z.number().int().min(680).max(800).default(760),
+    sidebarWidth: z.number().int().min(280).max(320).default(320),
+    modules: unique(z.enum(["profile", "social", "search", "tabs"])).default([
+      "profile",
+      "social",
+      "search",
+      "tabs",
+    ]),
+    sidebarTabs: unique(sidebarTab).default(["updates", "friends", "comments"]),
+  }),
+  navigation: section({
+    tabs: unique(
+      z.strictObject({
+        id: tab,
+        label: z.string().min(1).max(12),
+        enabled: flag(),
+      }),
+    ).default([
+      { id: "recent", label: "全部文章", enabled: true },
+      { id: "categories", label: "分类", enabled: true },
+      { id: "tags", label: "标签", enabled: true },
+      { id: "archive", label: "归档", enabled: true },
+    ]),
+    links: z
+      .array(z.strictObject({ label: z.string().min(1).max(40), url: link }))
+      .default([]),
+  }),
+  home: section({
+    eyebrow: text("技术、灵感，还有日常"),
+    description: text(),
+    emptyTitle: text("这里还很安静"),
+    emptyDescription: text("第一篇文章，正在路上。"),
+  }),
+  cards: section({
+    cover: z.enum(["auto", "top", "none"]).default("auto"),
+    excerpt: flag(),
+    date: flag(),
+    category: flag(),
+    tags: flag(),
+    readMore: flag(),
+    latest: flag(),
+  }),
+  reading: section({
+    toc: flag(),
+    copyCode: flag(),
+    cover: flag(),
+    metadata: flag(),
+    neighbors: flag(),
+    motion: flag(),
+  }),
+  content: section({
+    infiniteScroll: flag(),
+    excerptLength: z.number().int().min(40).max(400).default(140),
+    categories: flag(),
+    tags: flag(),
+  }),
+  features: section({ search: flag(), rss: flag(), sitemap: flag() }),
+  footer: section({
+    enabled: flag(),
+    since: z.number().int().min(1970).max(2100).default(2026),
+    text: text("分享技术，也记录生活。"),
+    copyright: text(),
+    links: z
+      .array(z.strictObject({ label: z.string().min(1).max(40), url: link }))
+      .default([]),
+  }),
+  friends: z
+    .array(
+      z.strictObject({
+        name: z.string().min(1),
+        url: web,
+        avatar: image,
+        description: text(),
+      }),
+    )
+    .default([]),
+  comments: section({
+    provider: z.enum(["none", "link"]).default("none"),
+    anchorsEnabled: flag(false),
+    items: z
+      .array(
+        z.strictObject({
+          id: z.string().min(1),
+          author: z.string().min(1),
+          avatar: image,
+          excerpt: z.string(),
+          postId: z.string(),
+          createdAt: z.iso.datetime({ offset: true }),
+          anchor: z.string().optional(),
+          demo: flag(false),
+        }),
+      )
+      .default([]),
+  }),
+  analytics: section({
+    enabled: flag(false),
+    provider: z.literal("umami").default("umami"),
+    scriptUrl: z.union([z.literal(""), web]).default(""),
+    websiteId: z
+      .string()
+      .max(100)
+      .regex(/^[\w-]*$/)
+      .default(""),
+  }),
+}).superRefine((value, ctx) => {
+  if (!value.navigation.tabs.some((t) => t.id === "recent" && t.enabled))
+    ctx.addIssue({
+      code: "custom",
+      path: ["navigation", "tabs"],
+      message:
+        "The recent (all articles) tab must remain enabled for search and pagination.",
+    });
+  if (
+    value.analytics.enabled &&
+    (!value.analytics.scriptUrl || !value.analytics.websiteId)
+  )
+    ctx.addIssue({
+      code: "custom",
+      path: ["analytics"],
+      message: "Enabled Umami requires scriptUrl and websiteId.",
+    });
+});
+export const presets = {
+  default: {},
+  fresh: { color: "#427f79", secondary: "#76844c", radius: 24 },
+  minimal: {
+    color: "#596477",
+    radius: 12,
+    headingFont: 'system-ui, "PingFang SC", sans-serif',
+  },
+};
+export function resolveConfig(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input))
+    throw new Error(
+      "Invalid Nekomi configuration: config must be a JSON object.",
+    );
+  const appearance = input.appearance === undefined ? {} : input.appearance;
+  const parsed = configSchema.safeParse({
+    ...input,
+    appearance:
+      appearance && typeof appearance === "object" && !Array.isArray(appearance)
+        ? { ...presets[appearance.preset], ...appearance }
+        : appearance,
+  });
+  if (!parsed.success)
+    throw new Error(
+      "Invalid Nekomi configuration:\n" +
+        parsed.error.issues
+          .map((i) => `  ${i.path.join(".") || "config"}: ${i.message}`)
+          .join("\n"),
+    );
+  return parsed.data;
+}

@@ -1,5 +1,7 @@
 ---
 import { config } from '../config/site';
-import { withBase } from '../lib/urls';
+import { withBase, navigationUrl } from '../lib/urls';
+const year = new Date().getUTCFullYear();
+const range = config.footer.since < year ? `${config.footer.since}–${year}` : String(config.footer.since);
 ---
-<footer class="site-footer" data-site-footer><p>© 2026 {config.site.name}<span class="footer-dot">·</span>分享技术，也记录生活。<span class="footer-dot">·</span><a href={withBase('rss.xml')} data-astro-reload>RSS 订阅</a></p></footer>
+{config.footer.enabled && <footer class="site-footer" data-site-footer><p>{config.footer.copyright || `© ${range} ${config.site.name}`}{config.footer.text && <><span class="footer-dot">·</span>{config.footer.text}</>}{config.footer.links.map(link => <><span class="footer-dot">·</span><a href={navigationUrl(link.url)}>{link.label}</a></>)}{config.features.rss && <><span class="footer-dot">·</span><a href={withBase('rss.xml')} data-astro-reload>RSS 订阅</a></>}</p></footer>}

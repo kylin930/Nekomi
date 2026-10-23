@@ -1,20 +1,30 @@
-# Markdown 文章约定
+# 文章 Frontmatter
 
-文章由 Astro Content Collections 在构建时读取，路径为 `src/content/posts/<id>.md`，文件名作为稳定 ID。输出 `/posts/<id>/index.html`，没有浏览器正文 fetch 或生产 Node 服务。十篇文章均为演示，不代表站长真实经历。
+文章位于 src/content/posts/*.md，文件名为稳定 ID（/posts/<id>/）。schema 在 src/content.config.ts；正文由 Astro Content Collections / Markdown 在构建期渲染。
 
-Frontmatter 必需 `title`、`excerpt`、ISO 日期字符串 `date`、`category`、`tags`；可选 `cover`、`coverAlt`、`demo`、真实修改日期 `updated`。JSON 或 YAML 均可，日期建议加引号。字段校验在 `src/content.config.ts`，新增文章会自动进入首页、归档、搜索、最近更新和上一篇 / 下一篇。
+| 字段 | 类型 / 默认值 | 说明 |
+| --- | --- | --- |
+| title | string，必填 | 标题 |
+| date | YYYY-MM-DD，必填 | 发布日期，建议加引号 |
+| excerpt | string，可省略 | 摘要；缺省从正文提取，长度由 content.excerptLength 控制 |
+| description | string，可省略 | 单篇 SEO 描述，缺省使用摘要 |
+| author | string，可省略 | 单篇署名，缺省使用 publishing.author / 站名 |
+| updated | YYYY-MM-DD，可省略 | 真实更新日期；不填写时不编造 |
+| category | string，默认 未分类 | 分类 |
+| tags | string[]，默认 [] | 标签 |
+| pinned | boolean，默认 false | 列表置顶，再按发布日期排序；RSS 保持时间顺序 |
+| draft | boolean，默认 false | 排除所有公开页面、搜索、导航和订阅 |
+| cover / coverAlt | string，默认空 | 本地可优化图片或 HTTP(S) 地址及替代文字 |
+| demo | boolean，默认 false | 示例文章必须 true：始终 noindex，不进入 RSS / Sitemap |
+| commentsUrl | HTTP(S) URL，可省略 | comments.provider=link 时显示真实讨论入口 |
+| reading | object，可省略 | toc/copyCode/cover/metadata/neighbors/motion 布尔开关，覆盖全站 reading |
 
-正文从段落或 h2 开始，不重复 h1 / 页头。普通 Markdown、围栏代码、GFM 表格都可使用；复杂表格可保留 `caption`、`th scope` 等 HTML。内容只接受仓库中可信作者，内嵌 HTML 会参与静态构建，不提供用户投稿清洗或执行沙箱。
+```yaml
+reading:
+  toc: false
+  copyCode: false
+```
 
-- `## 标题 {#stable-id}` 保留显式锚点，省略时由 Astro 生成 slug。已有标题 ID 不随迁移变化。正文 h2–h6 自动生成层级目录。
-- 使用 `/posts/another-id/` 与 `#stable-id` 链接；站内根路径由插件加上构建 `SITE_BASE`。不要自行重复添加 `/Nekomi/` 前缀。
-- 可优化图片放 `src/assets/images/`（配置仍用 `images/...`），`public/images/` 保留原样资源支持，正文可用 `![说明](/images/example.webp)`。建议提供自然尺寸避免布局位移；原示例的 figure / figcaption 继续保留。Markdown 和 HTML figure 的本地图片均交给 Astro 图片流程生成 WebP / srcset / 固有尺寸；标准相对 Markdown 图片也可用。外部图片不在构建时抓取，作者应给出尺寸。两种写法均支持子路径部署，随机壁纸除外。
-- 代码围栏注明语言；Astro Shiki 在构建时生成明暗语法高亮，之后自动补一层原生复制按钮、语言标签和横向滚动，不改变代码文本。长表格和代码不撑宽正文。
-- 头图由 `cover` 指定，无图不渲染空框，坏图回退由共享运行时处理。
+标题从 H2 开始；支持显式稳定锚点：`## 标题 {#stable-id}`。代码围栏注明语言，Shiki 生成浅深高亮。图片、表格和长代码不会撑宽手机页面。可用 Markdown 原始 HTML，因此仅编写 / 构建可信内容，不作为不可信投稿入口。
 
-原 HTML 正文已迁移并删除。测试基线 `tests/fixtures/content-baseline.json` 保存迁移前各篇可见文本摘要、标题 ID 和完整代码，避免迁移丢失内容；新文章无需添加这份历史迁移基线。
-
-P2.3 不再把 `demo` 渲染成页面阶段提示，但该字段与站点 `demo` / `demoNotice` 继续保留。默认技术说明与日常建议仍是可替换样例，不能作为站长实际经历或项目成果。发布自己的站点时，应替换内容及日期，移除不需要的样例。P2 原始迁移摘要保留；当前文案的回归摘要与明确的标题 / 代码变更放在 `tests/fixtures/editorial-p23.json`，标题 ID 和 Markdown 排版能力仍逐项校验。
-
-
-P2.4 的索引开关、部署地址、分享图片与 Sitemap / RSS 规则见 [发布说明](../../docs/PUBLISHING.md)。默认示例继续 noindex，不生成真实 BlogPosting 或订阅条目；替换为自己的内容后，需同时配置站点发布开关和文章 demo 字段。分类 / 标签 / 月份与分页 URL 自动构建，正文和原锚点保持不变。
+默认仅两篇入门样例，可全部删除。旧十篇示例移至 examples/demo-posts，`npm run dev:personal` / `build:personal` 可查看完整旧内容与壁纸能力而不覆盖当前文章。

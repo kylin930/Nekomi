@@ -32,10 +32,10 @@ export function structuredSite(name: string, description: string) {
 }
 export function structuredArticle(post: Post, image?: string) {
   if (post.data.demo || !publishing.indexing) return [];
-  return [{ '@type': 'BlogPosting', headline: post.data.title, description: post.data.excerpt,
+  return [{ '@type': 'BlogPosting', headline: post.data.title, description: post.data.description || post.data.excerpt,
     datePublished: post.data.date, ...(post.data.updated ? { dateModified: post.data.updated } : {}),
     inLanguage: publishing.language, articleSection: post.data.category, keywords: post.data.tags,
     mainEntityOfPage: absoluteUrl(postUrl(post.id)), ...(image ? { image } : {}),
-    author: { '@type': 'Person', name: publishing.author, ...(externalUrl(publishing.authorUrl) ? { url: externalUrl(publishing.authorUrl) } : {}) },
+    author: { '@type': 'Person', name: post.data.author || publishing.author, ...((!post.data.author || post.data.author === publishing.author) && externalUrl(publishing.authorUrl) ? { url: externalUrl(publishing.authorUrl) } : {}) },
   }];
 }

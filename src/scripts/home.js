@@ -7,7 +7,7 @@ export function initHome(site, signal) {
   const tabs = document.getElementById('content-tabs');
   const title = document.getElementById('feed-title');
   const path = location.pathname;
-  const tabIds = ['recent', 'categories', 'tags', 'archive'];
+  const tabIds = tabs ? [...tabs.querySelectorAll('mdui-tab')].map(tab => tab.getAttribute('value')) : ['recent'];
   prepareInitialList();
   const snapshot = currentList();
   const feed = createFeed(site, signal, snapshot?.feed);
@@ -30,6 +30,7 @@ export function initHome(site, signal) {
     showTab(value);
   }
   function setQuery(value, focus = false, fromLocation = false) {
+    if (!site.data.features.search) value = '';
     const hadQuery = Boolean(query.trim());
     if (String(value).trim() && tabs && tabs.value !== 'recent') navigateTab('recent', !fromLocation);
     query = String(value); site.setSearch(query);

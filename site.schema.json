@@ -1,0 +1,761 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "default": {},
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "demo": {
+      "default": true,
+      "type": "boolean"
+    },
+    "demoNotice": {
+      "default": "示例内容，请替换为自己的文章。",
+      "type": "string",
+      "maxLength": 1000
+    },
+    "site": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "name": {
+          "default": "Nekomi",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "tagline": {
+          "default": "分享技术、日常",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "intro": {
+          "default": "在这里，记录想分享的事。",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "avatar": {
+          "default": "",
+          "type": "string",
+          "maxLength": 2048
+        },
+        "avatarAlt": {
+          "default": "站点头像",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "avatarFallback": {
+          "default": "N",
+          "type": "string",
+          "maxLength": 2
+        },
+        "email": {
+          "default": "",
+          "anyOf": [
+            {
+              "type": "string",
+              "const": ""
+            },
+            {
+              "type": "string",
+              "format": "email",
+              "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+            }
+          ]
+        },
+        "social": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "url": {
+                "type": "string",
+                "maxLength": 2048
+              },
+              "icon": {
+                "default": "link",
+                "type": "string",
+                "pattern": "^[\\w-]+$"
+              }
+            },
+            "required": [
+              "name",
+              "url"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "publishing": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "url": {
+          "default": "",
+          "type": "string"
+        },
+        "base": {
+          "default": "/",
+          "type": "string",
+          "pattern": "^\\/(?:[\\w.~\\-]+\\/)*$"
+        },
+        "language": {
+          "default": "zh-CN",
+          "type": "string"
+        },
+        "indexing": {
+          "default": false,
+          "type": "boolean"
+        },
+        "pageSize": {
+          "default": 6,
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 24
+        },
+        "author": {
+          "default": "",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "authorUrl": {
+          "default": "",
+          "anyOf": [
+            {
+              "type": "string",
+              "const": ""
+            },
+            {
+              "type": "string",
+              "format": "uri"
+            }
+          ]
+        },
+        "socialImage": {
+          "default": "",
+          "type": "string",
+          "maxLength": 2048
+        }
+      },
+      "additionalProperties": false
+    },
+    "appearance": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "preset": {
+          "default": "default",
+          "type": "string",
+          "enum": [
+            "default",
+            "fresh",
+            "minimal"
+          ]
+        },
+        "color": {
+          "default": "#8064b1",
+          "type": "string",
+          "pattern": "^#[\\da-f]{6}$"
+        },
+        "secondary": {
+          "default": "",
+          "anyOf": [
+            {
+              "type": "string",
+              "const": ""
+            },
+            {
+              "type": "string",
+              "pattern": "^#[\\da-f]{6}$"
+            }
+          ]
+        },
+        "mode": {
+          "default": "auto",
+          "type": "string",
+          "enum": [
+            "auto",
+            "light",
+            "dark"
+          ]
+        },
+        "font": {
+          "default": "\"Segoe UI\", system-ui, -apple-system, \"PingFang SC\", \"Microsoft YaHei\", sans-serif",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[^;{}<>@\\n\\r\\\\]+$"
+        },
+        "headingFont": {
+          "default": "\"Noto Serif CJK SC\", \"Songti SC\", \"STSong\", ui-serif, serif",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[^;{}<>@\\n\\r\\\\]+$"
+        },
+        "radius": {
+          "default": 20,
+          "type": "integer",
+          "minimum": 8,
+          "maximum": 28
+        },
+        "wallpaper": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "default": false,
+              "type": "boolean"
+            },
+            "light": {
+              "default": "",
+              "type": "string",
+              "maxLength": 2048
+            },
+            "dark": {
+              "default": "",
+              "type": "string",
+              "maxLength": 2048
+            },
+            "position": {
+              "default": "center",
+              "type": "string",
+              "maxLength": 80,
+              "pattern": "^[\\w.% -]+$"
+            },
+            "fit": {
+              "default": "cover",
+              "type": "string",
+              "enum": [
+                "cover",
+                "contain"
+              ]
+            },
+            "lightOverlay": {
+              "default": 0.6,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "darkOverlay": {
+              "default": 0.68,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "lightSurface": {
+              "default": 0.84,
+              "type": "number",
+              "minimum": 0.65,
+              "maximum": 1
+            },
+            "darkSurface": {
+              "default": 0.88,
+              "type": "number",
+              "minimum": 0.65,
+              "maximum": 1
+            },
+            "lightReaderSurface": {
+              "default": 0.97,
+              "type": "number",
+              "minimum": 0.85,
+              "maximum": 1
+            },
+            "darkReaderSurface": {
+              "default": 0.97,
+              "type": "number",
+              "minimum": 0.85,
+              "maximum": 1
+            },
+            "cacheHours": {
+              "default": 24,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 168
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "layout": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "width": {
+          "default": 1440,
+          "type": "integer",
+          "minimum": 1360,
+          "maximum": 1600
+        },
+        "readerWidth": {
+          "default": 760,
+          "type": "integer",
+          "minimum": 680,
+          "maximum": 800
+        },
+        "sidebarWidth": {
+          "default": 320,
+          "type": "integer",
+          "minimum": 280,
+          "maximum": 320
+        },
+        "modules": {
+          "default": [
+            "profile",
+            "social",
+            "search",
+            "tabs"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "profile",
+              "social",
+              "search",
+              "tabs"
+            ]
+          }
+        },
+        "sidebarTabs": {
+          "default": [
+            "updates",
+            "friends",
+            "comments"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "updates",
+              "friends",
+              "comments"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "navigation": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "tabs": {
+          "default": [
+            {
+              "id": "recent",
+              "label": "全部文章",
+              "enabled": true
+            },
+            {
+              "id": "categories",
+              "label": "分类",
+              "enabled": true
+            },
+            {
+              "id": "tags",
+              "label": "标签",
+              "enabled": true
+            },
+            {
+              "id": "archive",
+              "label": "归档",
+              "enabled": true
+            }
+          ],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "enum": [
+                  "recent",
+                  "categories",
+                  "tags",
+                  "archive"
+                ]
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 12
+              },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "links": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "url": {
+                "type": "string",
+                "maxLength": 2048
+              }
+            },
+            "required": [
+              "label",
+              "url"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "home": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "eyebrow": {
+          "default": "技术、灵感，还有日常",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "description": {
+          "default": "",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "emptyTitle": {
+          "default": "这里还很安静",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "emptyDescription": {
+          "default": "第一篇文章，正在路上。",
+          "type": "string",
+          "maxLength": 1000
+        }
+      },
+      "additionalProperties": false
+    },
+    "cards": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "cover": {
+          "default": "auto",
+          "type": "string",
+          "enum": [
+            "auto",
+            "top",
+            "none"
+          ]
+        },
+        "excerpt": {
+          "default": true,
+          "type": "boolean"
+        },
+        "date": {
+          "default": true,
+          "type": "boolean"
+        },
+        "category": {
+          "default": true,
+          "type": "boolean"
+        },
+        "tags": {
+          "default": true,
+          "type": "boolean"
+        },
+        "readMore": {
+          "default": true,
+          "type": "boolean"
+        },
+        "latest": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "reading": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "toc": {
+          "default": true,
+          "type": "boolean"
+        },
+        "copyCode": {
+          "default": true,
+          "type": "boolean"
+        },
+        "cover": {
+          "default": true,
+          "type": "boolean"
+        },
+        "metadata": {
+          "default": true,
+          "type": "boolean"
+        },
+        "neighbors": {
+          "default": true,
+          "type": "boolean"
+        },
+        "motion": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "content": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "infiniteScroll": {
+          "default": true,
+          "type": "boolean"
+        },
+        "excerptLength": {
+          "default": 140,
+          "type": "integer",
+          "minimum": 40,
+          "maximum": 400
+        },
+        "categories": {
+          "default": true,
+          "type": "boolean"
+        },
+        "tags": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "features": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "search": {
+          "default": true,
+          "type": "boolean"
+        },
+        "rss": {
+          "default": true,
+          "type": "boolean"
+        },
+        "sitemap": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "footer": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "since": {
+          "default": 2026,
+          "type": "integer",
+          "minimum": 1970,
+          "maximum": 2100
+        },
+        "text": {
+          "default": "分享技术，也记录生活。",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "copyright": {
+          "default": "",
+          "type": "string",
+          "maxLength": 1000
+        },
+        "links": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "url": {
+                "type": "string",
+                "maxLength": 2048
+              }
+            },
+            "required": [
+              "label",
+              "url"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "friends": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "avatar": {
+            "default": "",
+            "type": "string",
+            "maxLength": 2048
+          },
+          "description": {
+            "default": "",
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "name",
+          "url"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "comments": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "provider": {
+          "default": "none",
+          "type": "string",
+          "enum": [
+            "none",
+            "link"
+          ]
+        },
+        "anchorsEnabled": {
+          "default": false,
+          "type": "boolean"
+        },
+        "items": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "author": {
+                "type": "string",
+                "minLength": 1
+              },
+              "avatar": {
+                "default": "",
+                "type": "string",
+                "maxLength": 2048
+              },
+              "excerpt": {
+                "type": "string"
+              },
+              "postId": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "anchor": {
+                "type": "string"
+              },
+              "demo": {
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "author",
+              "excerpt",
+              "postId",
+              "createdAt"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "analytics": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "default": false,
+          "type": "boolean"
+        },
+        "provider": {
+          "default": "umami",
+          "type": "string",
+          "const": "umami"
+        },
+        "scriptUrl": {
+          "default": "",
+          "anyOf": [
+            {
+              "type": "string",
+              "const": ""
+            },
+            {
+              "type": "string",
+              "format": "uri"
+            }
+          ]
+        },
+        "websiteId": {
+          "default": "",
+          "type": "string",
+          "maxLength": 100,
+          "pattern": "^[\\w-]*$"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

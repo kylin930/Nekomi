@@ -1,0 +1,11 @@
+{
+  "site": {
+    "name": "Nekomi",
+    "tagline": "分享技术、日常",
+    "intro": "在这里，记录想分享的事。",
+    "avatarFallback": "N"
+  },
+  "appearance": { "preset": "default" },
+  "publishing": { "url": "", "base": "/", "indexing": false },
+  "demo": true
+}

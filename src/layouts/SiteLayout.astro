@@ -25,16 +25,18 @@ interface Props { title: string; description?: string; page?: 'home' | 'article'
 const { title, description = config.site.tagline, page = 'home', currentId, post } = Astro.props;
 const posts = await getPosts();
 const noindex = Astro.props.noindex ?? (page === 'error' || !canIndex(post ? [post] : posts));
+const a = config.appearance;
+const themeTokens = `--nekomi-latest-tint:${a.preset === 'minimal' ? '0%' : '18%'};--reader-width:${config.layout.readerWidth}px;--site-width:${config.layout.width}px;--sidebar-width:${config.layout.sidebarWidth}px;--reading-font:${a.font};--identity-font:${a.headingFont};--nekomi-shape-card:${a.radius}px;--nekomi-shape-pressed:${Math.max(8, a.radius - 4)}px`;
 const data = { ...config, posts: posts.map(postMetadata), base, pageSize: publishing.pageSize };
 const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest('hex').slice(0, 16);
 ---
 <!doctype html>
-<html lang={publishing.language} class="mdui-theme-auto" transition:animate="none">
+<html lang={publishing.language} style={themeTokens} class={'mdui-theme-' + a.mode} transition:animate="none">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <Seo title={title} description={description} noindex={noindex} post={post} />
-    <link rel="alternate" type="application/rss+xml" title={config.site.name + ' RSS'} href={withBase('rss.xml')} />
+    {config.features.rss && <link rel="alternate" type="application/rss+xml" title={config.site.name + ' RSS'} href={withBase('rss.xml')} />}
     <meta name="color-scheme" content="light dark" />
     <style is:global>
       html { background: #fdf7ff; color-scheme: light; }
@@ -42,16 +44,17 @@ const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest(
       @media (prefers-color-scheme: dark) { html.mdui-theme-auto { background: #19151f; color-scheme: dark; } }
     </style>
     <link rel="icon" href="data:," />
-    <script is:inline>
+    <script is:inline define:vars={{ defaultMode: a.mode }}>
       try {
         var savedTheme = window.NekomiTheme?.getMode() || localStorage.getItem('nekomi-theme');
         document.documentElement.classList.remove('mdui-theme-light', 'mdui-theme-dark', 'mdui-theme-auto');
-        document.documentElement.classList.add('mdui-theme-' + (['light', 'dark', 'auto'].includes(savedTheme) ? savedTheme : 'auto'));
-      } catch (_) { /* 无存储权限时跟随系统，单例在导航后恢复当前内存偏好。 */ }
+        document.documentElement.classList.add('mdui-theme-' + (['light', 'dark', 'auto'].includes(savedTheme) ? savedTheme : defaultMode));
+      } catch (_) { /* 无存储权限时使用配置默认值，单例在导航后恢复当前内存偏好。 */ }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Icons&family=Material+Icons+Outlined&display=swap" />
+    {config.analytics.enabled && <script is:inline async data-website-id={config.analytics.websiteId} src={config.analytics.scriptUrl} />}
     <ClientRouter />
   </head>
   <body data-page={page} data-post-id={currentId}>
