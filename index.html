@@ -6,6 +6,11 @@
   <meta name="description" content="小林的小窝，分享前端技术、设计与生活。纯静态博客首页演示。">
   <meta name="color-scheme" content="light dark">
   <title>小林的小窝 · 分享技术、日常</title>
+  <style>
+    html { background: #fdf7ff; color-scheme: light; }
+    html.mdui-theme-dark { background: #19151f; color-scheme: dark; }
+    @media (prefers-color-scheme: dark) { html.mdui-theme-auto { background: #19151f; color-scheme: dark; } }
+  </style>
   <link rel="icon" href="data:,">
   <script>
     try {
@@ -24,6 +29,7 @@
   <script src="https://unpkg.com/mdui@2.1.5/mdui.global.js" defer></script>
   <script src="assets/js/data.js" defer></script>
   <script src="assets/js/a11y.js" defer></script>
+  <script src="assets/js/motion.js" defer></script>
   <script src="assets/js/site.js" defer></script>
   <script src="assets/js/theme.js" defer></script>
   <script src="assets/js/app.js" defer></script>

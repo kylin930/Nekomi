@@ -8,7 +8,6 @@
   var isHome = document.body.dataset.page === 'home';
   var currentId = new URLSearchParams(location.search).get('post');
   var mobile = matchMedia('(max-width: 860px)');
-  var reduced = matchMedia('(prefers-reduced-motion: reduce)');
   var searchValue = '';
 
   function html(value) {
@@ -53,6 +52,24 @@
       html(name) + '" description="' + html(friend.description || '') + '" description-line="2">' +
       avatar(friend.avatar, Array.from(name)[0], name).replace('class="site-avatar"', 'class="friend-avatar" slot="icon"') + '</mdui-list-item>';
   }
+  var commentConfig = data.comments || {};
+  var comments = (Array.isArray(commentConfig.items) ? commentConfig.items : []).filter(function (comment) {
+    return comment && typeof comment.author === 'string' && comment.author.trim() &&
+      typeof comment.excerpt === 'string' && comment.excerpt.trim() &&
+      posts.some(function (post) { return post.id === comment.postId; }) && Number.isFinite(Date.parse(comment.createdAt));
+  }).sort(function (a, b) { return Date.parse(b.createdAt) - Date.parse(a.createdAt); });
+  function commentItem(comment) {
+    var post = posts.find(function (item) { return item.id === comment.postId; });
+    var date = new Date(comment.createdAt);
+    var time = new Intl.DateTimeFormat('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date);
+    var url = postLink(post);
+    if (commentConfig.anchorsEnabled === true && comment.anchor) url += '#' + encodeURIComponent(comment.anchor);
+    return '<mdui-list-item rounded href="' + html(url) + '"' + (comment.demo ? ' data-demo-comment' : '') + '>' +
+      avatar(comment.avatar, Array.from(String(comment.author))[0], comment.author).replace('class="site-avatar"', 'class="comment-avatar" slot="icon"') +
+      '<div class="comment-copy"><div class="comment-byline"><strong>' + html(comment.author) + '</strong><time datetime="' + html(date.toISOString()) +
+      '" title="' + html(date.toLocaleString('zh-CN')) + '">' + html(time) + '</time></div><p class="comment-excerpt">' +
+      html(comment.excerpt) + '</p><p class="comment-post">' + (comment.demo ? '演示 · ' : '') + html(post.title) + '</p></div></mdui-list-item>';
+  }
   function sidebarMarkup(context) {
     var prefix = 'side-' + context;
     return '<div class="profile"><div class="profile-brand">' +
@@ -65,6 +82,7 @@
       '<mdui-tabs class="sidebar-tabs" value="updates" variant="secondary" full-width aria-label="侧栏内容">' +
       '<mdui-tab value="updates" id="' + prefix + '-updates" role="tab" aria-controls="' + prefix + '-updates-panel">最近更新</mdui-tab>' +
       '<mdui-tab value="friends" id="' + prefix + '-friends" role="tab" aria-controls="' + prefix + '-friends-panel">友情链接</mdui-tab>' +
+      '<mdui-tab value="comments" id="' + prefix + '-comments" role="tab" aria-controls="' + prefix + '-comments-panel">最近评论</mdui-tab>' +
       '<mdui-tab-panel slot="panel" value="updates" id="' + prefix + '-updates-panel" role="tabpanel" aria-labelledby="' + prefix + '-updates">' +
       '<div class="side-panel-content"><div class="side-panel-heading"><span>最近的 ' + Math.min(posts.length, 5) + ' 篇记录</span></div>' +
       '<mdui-list>' + posts.slice(0, 5).map(function (post) { return listItem(post, dateLabel(post.date)); }).join('') + '</mdui-list></div></mdui-tab-panel>' +
@@ -72,7 +90,13 @@
       '<div class="side-panel-content"><div class="side-panel-heading"><span>' + friends.length + ' 个友邻</span>' +
       '<mdui-button variant="text" data-friends-all' + (friends.length ? '' : ' disabled') + '>查看全部' + icon('arrow_forward', 'end-icon') + '</mdui-button></div>' +
       (friends.length ? '<mdui-list class="friend-list">' + friends.slice(0, 5).map(friendItem).join('') + '</mdui-list>' :
-        '<p class="friend-empty">这里，留给有趣的邻居。<small>暂时还没有添加友链</small></p>') + '</div></mdui-tab-panel></mdui-tabs>';
+        '<p class="friend-empty">这里，留给有趣的邻居。<small>暂时还没有添加友链</small></p>') + '</div></mdui-tab-panel>' +
+      '<mdui-tab-panel slot="panel" value="comments" id="' + prefix + '-comments-panel" role="tabpanel" aria-labelledby="' + prefix + '-comments">' +
+      '<div class="side-panel-content"><div class="side-panel-heading"><span>最近的留言</span><span>' + comments.length + ' 条</span></div>' +
+      (comments.length ? '<p class="comments-note">' + (comments.some(function (comment) { return comment.demo; }) ? '含明确标注的演示评论。' : '') +
+        (commentConfig.anchorsEnabled ? '' : '点击阅读对应文章，评论定位暂未接入。') + '</p><mdui-list class="comment-list">' +
+        comments.slice(0, 4).map(commentItem).join('') + '</mdui-list>' :
+        '<p class="friend-empty">还没有收到留言。<small>评论系统尚未接入</small></p>') + '</div></mdui-tab-panel></mdui-tabs>';
   }
 
   document.querySelector('[data-site-appbar]').innerHTML = '<mdui-top-app-bar class="site-appbar" variant="small">' +
@@ -114,13 +138,7 @@
     drawer.querySelector('[data-search]').autofocus = Boolean(search);
     drawer.open = true;
   }
-  function enter(element, distance) {
-    if (!element || reduced.matches) return;
-    if (element.nekomiEntrance) element.nekomiEntrance.cancel();
-    element.nekomiEntrance = element.animate([
-      { opacity: 0, transform: 'translateX(' + (distance === undefined ? 12 : distance) + 'px)' }, { opacity: 1, transform: 'translateX(0)' }
-    ], { duration: 360, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
-  }
+  function enter(element, distance) { NekomiMotion.enter(element, distance); }
   function ready() {
     document.getElementById('loading-note').hidden = true;
     document.getElementById('main-content').setAttribute('aria-busy', 'false');
@@ -157,11 +175,6 @@
     });
   });
   mobile.addEventListener('change', function () { if (!mobile.matches) drawer.open = false; });
-  reduced.addEventListener('change', function () {
-    if (reduced.matches) document.getAnimations().forEach(function (animation) {
-      if (animation.effect && animation.effect.target && animation.effect.target.nekomiEntrance === animation) animation.cancel();
-    });
-  });
   window.addEventListener('pageshow', function (event) {
     if (event.persisted) enter(document.getElementById('main-content'));
   });

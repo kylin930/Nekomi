@@ -121,7 +121,7 @@
     if (!target || !body.contains(target)) return;
     if (!target.hasAttribute('tabindex')) target.tabIndex = -1;
     target.focus({ preventScroll: true });
-    target.scrollIntoView({ block: 'start', behavior: smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'instant' });
+    NekomiMotion.scrollTo(target, smooth);
     requestSectionUpdate();
   }
   function settleToc() {
@@ -252,8 +252,13 @@
         scrollHash(true);
       });
       window.addEventListener('hashchange', function () { scrollHash(false); });
+      ['wheel', 'touchstart'].forEach(function (type) {
+        window.addEventListener(type, function () { pendingHashScroll = null; }, { passive: true });
+      });
+      Site.drawer.addEventListener('open', function () { pendingHashScroll = null; NekomiMotion.cancelScroll(); });
       window.addEventListener('scroll', requestSectionUpdate, { passive: true });
       window.addEventListener('resize', function () {
+        NekomiMotion.cancelScroll();
         if (tocMoving && !document.querySelector('.toc-inline').getClientRects().length) settleToc();
         requestSectionUpdate();
       });

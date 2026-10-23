@@ -1,4 +1,4 @@
-"""P0/P0.5/P0.6/P1 browser regression checks against the pinned MDUI 2.1.5 runtime.
+"""P0/P0.5/P0.6/P1/P1.1 browser regression checks against the pinned MDUI 2.1.5 runtime.
 
 Requires Python Playwright and Chromium. See tests/README.md.
 """
@@ -6,12 +6,14 @@ import argparse
 import functools
 import hashlib
 import http.server
+import json
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import tempfile
 import threading
+from urllib.parse import urlsplit
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -169,6 +171,7 @@ def anchor_checks(page, url):
     page.keyboard.press('Enter')
     expect(page.locator('#keyboard')).to_be_focused()
     assert page.url.endswith('#keyboard')
+    page.wait_for_function('!NekomiMotion.isScrolling()')
     page.evaluate('scrollTo(0, document.documentElement.scrollHeight)')
     expect(page.locator('#toc-desktop-list a[href="#finish"]')).to_have_attribute('aria-current', 'location')
     page.locator('[data-direction=next]').click()
@@ -419,13 +422,13 @@ def motion_checks(page, url):
 
 
 def appearance_checks(page, context, url):
-    expect(page.locator('.site-wallpaper')).to_be_hidden()
+    expect(page.locator('.site-wallpaper')).to_be_visible()
     expect(page.locator('.post-cover')).to_have_count(0)
     # Selected tabs still use MDUI's indicator and expose a nontransparent tonal surface.
     assert page.locator('#tab-recent').evaluate('e => getComputedStyle(e.shadowRoot.querySelector("[part=container]")).backgroundColor') != 'rgba(0, 0, 0, 0)'
     page.set_viewport_size({'width': 1440, 'height': 600})
     page.locator('#side-desktop-friends').click()
-    expect(page.locator('.sidebar .friend-empty')).to_be_in_viewport(ratio=1)
+    expect(page.locator('#side-desktop-friends-panel .friend-empty')).to_be_in_viewport(ratio=1)
     assert page.locator('.sidebar').evaluate('e => e.scrollTop === 0')
     expect(page.locator('.sidebar [data-friends-all]')).to_have_attribute('disabled', '')
     page.locator('#side-desktop-updates').click()
@@ -445,7 +448,7 @@ def appearance_checks(page, context, url):
 
     def wallpaper(name):
         expect(page.locator('.site-wallpaper')).to_be_visible()
-        page.wait_for_function('name => document.querySelector(".site-wallpaper").style.backgroundImage.includes(name)', arg=name)
+        page.wait_for_function('name => [...document.querySelectorAll(".wallpaper-image")].some(i => i.src.includes(name))', arg=name)
         expect(page.locator('body')).to_have_class('has-wallpaper')
 
     light = 'screenshots/desktop-light-1440x900.png'
@@ -458,7 +461,7 @@ def appearance_checks(page, context, url):
             page.evaluate('mode => NekomiTheme.setMode(mode)', mode)
             wallpaper(name)
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-            assert page.locator('.site-wallpaper').evaluate('e => getComputedStyle(e).backgroundPosition') == '30% 25%'
+            assert page.locator('.site-wallpaper').evaluate('e => getComputedStyle(e.querySelector("img")).objectPosition') == '30% 25%'
             # Check the real computed overlay, including CSS variable validity, against
             # both worst-case photo extremes. Small text must retain WCAG AA contrast.
             contrast = page.evaluate('''() => {
@@ -467,14 +470,16 @@ def appearance_checks(page, context, url):
                 const surface = token('surface');
                 const scrim = getComputedStyle(document.querySelector('.site-wallpaper'), '::after').backgroundColor;
                 const alpha = Number(scrim.match(/[\\d.]+/g)[3]);
+                const paperAlpha = Number(getComputedStyle(document.body).getPropertyValue('--wallpaper-paper-opacity'));
+                const protectedAlpha = 1 - (1 - alpha) * (1 - paperAlpha);
                 const luminance = rgb => rgb.map(c => c / 255).map(c => c <= .04045 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4)
                     .reduce((sum, c, i) => sum + c * [.2126, .7152, .0722][i], 0);
                 const ratio = (a, b) => (Math.max(luminance(a), luminance(b)) + .05) / (Math.min(luminance(a), luminance(b)) + .05);
                 return { alpha, ratios: ['on-surface', 'on-surface-variant', 'primary'].flatMap(name =>
-                    [0, 255].map(photo => ratio(token(name), surface.map(c => c * alpha + photo * (1 - alpha))))),
+                    [0, 255].map(photo => ratio(token(name), surface.map(c => c * protectedAlpha + photo * (1 - protectedAlpha))))),
                     categories: ['primary', 'blossom', 'sky', 'secondary'].map(name => ratio(token('on-' + name + '-container'), token(name + '-container'))) };
             }''')
-            assert contrast['alpha'] >= .9, contrast
+            assert .5 <= contrast['alpha'] < .8, contrast
             assert min(contrast['ratios'] + contrast['categories']) >= 4.5, contrast
     page.evaluate("NekomiTheme.setMode('auto')")
     for mode in ('dark', 'light'):
@@ -560,7 +565,7 @@ def sidebar_checks(page, context, url):
     expect(page.locator('#drawer-close button')).to_be_focused()
     expect(page.locator('[data-sidebar=mobile] .sidebar-tabs')).to_have_attribute('value', 'updates')
     page.locator('#side-mobile-updates').focus()
-    page.keyboard.press('End')
+    page.keyboard.press('ArrowRight')
     expect(page.locator('#side-mobile-friends')).to_be_focused()
     expect(page.locator('#side-mobile-friends-panel')).to_be_visible()
     expect(page.locator('[data-sidebar=mobile] [data-friends-all]')).to_be_in_viewport(ratio=1)
@@ -620,11 +625,160 @@ def native_motion_checks(page, context, url):
     print('PASS native motion: live main/sidebar indicators, live Drawer animation, panel entrance and reduced-motion behavior')
 
 
+def expressive_checks(page, context, url):
+    page.emulate_media(reduced_motion='no-preference')
+    article(page, url)
+    page.evaluate("scrollTo(0,0)")
+    page.locator('#toc-desktop-list a[href="#state"]').click()
+    page.wait_for_function('NekomiMotion.isScrolling() && scrollY > 40')
+    page.mouse.wheel(0, -80)
+    value(page, 'NekomiMotion.isScrolling()', False)
+    expect(page.locator('#state')).to_be_focused()
+    page.locator('#toc-desktop-list a[href="#keyboard"]').click()
+    page.wait_for_function('NekomiMotion.isScrolling()')
+    page.locator('#toc-desktop-list a[href="#grid-minimum"]').click()
+    page.wait_for_function('!NekomiMotion.isScrolling()')
+    assert abs(page.locator('#grid-minimum').bounding_box()['y'] - 28) <= 1
+    expect(page.locator('#grid-minimum')).to_be_focused()
+    assert page.url.endswith('#grid-minimum')
+    expect(page.locator('#toc-desktop-list a[href="#grid-minimum"]')).to_have_attribute('aria-current', 'location')
+    page.go_back()
+    expect(page.locator('#keyboard')).to_be_focused()
+    page.go_forward()
+    expect(page.locator('#grid-minimum')).to_be_focused()
+    # The spring also clamps precisely at document bounds.
+    page.evaluate('NekomiMotion.scrollTo(document.querySelector(".site-footer"), true)')
+    page.wait_for_function('!NekomiMotion.isScrolling()')
+    assert abs(page.evaluate('scrollY + innerHeight - document.documentElement.scrollHeight')) <= 1
+    page.set_viewport_size({'width': 390, 'height': 844})
+    article(page, url)
+    page.locator('#toc-toggle').click()
+    page.locator('#toc-inline-list a[href="#state"]').click()
+    page.wait_for_function('NekomiMotion.isScrolling()')
+    page.evaluate('window.dispatchEvent(new Event("touchstart"))')
+    value(page, 'NekomiMotion.isScrolling()', False)
+    page.locator('#toc-inline-list a[href="#state"]').click()
+    page.wait_for_function('NekomiMotion.isScrolling()')
+    page.keyboard.press('/')
+    value(page, 'NekomiMotion.isScrolling()', False)
+    expect(page.locator('[data-sidebar=mobile] [data-search] input')).to_be_focused()
+    page.keyboard.press('Escape')
+    expect(page.locator('#mobile-drawer')).to_be_hidden()
+    page.locator('#toc-inline-list a[href="#state"]').click()
+    page.wait_for_function('!NekomiMotion.isScrolling()')
+    appbar = page.locator('.site-appbar').bounding_box()['height']
+    assert abs(page.locator('#state').bounding_box()['y'] - appbar - 20) <= 1
+    page.emulate_media(reduced_motion='reduce')
+    page.locator('#toc-inline-list a[href="#grid-minimum"]').click()
+    assert not page.evaluate('NekomiMotion.isScrolling()')
+    expect(page.locator('#grid-minimum')).to_be_focused()
+    # Shared public Avatar shape is circular in every position, with no decorative frame.
+    page.goto(url, wait_until='networkidle')
+    page.locator('#menu-button').click()
+    for avatar in page.locator('.site-avatar, .brand-avatar').all():
+        style = avatar.evaluate('e => ({shape:getComputedStyle(e).getPropertyValue("--shape-corner").trim(),border:getComputedStyle(e).borderWidth,outline:getComputedStyle(e).outlineStyle})')
+        assert style['shape'] in ('50%', '1000rem') and style['border'] == '0px' and style['outline'] == 'none', style
+    fixture = (ROOT / 'assets/js/data.js').read_text() + "\nNekomiData.site.avatar='screenshots/desktop-light-1440x900.png';"
+    context.route('**/assets/js/data.js', lambda r: r.fulfill(body=fixture, content_type='text/javascript'))
+    page.reload(wait_until='networkidle')
+    page.locator('#menu-button').click()
+    page.wait_for_function('[...document.querySelectorAll(".site-avatar img")].every(i => i.naturalWidth > 0)')
+    avatar = page.locator('[data-sidebar=mobile] .site-avatar')
+    assert avatar.evaluate('e => getComputedStyle(e).borderRadius') == '50%'
+    assert avatar.evaluate('e => getComputedStyle(e).overflow') == 'hidden'
+    assert avatar.locator('img').bounding_box()['width'] == avatar.bounding_box()['width']
+    print('PASS expressive: spring settles precisely, repeat/cancel/wheel/touch/history/bounds/reduced motion; unframed circular image and fallback avatars')
+
+
+def comments_checks(page, context, url):
+    import json
+    for route in ('', 'article.html?post=' + TECH):
+        page.goto(url + route, wait_until='networkidle')
+        page.locator('#side-desktop-updates').focus()
+        page.keyboard.press('End')
+        expect(page.locator('#side-desktop-comments')).to_be_focused()
+        expect(page.locator('#side-desktop-comments-panel')).to_be_visible()
+        expect(page.locator('#side-desktop-comments-panel')).to_contain_text('还没有收到留言')
+        assert page.locator('.sidebar').bounding_box()['width'] == 320
+    comments = [{'id': str(i), 'author': '演示访客名字很长' * (2 if i == 1 else 1), 'excerpt': '这是一条明确标注的演示留言，用于测试多行文本与文章归属。' * 2,
+                 'postId': TECH, 'createdAt': f'2026-10-{20-i:02}T08:30:00+08:00', 'anchor': 'not-a-real-comment', 'demo': True} for i in range(5)]
+    comments[0]['avatar'] = 'assets/missing-comment-avatar.png'
+    comments.append(None)
+    comments.append({'postId': 'missing', 'author': '不可用条目', 'excerpt': '不应渲染', 'createdAt': 'invalid'})
+    fixture = (ROOT / 'assets/js/data.js').read_text() + '\nNekomiData.comments=' + json.dumps({'anchorsEnabled': False, 'items': comments}, ensure_ascii=False) + ';'
+    context.route('**/assets/js/data.js', lambda r: r.fulfill(body=fixture, content_type='text/javascript'))
+    page.reload(wait_until='networkidle')
+    page.locator('#side-desktop-comments').click()
+    expect(page.locator('.sidebar .comment-list mdui-list-item')).to_have_count(4)
+    expect(page.locator('.sidebar [data-demo-comment]')).to_have_count(4)
+    expect(page.locator('.sidebar .comment-avatar img')).to_have_count(0)
+    expect(page.locator('.sidebar .comments-note')).to_contain_text('评论定位暂未接入')
+    for link in page.locator('.sidebar .comment-list mdui-list-item').all():
+        assert link.get_attribute('href') == 'article.html?post=' + TECH
+        assert link.locator('time').get_attribute('datetime')
+    page.locator('.sidebar .comment-list mdui-list-item').first.click()
+    ready(page)
+    assert page.url == url + 'article.html?post=' + TECH
+    for width, height in ((390, 844), (390, 600), (320, 568)):
+        page.set_viewport_size({'width': width, 'height': height})
+        page.locator('#menu-button').click()
+        page.locator('#side-mobile-comments').click()
+        expect(page.locator('#side-mobile-comments-panel')).to_be_visible()
+        expect(page.locator('#side-mobile-comments')).to_be_in_viewport(ratio=1)
+        assert page.locator('[data-sidebar=mobile] .sidebar-tabs').evaluate('e => e.scrollWidth <= e.clientWidth + 1')
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+        assert page.locator('.drawer-content').evaluate('e => getComputedStyle(e).overflowY === "visible"')
+        page.keyboard.press('Escape')
+        expect(page.locator('#mobile-drawer')).to_be_hidden()
+    print('PASS comments: both pages, all three native tabs, empty/demo/invalid data, author/time/article metadata, wrapping, broken avatar and honest article-only links')
+
+
+def wallpaper_cache_checks(page, context, url):
+    # Count requests in the Worker as well as the page; native opaque responses stay cached.
+    images = []
+    context.on('request', lambda request: images.append(request.url) if request.url == 'https://www.nekopara.uk/pic_api' else None)
+    await_cache = "navigator.serviceWorker.controller && document.querySelector('.wallpaper-image')?.naturalWidth > 0"
+    page.wait_for_function(await_cache)
+    expect(page.locator('.wallpaper-image')).to_have_class('wallpaper-image is-visible')
+    src = page.locator('.wallpaper-image').get_attribute('src')
+    assert '__nekomi_wallpaper?' in src
+    article(page, url)
+    page.wait_for_function(await_cache)
+    page.reload(wait_until='networkidle')
+    page.wait_for_function(await_cache)
+    assert page.locator('.wallpaper-image').get_attribute('src') == src
+    assert not images, images  # initial request happened before listener; subsequent navigations reuse it
+    page.evaluate("NekomiTheme.setMode('dark')")
+    assert page.locator('body').evaluate('e => e.style.getPropertyValue("--wallpaper-overlay")') == '0.68'
+    page.evaluate("NekomiTheme.setMode('light')")
+    assert page.locator('body').evaluate('e => e.style.getPropertyValue("--wallpaper-overlay")') == '0.64'
+    assert not images
+    # Opaque non-image responses must be evicted after decode failure and recover on reload.
+    original = (ROOT / 'assets/js/data.js').read_text()
+    context.route('**/assets/js/data.js', lambda r: r.fulfill(body=original + "\nNekomiData.appearance.wallpaper.light='assets/bad-wallpaper.html';", content_type='text/javascript'))
+    context.route('**/assets/bad-wallpaper.html', lambda r: r.fulfill(body='<p>not an image</p>', content_type='text/html'))
+    page.reload(wait_until='networkidle')
+    expect(page.locator('.site-wallpaper')).to_be_hidden()
+    page.wait_for_function("caches.open('nekomi-wallpaper-v1').then(c => c.keys()).then(keys => !keys.some(k => k.url.includes('bad-wallpaper')))")
+    # A blocked registration must fall back to a regular image, without breaking theme controls.
+    context.unroute('**/assets/js/data.js')
+    context.add_init_script("navigator.serviceWorker.register = () => Promise.reject(new Error('blocked for test'))")
+    page.reload(wait_until='networkidle')
+    expect(page.locator('.wallpaper-image')).to_be_visible()
+    assert page.locator('.wallpaper-image').get_attribute('src') == 'https://www.nekopara.uk/pic_api'
+    page.emulate_media(reduced_motion='reduce')
+    assert page.locator('.wallpaper-image').evaluate('e => getComputedStyle(e).transitionDuration') == '0.001s'
+    print('PASS wallpaper cache: actual Worker opaque-image reuse across home/reader/refresh/theme; failed decode eviction, MD3 fallback, blocked Worker fallback and reduced fade')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--chromium", default=shutil.which("chromium"))
     parser.add_argument("--verified-cdn", action="store_true",
                         help="Fetch CDN responses with TLS-verifying curl for browser replay")
+    parser.add_argument("--only", help="Run one named case, e.g. expressive or wallpaper-cache")
+    parser.add_argument("--live-api", action="store_true", help="Use the real wallpaper API instead of deterministic image fixtures")
+    parser.add_argument("--cdn-cache", type=Path, help="Optional cache of TLS-verified pinned CDN responses")
     parser.add_argument("--artifacts", type=Path,
                         help="Optional directory for viewport screenshots")
     args = parser.parse_args()
@@ -634,10 +788,38 @@ def main():
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_port}/"
-    with tempfile.TemporaryDirectory() as cache, sync_playwright() as p:
+    with tempfile.TemporaryDirectory() as temporary_cache, sync_playwright() as p:
+        cache = args.cdn_cache or Path(temporary_cache)
+        Path(cache).mkdir(parents=True, exist_ok=True)
+        api_observations = []
+
+        def verified_live_api(route):
+            # Playwright does not re-route redirected requests. curl follows and records
+            # the actual chain with TLS verification, then replays its final image bytes.
+            resource = route.request.url
+            key = Path(cache) / ('live-' + hashlib.sha256(resource.encode()).hexdigest())
+            headers_path = key.with_suffix('.headers')
+            result = subprocess.run(['curl', '--location', '--silent', '--show-error', '--compressed', '--max-time', '45',
+                '--dump-header', str(headers_path), '--output', str(key), '--write-out', '%{http_code}', resource],
+                check=True, capture_output=True, text=True)
+            headers = {}
+            chain = []
+            for line in headers_path.read_text().splitlines():
+                if line.startswith('HTTP/'):
+                    headers = {}
+                    chain.append({'status': int(line.split()[1]), 'headers': headers})
+                elif ':' in line:
+                    name, value = line.split(':', 1)
+                    if name.lower() in ('content-type', 'location', 'cache-control', 'expires', 'etag', 'last-modified', 'access-control-allow-origin'):
+                        headers[name.lower()] = value.strip()
+            api_observations.append({'url': resource, 'chain': [item for item in chain if item['headers']], 'bytes': key.stat().st_size})
+            route.fulfill(status=int(result.stdout), headers=headers, body=key.read_bytes())
+
         def verified_cdn(route):
             # Preserve proxy/CA configuration and TLS verification. No altered app resources.
             resource = route.request.url
+            if args.live_api and urlsplit(resource).hostname == 'www.nekopara.uk':
+                return verified_live_api(route)
             key = Path(cache) / hashlib.sha256(resource.encode()).hexdigest()
             metadata = key.with_suffix(".type")
             if not key.exists():
@@ -662,10 +844,13 @@ def main():
             context = browser.new_context(**options)
             if args.verified_cdn:
                 context.route("https://**/*", verified_cdn)
+            if not args.live_api: context.route('https://www.nekopara.uk/pic_api', lambda r: r.fulfill(body=(ROOT / 'screenshots/desktop-light-1440x900.png').read_bytes(), content_type='image/png'))
+            context.set_default_navigation_timeout(90000)
             page = context.new_page()
             errors = []
             page.on("pageerror", lambda error: errors.append(str(error)))
-            page.on("requestfailed", lambda request: errors.append(request.url))
+            # The stale-load fixture deliberately cancels its superseded image request.
+            page.on("requestfailed", lambda request: errors.append(request.url) if not (request.failure == 'net::ERR_ABORTED' and request.url.endswith('/assets/wallpaper-slow.png')) else None)
             page.goto(url, wait_until="networkidle")
             page.wait_for_function("!!customElements.get('mdui-tabs')")
             return context, page, errors
@@ -682,7 +867,13 @@ def main():
             ('appearance', {'width': 1440, 'height': 900}, appearance_checks),
             ('sidebar', {'width': 1440, 'height': 900}, sidebar_checks),
             ('native-motion', {'width': 1440, 'height': 900}, native_motion_checks),
+            ('expressive', {'width': 1440, 'height': 900}, expressive_checks),
+            ('comments', {'width': 1440, 'height': 900}, comments_checks),
+            ('wallpaper-cache', {'width': 1440, 'height': 900}, wallpaper_cache_checks),
         ]
+        if args.only:
+            cases = [case for case in cases if case[0] == args.only]
+            if not cases: raise ValueError('Unknown test case: ' + args.only)
         for name, viewport, check in cases:
             context, page, errors = new_page(viewport=viewport,
                 **({'is_mobile': True, 'has_touch': True} if name == 'mobile' else {}))
@@ -695,6 +886,9 @@ def main():
                 raise
             finally:
                 context.close()
+        if args.live_api and args.artifacts:
+            (args.artifacts / 'api-http.json').write_text(json.dumps(api_observations, indent=2, ensure_ascii=False))
+            print('HTTP API:', [([r['status'] for r in entry['chain']], entry['bytes']) for entry in api_observations])
         # Storage denial should not break either page's theme control.
         context, page, errors = new_page(viewport={'width': 390, 'height': 844})
         context.add_init_script("Object.defineProperty(window, 'localStorage', {get() {throw new DOMException('denied', 'SecurityError')}})")

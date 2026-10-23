@@ -13,13 +13,20 @@ window.NekomiData = {
   demo: true,
   demoNotice: '本页文章、日期、分类与标签均为演示数据。',
 
-  // 全站外观：壁纸由站长提供；留空时使用主题本身的表面层次。
+  // 全站外观：默认接入站长的随机图片 API；留空或 enabled:false 可关闭。
   appearance: {
     color: '#8064b1',
     wallpaper: {
-      light: '',
-      dark: '', // 留空时沿用 light；图片失败则恢复无壁纸状态。
-      position: 'center'
+      enabled: true,
+      light: 'https://www.nekopara.uk/pic_api',
+      dark: '', // 同一图片配合不同遮罩；也可配置独立深色图片。
+      position: 'center',
+      fit: 'cover', // cover 铺满 / contain 完整显示
+      lightOverlay: .64,
+      darkOverlay: .68,
+      lightSurface: .90,
+      darkSurface: .92,
+      cacheHours: 24 // 1–168 小时；0 禁用壁纸专用 Worker 缓存。
     }
   },
 
@@ -36,6 +43,11 @@ window.NekomiData = {
   // 友链留空，避免编造真实站点或站长资料。
   // 有数据时格式：{ name, url, avatar, description }
   friends: [],
+
+  // 可由未来评论适配器写入统一数据；当前没有评论后端，不提供虚假定位。
+  // items: { id, author, avatar?, excerpt, postId, createdAt: ISO8601, anchor?, demo? }
+  // 只有接入真实评论节点后才将 anchorsEnabled 设为 true。
+  comments: { anchorsEnabled: false, items: [] },
 
   posts: [
     {

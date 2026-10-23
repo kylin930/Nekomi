@@ -91,6 +91,7 @@
     if (push !== false && url.href !== location.href) history.pushState(null, '', url);
   }
   function setQuery(value, focus, fromLocation) {
+    var wasSearching = Boolean(query.trim());
     var firstSearch = !query.trim() && String(value).trim();
     query = String(value);
     Site.setSearch(query);
@@ -101,6 +102,8 @@
       history.replaceState(null, '', url);
     }
     renderFeed();
+    // 连续输入不反复重置透明度；只在进入 / 清空结果和点击筛选时过渡。
+    if (!booting && (firstSearch || focus || wasSearching && !query.trim())) Site.enter(document.getElementById('post-list'), 6);
     if (focus) requestAnimationFrame(function () { feedTitle.focus(); });
     else if (firstSearch && !Site.drawer.open) requestAnimationFrame(function () { feedTitle.scrollIntoView({ block: 'start' }); });
   }

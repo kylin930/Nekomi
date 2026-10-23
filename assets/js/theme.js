@@ -20,36 +20,90 @@
   var systemDark = matchMedia('(prefers-color-scheme: dark)');
   var wallpaperRequest = 0;
   var currentWallpaper = '';
+  var pendingImage = null;
+  var workerReady;
   var layer = document.createElement('div');
   layer.className = 'site-wallpaper';
   layer.setAttribute('aria-hidden', 'true');
   layer.hidden = true;
-  layer.style.backgroundPosition = CSS.supports('background-position', wallpaper.position || '') ? wallpaper.position : 'center';
   document.body.prepend(layer);
+  function number(value, fallback, min, max) {
+    return typeof value === 'number' && Number.isFinite(value) ? Math.max(min, Math.min(max, value)) : fallback;
+  }
+  function cachedSource(url) {
+    if (!wallpaper.cacheHours || !('serviceWorker' in navigator) || !isSecureContext) return Promise.resolve(url);
+    if (!workerReady) {
+      var workerUrl = new URL('wallpaper-cache.js', location.href);
+      workerReady = navigator.serviceWorker.register(workerUrl).then(function () {
+        return new Promise(function (resolve) {
+          var timer = setTimeout(function () { done(false); }, 2500);
+          function done(ready) { clearTimeout(timer); navigator.serviceWorker.removeEventListener('controllerchange', check); resolve(ready); }
+          function check() { if (navigator.serviceWorker.controller && navigator.serviceWorker.controller.scriptURL === workerUrl.href) done(true); }
+          navigator.serviceWorker.addEventListener('controllerchange', check);
+          check();
+        });
+      }).catch(function () { return false; });
+    }
+    return workerReady.then(function (ready) {
+      if (!ready) return url;
+      var endpoint = new URL('__nekomi_wallpaper', location.href);
+      endpoint.searchParams.set('source', url);
+      endpoint.searchParams.set('hours', number(wallpaper.cacheHours, 24, 1, 168));
+      return endpoint.href;
+    });
+  }
   function clearWallpaper() {
     layer.hidden = true;
-    layer.style.backgroundImage = '';
+    layer.replaceChildren();
     currentWallpaper = '';
     document.body.classList.remove('has-wallpaper');
   }
-  function applyWallpaper() {
+  async function applyWallpaper() {
     var dark = mode === 'dark' || mode === 'auto' && systemDark.matches;
+    document.body.style.setProperty('--wallpaper-overlay', number(dark ? wallpaper.darkOverlay : wallpaper.lightOverlay, dark ? .68 : .64, 0, 1));
+    document.body.style.setProperty('--wallpaper-paper-opacity', number(dark ? wallpaper.darkSurface : wallpaper.lightSurface, dark ? .92 : .90, .65, 1));
     var path = dark ? wallpaper.dark || wallpaper.light : wallpaper.light;
     var url = window.NekomiSite ? NekomiSite.safeUrl(path) : '';
     var request = ++wallpaperRequest;
-    if (!url) { clearWallpaper(); return; }
+    if (pendingImage) { clearTimeout(pendingImage.nekomiTimeout); pendingImage.onload = pendingImage.onerror = null; pendingImage.src = ''; pendingImage = null; }
+    if (!url || wallpaper.enabled === false) { clearWallpaper(); return; }
     if (url === currentWallpaper) return;
-    // 成功载入后才启用背景；快速切换主题时忽略过期的图片响应。
-    var image = new Image();
-    image.onload = function () {
+    var resolved = await cachedSource(url);
+    if (request !== wallpaperRequest) return;
+    var image = pendingImage = new Image();
+    image.className = 'wallpaper-image';
+    image.alt = '';
+    image.decoding = 'async';
+    image.fetchPriority = 'low';
+    image.style.objectPosition = CSS.supports('object-position', wallpaper.position || '') ? wallpaper.position : 'center';
+    image.style.objectFit = wallpaper.fit === 'contain' ? 'contain' : 'cover';
+    var timer = image.nekomiTimeout = setTimeout(function () { if (image.onerror) image.onerror(); }, 30000);
+    image.onload = async function () {
+      clearTimeout(timer);
+      try { await image.decode(); } catch (_) { /* load 已确认图片可用。 */ }
       if (request !== wallpaperRequest) return;
+      pendingImage = null;
       currentWallpaper = url;
-      layer.style.backgroundImage = 'url(' + JSON.stringify(url) + ')';
+      var previous = layer.querySelectorAll('img');
+      layer.append(image);
       layer.hidden = false;
       document.body.classList.add('has-wallpaper');
+      requestAnimationFrame(function () { requestAnimationFrame(function () { image.classList.add('is-visible'); }); });
+      setTimeout(function () { previous.forEach(function (old) { old.remove(); }); }, 700);
     };
-    image.onerror = function () { if (request === wallpaperRequest) clearWallpaper(); };
-    image.src = url;
+    image.onerror = function () {
+      clearTimeout(timer);
+      if (request !== wallpaperRequest) return;
+      pendingImage = null;
+      ++wallpaperRequest;
+      image.onload = image.onerror = null;
+      image.src = '';
+      if (navigator.serviceWorker && navigator.serviceWorker.controller && resolved !== url) {
+        navigator.serviceWorker.controller.postMessage({ type: 'nekomi:wallpaper-failed', url: resolved });
+      }
+      clearWallpaper();
+    };
+    image.src = resolved;
   }
   systemDark.addEventListener('change', function () { if (mode === 'auto') applyWallpaper(); });
   document.querySelectorAll('[data-theme-control]').forEach(function (container) {
