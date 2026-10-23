@@ -145,7 +145,7 @@ def persistence_checks(page, context, url, requests):
 
 def home_checks(page, context, url, requests):
     ready(page)
-    expect(page.locator('.post-card')).to_have_count(10)
+    expect(page.locator('.post-card')).to_have_count(6)
     page.locator('#post-list .post-title a').first.click()
     page.wait_for_url(url + 'posts/' + TECH + '/')
     ready(page)
@@ -177,16 +177,19 @@ def home_checks(page, context, url, requests):
     page.keyboard.press('Enter')
     expect(page.locator('#feed-title')).to_be_focused()
     page.locator('[data-clear-search]').first.click()
-    expect(page.locator('.post-card:visible')).to_have_count(10)
+    expect(page.locator('.post-card:visible')).to_have_count(6)
     page.locator('#tab-categories').click()
-    page.locator('#categories-list [data-query="设计"]').click()
-    selected(page, 'recent')
+    page.locator('#categories-list h2 a').filter(has_text='设计').click()
+    page.wait_for_url(url + 'categories/' + '%E8%AE%BE%E8%AE%A1' + '/')
+    ready(page)
     expect(page.locator('.post-card:visible')).to_have_count(2)
+    page.goto(url, wait_until='networkidle');ready(page)
     field.focus()
     page.keyboard.press('Escape')
-    expect(page.locator('.post-card:visible')).to_have_count(10)
+    expect(page.locator('.post-card:visible')).to_have_count(6)
     page.locator('#tab-tags').click()
-    page.locator('#tags-list [data-query="JavaScript"]').click()
+    page.locator('#tags-list mdui-chip').filter(has_text='JavaScript').click()
+    page.wait_for_url(url + 'tags/javascript/');ready(page)
     expect(page.locator('.post-card:visible')).to_have_count(3)
     page.goto(url + '?q=CSS#recent', wait_until='networkidle')
     ready(page)
@@ -249,9 +252,14 @@ def reader_checks(page, context, url, requests):
     page.wait_for_function('NekomiMotion.isScrolling() && scrollY>40')
     page.mouse.wheel(0, -100)
     page.wait_for_function('!NekomiMotion.isScrolling()')
-    page.locator('#toc-desktop-list a[href="#keyboard"]').click()
-    page.wait_for_function('NekomiMotion.isScrolling()')
-    page.locator('#toc-desktop-list a[href="#grid-minimum"]').click()
+    # Retarget in one event turn: a short spring may otherwise finish before
+    # Playwright's next poll, especially while screenshots are being encoded.
+    page.evaluate('''() => {
+      document.querySelector('#toc-desktop-list mdui-list-item[href="#keyboard"]').click();
+      window.retargetedSpring = NekomiMotion.isScrolling();
+      document.querySelector('#toc-desktop-list mdui-list-item[href="#grid-minimum"]').click();
+    }''')
+    assert page.evaluate('retargetedSpring'), 'The second target must interrupt a running spring'
     settled(page)
     expect(page.locator('#grid-minimum')).to_be_focused()
     assert abs(page.locator('#grid-minimum').bounding_box()['y'] - 28) <= 1

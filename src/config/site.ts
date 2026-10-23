@@ -1,5 +1,4 @@
-import defaultConfig from '../../site.config.json';
-import { readFileSync } from 'node:fs';
+import { rawConfig } from './publishing.mjs';
 import { z } from 'astro/zod';
 
 const picture = z.string().default('');
@@ -25,4 +24,4 @@ const schema = z.object({
   }),
 });
 // Optional build-only configuration lets previews/tests exercise populated sidebars without changing the shipped defaults.
-export const config = schema.parse(process.env.NEKOMI_CONFIG ? JSON.parse(readFileSync(process.env.NEKOMI_CONFIG, 'utf8')) : defaultConfig);
+export const config = schema.parse(rawConfig);

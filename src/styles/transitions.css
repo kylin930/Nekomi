@@ -33,4 +33,4 @@
 }
 /* Server-rendered content stays readable while the bundled runtime loads. */
 mdui-navigation-drawer:not(:defined), mdui-dialog:not(:defined), mdui-snackbar:not(:defined) { display: none; }
-.sidebar-tabs:not(:defined) > mdui-tab-panel:not([value="updates"]), #content-tabs:not(:defined) > mdui-tab-panel:not([value="recent"]) { display: none; }
+.sidebar-tabs:not(:defined) > mdui-tab-panel:not([value="updates"]) { display: none; }

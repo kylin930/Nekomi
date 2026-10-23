@@ -1,0 +1,28 @@
+---
+import type { Post } from '../lib/posts';
+import { config } from '../config/site';
+import { publishing } from '../config/publishing.mjs';
+import { canonicalUrl, sharingImage, structuredSite, structuredArticle } from '../lib/seo';
+interface Props { title: string; description: string; noindex: boolean; post?: Post }
+const { title, description, noindex, post } = Astro.props;
+const canonical = canonicalUrl(Astro.url.pathname);
+const image = await sharingImage(post?.data.cover || publishing.socialImage);
+const graph = [...structuredSite(config.site.name, config.site.tagline), ...(post ? structuredArticle(post, image) : [])];
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
+{canonical && <link rel="canonical" href={canonical} />}
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:site_name" content={config.site.name} />
+{publishing.ogLocale && <meta property="og:locale" content={publishing.ogLocale} />}
+<meta property="og:type" content={post ? 'article' : 'website'} />
+{canonical && <meta property="og:url" content={canonical} />}
+{image && <meta property="og:image" content={image} />}
+<meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{image && <meta name="twitter:image" content={image} />}
+{post && !post.data.demo && <><meta name="author" content={publishing.author} /><meta property="article:published_time" content={post.data.date} />{post.data.updated && <meta property="article:modified_time" content={post.data.updated} />}</>}
+<script type="application/ld+json" set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c')} />

@@ -2,7 +2,7 @@
 
 文章由 Astro Content Collections 在构建时读取，路径为 `src/content/posts/<id>.md`，文件名作为稳定 ID。输出 `/posts/<id>/index.html`，没有浏览器正文 fetch 或生产 Node 服务。十篇文章均为演示，不代表站长真实经历。
 
-Frontmatter 必需 `title`、`excerpt`、ISO 日期字符串 `date`、`category`、`tags`；可选 `cover`、`coverAlt`、`demo`。JSON 或 YAML 均可，日期建议加引号。字段校验在 `src/content.config.ts`，新增文章会自动进入首页、归档、搜索、最近更新和上一篇 / 下一篇。
+Frontmatter 必需 `title`、`excerpt`、ISO 日期字符串 `date`、`category`、`tags`；可选 `cover`、`coverAlt`、`demo`、真实修改日期 `updated`。JSON 或 YAML 均可，日期建议加引号。字段校验在 `src/content.config.ts`，新增文章会自动进入首页、归档、搜索、最近更新和上一篇 / 下一篇。
 
 正文从段落或 h2 开始，不重复 h1 / 页头。普通 Markdown、围栏代码、GFM 表格都可使用；复杂表格可保留 `caption`、`th scope` 等 HTML。内容只接受仓库中可信作者，内嵌 HTML 会参与静态构建，不提供用户投稿清洗或执行沙箱。
 
@@ -15,3 +15,6 @@ Frontmatter 必需 `title`、`excerpt`、ISO 日期字符串 `date`、`category`
 原 HTML 正文已迁移并删除。测试基线 `tests/fixtures/content-baseline.json` 保存迁移前各篇可见文本摘要、标题 ID 和完整代码，避免迁移丢失内容；新文章无需添加这份历史迁移基线。
 
 P2.3 不再把 `demo` 渲染成页面阶段提示，但该字段与站点 `demo` / `demoNotice` 继续保留。默认技术说明与日常建议仍是可替换样例，不能作为站长实际经历或项目成果。发布自己的站点时，应替换内容及日期，移除不需要的样例。P2 原始迁移摘要保留；当前文案的回归摘要与明确的标题 / 代码变更放在 `tests/fixtures/editorial-p23.json`，标题 ID 和 Markdown 排版能力仍逐项校验。
+
+
+P2.4 的索引开关、部署地址、分享图片与 Sitemap / RSS 规则见 [发布说明](../../docs/PUBLISHING.md)。默认示例继续 noindex，不生成真实 BlogPosting 或订阅条目；替换为自己的内容后，需同时配置站点发布开关和文章 demo 字段。分类 / 标签 / 月份与分页 URL 自动构建，正文和原锚点保持不变。

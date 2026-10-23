@@ -2,14 +2,14 @@
 
 基于 **Astro 静态构建、MDUI 2.1.5 / Material Design 3** 的原创博客主题。保留 Stellar 式融入侧栏、P1.1 配色与阅读排版；不使用 React / Vue。所有文章、日期与叙事均为演示内容。
 
-P2.3 在 P2.2 工程基础上补齐 Material 3 Expressive 的视觉反馈：标题与可用封面衔接到阅读页，目录标记连接章节位置，面板进入与颜色过渡使用不同曲线。布局、壁纸、阅读尺度和 MDUI 组件体系保持原样。公开文案整理为普通博客表达；示例仍保留 `demo` 数据字段，方便替换，音乐 / 散步内容不冒充站长的实际经历。
+P2.4 完善 SEO、静态分页与列表返回体验。首页默认每批六篇，滚动接近底部再追加；普通分页和分类 / 标签 / 月份页面也能在关闭 JavaScript 时访问。返回时先还原列表内容高度，再由 Astro 恢复原位置；保留 P2.3 共享元素、MD3 Expressive 动效与原位壁纸。
 
-[设计原则、官方依据与动效分工](docs/MOTION.md) · [P2.3 截图与实时动效录屏](screenshots/P23.md)
+[发布与索引配置、分页和状态恢复](docs/PUBLISHING.md) · [P2.3 动效原则与分工](docs/MOTION.md) · [P2.4 实际截图与浏览录屏](screenshots/P24.md)
 
 | 页面 | 桌面浅色 / 深色 | 手机浅色 / 深色 |
 | --- | --- | --- |
-| 首页 | [浅色](screenshots/p23-home-light-1440x900.png) · [深色](screenshots/p23-home-dark-1440x900.png) | [浅色](screenshots/p23-home-light-390x844.png) · [深色](screenshots/p23-home-dark-390x844.png) |
-| 阅读 | [浅色](screenshots/p23-reader-light-1440x900.png) · [深色](screenshots/p23-reader-dark-1440x900.png) | [浅色](screenshots/p23-reader-light-390x844.png) · [深色](screenshots/p23-reader-dark-390x844.png) |
+| 首页 | [浅色](screenshots/p24-home-light-1440x900.png) · [深色](screenshots/p24-home-dark-1440x900.png) | [浅色](screenshots/p24-home-light-390x844.png) · [深色](screenshots/p24-home-dark-390x844.png) |
+| 阅读 | [浅色](screenshots/p24-reader-light-1440x900.png) · [深色](screenshots/p24-reader-dark-1440x900.png) | [浅色](screenshots/p24-reader-light-390x844.png) · [深色](screenshots/p24-reader-dark-390x844.png) |
 
 [P2.2 手机顶部、原生目录与语法高亮截图](screenshots/P22.md) · [P2.1 八个视口与排版样例](screenshots/P21.md) · [P2 手机无刷新导航录屏](screenshots/p2-navigation-390x844.webm)。截图和录屏使用站长 API 实际返回并经检查的图片，不是生成素材；自动化回归使用本项目截图作为确定性图片 fixture。
 
@@ -35,19 +35,20 @@ npm run preview
 SITE_BASE=/Nekomi/ npm run build
 ```
 
-这会统一处理文章、脚本、CSS、图片、搜索和壁纸 Worker 的站内路径。`astro.config.mjs` 中的 `site` 可按最终域名修改。需要 HTTP(S)，不支持直接以 `file://` 打开构建产物。
+这会统一处理文章、脚本、CSS、图片、搜索和壁纸 Worker 的站内路径。`publishing.url` / `SITE_URL` 配置源站，`publishing.base` / `SITE_BASE` 配置路径；默认未确认正式域名，示例内容不参与索引。详见[发布说明](docs/PUBLISHING.md)。需要 HTTP(S)，不支持直接以 `file://` 打开构建产物。
 
 云环境若默认缓存目录不可写，可运行 `npm --cache /tmp/nekomi-npm-cache ci`；若 Astro 遥测配置目录不可写，使用 `ASTRO_TELEMETRY_DISABLED=1 npm run build` / `npm run check`。不需要改动 HOME 或证书设置。
 
 MDUI 固定 `mdui@2.1.5` npm 依赖，由 Vite 输出本地带 hash 的资源，不再请求 unpkg 或依赖 `window.mdui`。`src/scripts/mdui.js` 逐项注册实际使用的 20 种组件；组件内部的依赖由 Vite 去重。官方公共 CSS 仍完整导入（主题 / Tokens / 工具样式需要），`setTheme` / `setColorScheme` 从功能模块导入，不导入 MDUI 总入口。图标字体仍由 Google Fonts 提供。
 
-文章标题、封面、阅读全文和相邻文章明确设置 `data-astro-prefetch="hover"`；`prefetchAll: false` 避免预取整页链接。普通锚点使用 Astro 原生处理，MDUI Shadow DOM 内的按钮 / Card 使用 Astro `prefetch()` 公共 API，延迟 80ms、URL 归一化并去重，遵循网络节流 / 离线限制。没有额外页面缓存系统。P2.3 的 JS / CSS 合计约 308.6 KiB，逐文件 gzip 估算 78.8 KiB；比 P2.2 增加约 1.5 KiB gzip，没有新增动画库，详见[完整体积口径](tests/ASSET-SIZES.md)。
+文章标题、封面、阅读全文和相邻文章明确设置 `data-astro-prefetch="hover"`；`prefetchAll: false` 避免预取整页链接。普通锚点使用 Astro 原生处理，MDUI Shadow DOM 内的按钮 / Card 使用 Astro `prefetch()` 公共 API，延迟 80ms、URL 归一化并去重，遵循网络节流 / 离线限制。没有额外页面缓存系统。P2.4 的 JS / CSS 合计约 317.7 KiB，逐文件 gzip 估算 81.6 KiB，比 P2.3 增加约 2.8 KiB gzip；SEO 集成仅在构建期运行，没有新增 UI / 动画库，详见[完整体积口径](tests/ASSET-SIZES.md)。
 
 ## 组件、路由与生命周期
 
 `SiteLayout.astro` 统一输出侧栏、原生 Top App Bar、Navigation Drawer、Dialog、Snackbar、主题控制和壁纸。公共 HTML 在构建时生成，不再由客户端字符串拼装。首页列表、分类、标签、归档、文章正文、目录和相邻导航也直接输出到静态 HTML。
 
 - 首页：`/`，筛选链接仍为 `/?q=CSS#recent`；顶部 Tabs 状态与 Hash 同步。
+- 静态分页：`/page/2/`；分类、标签、月份索引为 `/categories/`、`/tags/`、`/archive/`，具体主题列表也有独立 URL。
 - 文章：`/posts/css-grid-two-column-blog/`、`/posts/weekend-walk-by-river/`，可直接访问、刷新与分享。
 - 章节：`/posts/css-grid-two-column-blog/#grid-minimum`，保留 P1 的显式标题 ID。
 - 旧 `article.html?post=<id>#<heading>` 入口保留轻量兼容跳转；原 `#preview/<id>` 同样兼容。新内部链接全部使用静态文章 URL。
@@ -65,7 +66,7 @@ MDUI 原生 Tabs 指示器、Ripple、状态层、Drawer / Dialog / Collapse 动
 
 ## 内容与配置
 
-站点配置集中在 [`site.config.json`](site.config.json)：个人名称、简介、圆形头像、配色、壁纸、友链与最近评论。构建时有 schema 校验，配置修改后需要重新构建。可用 `NEKOMI_CONFIG=/absolute/site.json` 指定完整配置，用于预览 / 测试，不改变默认数据。
+站点配置集中在 [`site.config.json`](site.config.json)：发布地址、索引策略、每页篇数、个人名称、简介、圆形头像、配色、壁纸、友链与最近评论。构建时有 schema 校验，配置修改后需要重新构建。可用 `NEKOMI_CONFIG=/absolute/site.json` 指定完整配置，用于预览 / 测试，不改变默认数据。
 
 文章放在 [`src/content/posts/`](src/content/posts/)，Content Collection schema 位于 [`src/content.config.ts`](src/content.config.ts)。文件名就是稳定文章 ID：
 
@@ -92,7 +93,7 @@ demo: false
 
 代码块由 Astro Shiki 在构建时生成 GitHub Light / Dark 双主题语法颜色，再补齐一层语言栏、原生复制 Button 和横向滚动区域（没有客户端高亮包），表格同样独立横向滚动。目录自动生成扁平的原生 `mdui-list` / `mdui-list-item`，以 H2–H6 深度缩进，原生 `href` / `rounded` / `active` 管理链接和选中状态，1440px 起有足够空间时放右侧，否则使用原生 Collapse。折叠目录点击后等待原生关闭动画，再执行原有弹簧定位；`aria-current` 同步到实际链接。正文保持原有 760px 上限与中文阅读节奏；复制、当前章节、标题永久链接、弹簧滚动、焦点与历史由轻量原生 JS 增强。
 
-首页搜索范围为标题、摘要、分类和标签，输入过滤已有静态卡片，不重建 Web Components。文章页搜索按 Enter 无刷新返回首页。友链预览最多五项，“查看全部”使用原生 Dialog；侧栏三个 Tabs 在首页、文章和移动 Drawer 中共用。
+首页搜索范围为全量文章的标题、摘要、分类和标签；按需读取匹配结果所在静态分页，不只搜索已加载卡片。文章页搜索按 Enter 无刷新返回首页。友链预览最多五项，“查看全部”使用原生 Dialog；侧栏三个 Tabs 在首页、文章和移动 Drawer 中共用。
 
 最近评论配置示例：
 
@@ -169,7 +170,11 @@ site.config.json          站点 / 主题 / 壁纸 / 友链 / 评论配置
 src/
   layouts/SiteLayout.astro 公共布局与 ClientRouter
   components/            侧栏、导航、壁纸、卡片、目录等
-  pages/index.astro      首页静态索引
+  pages/index.astro      首页首批文章
+  pages/page/[page].astro 构建时分页
+  pages/[kind]/          分类 / 标签 / 月份静态索引与分页
+  pages/rss.xml.ts       官方 RSS 订阅源
+  pages/robots.txt.ts    Robots 与 Sitemap 引用
   pages/posts/[id].astro  独立文章静态路由
   pages/404.astro         错误页面
   pages/article.html.ts   旧链接兼容入口
@@ -180,10 +185,10 @@ src/
   scripts/               单例运行时与可清理的页面增强
   styles/                复用 P1.1 样式与内容 View Transitions
 public/                  不需优化的公开资源与壁纸 Worker
-docs/MOTION.md           官方原则、参数与原生 / 扩展边界
+docs/                   发布 / 索引 / 浏览状态与动效分工
 tests/                   静态产物浏览器回归与迁移基线
 screenshots/             实际页面截图与录屏
 dist/                    构建产物（不提交）
 ```
 
-本轮止于 P2.3 视觉、动效与公开文案完善；未新增评论后端、管理后台、分页或其他独立页面。许可见 [LICENSE](LICENSE) 与 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+本轮止于 P2.4 SEO、内容发现与浏览体验；未新增评论后端、管理后台或常驻 Node 服务。许可见 [LICENSE](LICENSE) 与 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。

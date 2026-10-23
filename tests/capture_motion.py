@@ -78,7 +78,7 @@ def main():
                     page.locator('.post-title a').first.hover();page.wait_for_timeout(500)
                     page.locator('.post-title a').first.click();page.wait_for_url(url+'posts/'+TECH+'/');ready(page);page.wait_for_timeout(1000)
                     page.locator('.reader-breadcrumb mdui-button').click();page.wait_for_url(url+'#recent');ready(page);page.wait_for_timeout(900)
-                    page.go_back();page.wait_for_url(url+'posts/'+TECH+'/');ready(page);page.wait_for_timeout(900)
+                    page.go_forward();page.wait_for_url(url+'posts/'+TECH+'/');ready(page);page.wait_for_timeout(900)
                     if width<1440:
                         page.locator('#toc-toggle').click();page.wait_for_timeout(600)
                         page.locator('#toc-inline-list a[href="#grid-minimum"]').click()

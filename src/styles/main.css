@@ -25,7 +25,8 @@ body { transition: background-color var(--nekomi-duration-background) var(--neko
 }
 .has-wallpaper :is(.collection-card, .tag-surface, .empty-state) { background: var(--site-paper); }
 .has-wallpaper .reader-error { background: var(--site-reader-paper); }
-.has-wallpaper #content-tabs::part(container), .has-wallpaper .site-appbar { background: rgba(var(--mdui-color-surface), .95); }
+.has-wallpaper .site-appbar { background: rgba(var(--mdui-color-surface), .95); }
+.has-wallpaper #content-tabs::part(container) { background: rgba(var(--mdui-color-surface-container), var(--nekomi-nav-opacity)); }
 .has-wallpaper :is(.view-heading, .site-footer, .reading-toc) { color: rgb(var(--mdui-color-on-surface)); }
 .has-wallpaper :is(.view-heading .eyebrow, .view-description, .site-footer, .toc-label) { color: rgb(var(--mdui-color-on-surface)); }
 .has-wallpaper .site-tagline, .has-wallpaper .sidebar-tabs mdui-tab[active]::part(label) { color: rgb(var(--mdui-color-on-primary-container)); }

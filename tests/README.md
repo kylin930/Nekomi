@@ -1,4 +1,4 @@
-# P2–P2.3 静态构建浏览器回归
+# P2–P2.4 静态构建浏览器回归
 
 依赖 Node.js 24 / npm（构建）、Python 3、Playwright 1.62.0 和 Chromium（浏览器验证）。构建完成后，测试仅用 Python 文件服务器提供 `dist/`，不是 Astro dev / preview，也不需要生产 Node 服务。
 
@@ -68,3 +68,19 @@ python3 tests/capture_motion.py --dist .astro/p23-delivery --label p23-cover --v
 ```
 
 录屏使用正常速度，没有放慢动画或伪造中间帧；只剪除开头浏览器加载阶段。`motion_audit.py` 中的伪元素探针只用于测试，不进入生产 JS。设计与原生 / 扩展边界详见 [MOTION.md](../docs/MOTION.md)。
+
+## P2.4 SEO 与大量文章
+
+```sh
+# 默认示例站：不输出假正式 Canonical，示例不进入索引 / RSS
+python3 tests/browse_audit.py --dist dist --artifacts /tmp/nekomi-p24/default
+# 额外 32 篇只写入临时 Collection，测试 42 篇 / 七页
+python3 tests/browse_audit.py --fixture --artifacts /tmp/nekomi-p24/root
+python3 tests/browse_audit.py --fixture --base /Nekomi/ --artifacts /tmp/nekomi-p24/subpath
+```
+
+fixture 的测试域名是保留示例地址 `https://nekomi.example`，不代表实际部署；临时 config 中的发布 / 非 demo 字段只验证 SEO 策略，不提交为正式数据。检查 Canonical 自引用、OG / X、JSON-LD、明确修改日期 / 无日期、可用图片 / 无图、Sitemap 与 RSS 排除示例、Robots、静态分类 / 标签 / 月份。
+
+浏览器检查全量搜索、列表批次及准确位置恢复、恢复首五帧、浏览器前进 / 后退、相邻文章 / Hash 返回、直接打开回退、无完整重载的公共节点持久化。扣留网络响应、返回 503、快速滚动 / 查询 / 离页检查一次请求、明确重试、取消和过期结果；手动加载不移动视口并接续键盘焦点。实际关闭 JavaScript 遍历全部七张分页及其真实链接。原 P0 测试的首批数量改为六篇，分类 / 标签检查改为独立静态列表；P2.3 历史测试按新的来源返回行为验证前进 / 后退，未删除动效断言。
+
+新脚本仍由 Python 静态服务器提供生产产物；截图 / 录屏说明见 [P24 图集](../screenshots/P24.md)。请顺序执行 Astro 构建，避免共享预渲染缓存的并发写入。

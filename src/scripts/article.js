@@ -1,5 +1,6 @@
 import { a11y } from './a11y';
 import { motion } from './motion';
+import { pushArticleHash } from './list-state';
 
 export function initArticle(site, signal, navigationType) {
   const body = document.getElementById('article-body');
@@ -115,7 +116,7 @@ export function initArticle(site, signal, navigationType) {
     if (!target || !body.contains(target)) return;
     // Capture precedes ClientRouter's default same-document anchor handling.
     event.preventDefault();
-    if (location.hash !== hash) history.pushState(history.state, '', hash);
+    if (location.hash !== hash) pushArticleHash(hash);
     // Set pending first: Collapse closes on the next Lit update, before the final
     // offset is known. Its native closed event starts the spring at stable layout.
     if (anchor.closest('#toc-inline-list') && inlineToc.active) {

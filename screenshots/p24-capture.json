@@ -1,0 +1,24 @@
+[
+  {
+    "viewport": [
+      1440,
+      900
+    ],
+    "loadedBeforeArticle": 18,
+    "scrollBefore": 1641,
+    "scrollRestored": 1641,
+    "loadedAtEnd": 18,
+    "post": "fixture-24"
+  },
+  {
+    "viewport": [
+      390,
+      844
+    ],
+    "loadedBeforeArticle": 18,
+    "scrollBefore": 1800,
+    "scrollRestored": 1800,
+    "loadedAtEnd": 18,
+    "post": "fixture-23"
+  }
+]

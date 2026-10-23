@@ -45,6 +45,7 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 ## 构建依赖
 
 - Astro 7.4.2（MIT）：静态页面、Content Collections、客户端导航和 View Transitions；构建后不需要 Astro 服务。主页：https://astro.build/ 。
+- @astrojs/sitemap 3.7.4 与 @astrojs/rss 4.0.19（MIT）：官方静态 Sitemap / RSS 构建集成，不进入客户端运行时。
 - Shiki（MIT，与 Astro 一同安装）仅用于构建期语法高亮；GitHub Light / Dark 主题随 Shiki 提供，不加载客户端高亮脚本。
 - @astrojs/markdown-remark 7.3.4（MIT）与 rehype-raw 7.0.0（MIT）：构建期 Markdown 与可信 HTML 处理。
 - @astrojs/check 与 @types/node 为 MIT 许可，TypeScript 为 Apache-2.0 许可；均只用于开发检查。具体版本与传递依赖固定在 package-lock.json，许可文件随 npm 包提供。

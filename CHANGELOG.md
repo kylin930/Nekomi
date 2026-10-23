@@ -1,5 +1,14 @@
 # 变更记录
 
+## 2026-10-23 · P2.4 SEO、静态分页与浏览体验
+
+- 首页按配置默认六篇构建静态分页；普通上一页 / 下一页链接、独立分类 / 标签 / 月份索引和列表均可无脚本访问。IntersectionObserver 只在接近底部读取下一批，复用原 Card，保留图片、Prefetch 和共享标题 / 封面。
+- 全量元数据搜索按需读取匹配卡片，合并网络请求并取消过期任务；加载失败提供原生按钮重试，防止重复请求 / 追加与旧结果覆盖。手动加载的焦点接续和滚动锚定保持页面稳定。
+- 修复返回列表时 MDUI 异步插槽导致原生恢复坐标被短页面截断的问题；Swap 前还原面板 / 搜索 / 批次并临时保留高度，继续由 Astro 恢复坐标。“返回文章列表”验证真实来源后遍历历史，支持相邻文章、章节与前进 / 后退；直接访问保留普通链接回退。
+- “最近发布”统一为“全部文章”，旧 recent Hash 兼容；Tabs 容器使用柔和圆角和明暗独立的半透明 MD3 Surface，保留原生指示器、状态层、尺寸与吸顶位置，仅使用 3px 轻量背景模糊，不加标题遮罩。
+- 集中生成 Canonical、OG、X Card、语言、作者和 JSON-LD；可选修改日期与已知分享图片不补造。接入官方 Sitemap / RSS，Robots 引用真实配置地址；支持 SITE_URL / SITE_BASE 与预览默认 noindex。
+- 示例内容继续保留 demo 字段，不进入 RSS、Sitemap 或真实 BlogPosting；发布配置及真实内容可显式启用索引。补充 42 篇临时内容、无脚本、加载竞态、滚动首帧、SEO / 根子路径回归与实际截图、录屏。
+
 ## 2026-10-23 · P2.3 Material 3 Expressive 与公开文案完善
 
 - 对照官方 Motion physics / Web 转换表、Shape、States、Elevation、Typography 和 Color Roles，将空间运动与颜色 / 透明度分离，统一 350 / 500ms spatial、200ms effects；不引入动画框架，不冒充 MDUI 未提供的 Expressive API。

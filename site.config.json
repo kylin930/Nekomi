@@ -1,6 +1,16 @@
 {
   "demo": true,
   "demoNotice": "本页文章、日期、分类与标签均为演示数据。",
+  "publishing": {
+    "url": "",
+    "base": "/",
+    "language": "zh-CN",
+    "indexing": false,
+    "pageSize": 6,
+    "author": "",
+    "authorUrl": "",
+    "socialImage": ""
+  },
   "appearance": {
     "color": "#8064b1",
     "wallpaper": {

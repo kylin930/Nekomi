@@ -7,6 +7,7 @@ import { createTheme } from './theme';
 import { initHome } from './home';
 import { initArticle } from './article';
 import { prepareShared, prepareSharedImage, swapShared } from './navigation-motion';
+import { beforeListNavigation, prepareListDocument, listWillSwap, listDidSwap, returnToList } from './list-state';
 
 // This bundled module executes once. Only page-local enhancements are renewed by page-load.
 const data = JSON.parse(document.getElementById('site-data').textContent);
@@ -57,6 +58,11 @@ function createSite() {
   [drawer, friendsDialog].forEach(component => component.addEventListener('close', () => { waitForClosed(component); }));
   const mobile = matchMedia('(max-width: 1119px)');
   let search = '';
+  let pendingSearchFocus = '';
+  document.addEventListener('astro:page-load', () => {
+    const target = pendingSearchFocus; pendingSearchFocus = '';
+    if (target && location.href === target) queueMicrotask(() => document.dispatchEvent(new Event('nekomi:search-submit')));
+  });
   function setSearch(value) { search = String(value); document.querySelectorAll('[data-search]').forEach(field => { field.value = search; }); }
   function openDrawer(find = false) { drawerClose.autofocus = !find; drawer.querySelector('[data-search]').autofocus = find; drawer.open = true; }
   function notify(text) { const feedback = document.getElementById('site-feedback'); feedback.textContent = text; feedback.open = true; }
@@ -79,6 +85,7 @@ function createSite() {
     if (event.target === drawer) a11y.buttonState(menu, { 'aria-expanded': String(type === 'open') });
   }));
   mobile.addEventListener('change', () => { if (!mobile.matches) drawer.open = false; });
+  document.addEventListener('click', returnToList, true);
   document.addEventListener('click', async event => {
     const target = event.target.closest('[data-theme-cycle], [data-friends-all], #friends-close');
     if (target?.matches('[data-theme-cycle]')) { const modes = ['light', 'dark', 'auto']; theme.setMode(modes[(modes.indexOf(theme.getMode()) + 1) % 3]); }
@@ -98,7 +105,7 @@ function createSite() {
       if (event.key === 'Enter' && search.trim()) {
         event.preventDefault();
         if (document.body.dataset.page === 'home') document.dispatchEvent(new Event('nekomi:search-submit'));
-        else { await closeModal(drawer); await navigate(filterUrl(search)); document.querySelector('#post-list .post-card:not([hidden]) .post-title a')?.focus(); }
+        else { await closeModal(drawer); pendingSearchFocus = filterUrl(search); await navigate(pendingSearchFocus); }
       }
       return;
     }
@@ -127,19 +134,19 @@ function createSite() {
     event.preventDefault();
     navigate(url.href, { sourceElement: link });
   }, true);
-  // Astro's anchor discovery does not cross Web Component shadow roots. Use its
-  // public, deduplicating API only for explicitly opted-in MDUI navigation links.
+  // Astro scans anchors on page-load. Delegation also covers appended cards
+  // and MDUI shadow links, using the same public, deduplicating prefetch API.
   let prefetchTimer;
   const cancelPrefetch = () => { clearTimeout(prefetchTimer); };
   const hoverPrefetch = event => {
-    const link = event.target.closest('mdui-button[data-astro-prefetch="hover"], mdui-card[data-astro-prefetch="hover"]');
+    const link = event.target.closest('[data-astro-prefetch="hover"]');
     if (!link?.href || link.contains(event.relatedTarget)) return;
     cancelPrefetch();
     prefetchTimer = setTimeout(() => prefetch(new URL(link.href, location.href).href), 80);
   };
   ['pointerover', 'focusin'].forEach(type => document.addEventListener(type, hoverPrefetch, { passive: true }));
   ['pointerout', 'focusout', 'astro:before-preparation'].forEach(type => document.addEventListener(type, cancelPrefetch, { passive: true }));
-  return { data, drawer, setSearch, notify, postUrl, closeModal, go: navigate };
+  return { data, drawer, setSearch, notify, postUrl, closeModal, go: navigate, recoverImages };
 }
 async function initialize() {
   const current = ++generation;
@@ -158,7 +165,7 @@ async function initialize() {
   pageController = new AbortController();
   const signal = pageController.signal;
   document.querySelectorAll('[data-site-sidebar] [data-post], [data-sidebar=mobile] [data-post]').forEach(item => { item.active = item.dataset.post === document.body.dataset.postId; });
-  if (document.body.dataset.page === 'home') { initHome(site, signal); disposePage = undefined; }
+  if (document.body.dataset.page === 'home') disposePage = initHome(site, signal);
   else if (document.body.dataset.page === 'article') disposePage = initArticle(site, signal, navigationType);
   else disposePage = undefined;
   document.getElementById('main-content').dataset.enhanced = 'true';
@@ -169,6 +176,7 @@ async function initialize() {
 document.addEventListener('astro:before-preparation', event => {
   navigationType = event.navigationType;
   motion.cancelScroll();
+  beforeListNavigation(event);
   const shared = prepareShared(event, data.base);
   // Complete native modal closure before ClientRouter replaces the main content.
   const loader = event.loader;
@@ -176,6 +184,7 @@ document.addEventListener('astro:before-preparation', event => {
     await closeModal(site?.drawer);
     await closeModal(document.getElementById('friends-dialog'));
     await loader();
+    prepareListDocument(event);
     await prepareSharedImage(shared, event.newDocument);
   };
 });
@@ -187,6 +196,7 @@ document.addEventListener('astro:before-swap', event => {
   disposePage = undefined;
   theme?.prepareSwap(event.newDocument);
   swapShared(event);
+  listWillSwap(event);
   const incoming = event.newDocument;
   const nextLayout = incoming.querySelector('.site-layout');
   const nextMain = incoming.getElementById('main-content');
@@ -213,3 +223,4 @@ document.addEventListener('astro:before-swap', event => {
   };
 });
 document.addEventListener('astro:page-load', initialize);
+document.addEventListener('astro:after-swap', listDidSwap);

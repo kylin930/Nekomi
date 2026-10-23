@@ -1,3 +1,37 @@
+# P2.4 实际验证结果 · 2026-10-23
+
+基于最新 main `ab8db7f`（P2.3 合并结果），在 work 分支开发。Node.js 24.19.0、npm 11.9.0、Playwright 1.62.0、Chromium 154.0.8037.57。所有浏览器测试均访问生产静态产物，由 Python 文件服务器托管，不运行 Astro / Node 服务。
+
+- **Astro Check：0 errors / 0 warnings / 1 hint**；保留旧式剪贴板降级的弃用 hint。生产构建成功，MDUI 仍固定 2.1.5，Astro 7.4.2 不变，新增官方 Sitemap 3.7.4 / RSS 4.0.19 只在构建时运行。
+- 原 P0–P2.3 **18 组完整浏览器回归通过**，覆盖内容摘要 / 全部原标题锚点 / 原代码、组件 / 焦点 / Drawer / 三态主题、图片 / 失败回退 / Shiki / Prefetch、弹簧与共享元素、八个视口及断点、明暗 / 极端壁纸对比度、Worker 及原位持久化。最终异步搜索焦点和导航表面调整后，另单独复测 home、mobile、motion、reader。快速目录重定位改为同一事件周期内的两个原生点击，确定发生在弹簧运行中，避免短动画状态轮询的瞬时漏采。
+- **根路径及 `/Nekomi/` 的 42 篇临时文章测试均通过**：原十篇加临时 32 篇，共七页、每页六篇。每个分页能直接访问，首页源码只有六张 Card；实际关闭 JavaScript 遍历全部 42 个不同文章 URL，真实下一页 / 上一页及分类 / 标签替代入口可用。正式文章文件未增加或改写。
+- 滚动接近底部才读取后续 HTML，七页各请求一次，没有闲置预读全部页。扣留响应并快速重复滚动只有一个请求；503 后不循环重试，原生按钮重试成功、无重复 Card；追加不改变 scrollY，手动加载的键盘焦点落到首个新标题。连续加载后页码显示已加载范围，下一页不重复已加载批次。
+- 全量元数据搜索能发现第六页的唯一关键词，不依赖已加载 DOM；输入合并网络请求，慢响应 / 查询更换 / 离页后旧结果不会覆盖新页。桌面和手机均验证搜索 / 清除 / 高亮 / 查询 URL / 返回，文章页按 Enter 搜索远页结果时会等待卡片出现再聚焦。
+- 列表 → 文章从顶部阅读；浏览器后退、前进、来源返回按钮、连续两篇文章加章节 Hash 后返回，均还原批次与位置。采样返回后前五帧，没有先显示顶部再跳回。分类 Tab 预览、独立分类 / 标签列表及搜索结果返回均保留上下文；直接打开文章保留普通首页回退。录屏实测桌面 **1641 → 1641px**、手机 **1800 → 1800px**，各保留 18 篇。
+- 位置由 Astro 原生历史恢复；本轮修复的是 MDUI 插槽异步渲染导致恢复被短页面截断。Swap 前还原列表、面板与临时 main 高度，组件更新后解除占位，不重写路由系统。八份有界列表缓存与 sessionStorage 辅助缓存以内容 / 配置版本隔离；公共侧栏、Drawer、壁纸与主题保持原位。
+- SEO 校验覆盖唯一 Title / Description、Canonical 自引用、OG / X、可用图片 / 无图、语言、作者、真实修改日期 / 未填写日期、WebSite / Blog / BlogPosting。原示例文章 noindex、不进入 RSS / Sitemap / 真实 BlogPosting；某张分页只有示例时也不收录。启用临时发布配置后，RSS 仅含 32 篇非 demo，Sitemap 与最终 HTML robots 一致，lastmod 只取明确日期。根 / 子路径的绝对和相对 URL、优化分享图、Sitemap 引用正确。
+- 默认未配置正式域名：Canonical / og:url 不虚构，默认示例不收录，RSS 为空、Sitemap 不生成、robots 不引用不存在的文件。临时自定义域名为保留示例地址 `https://nekomi.example`，不代表 Nekomi 已部署到该域名。
+- “全部文章”用于主 Tab、标题与恢复状态，“最近更新”侧栏不变；旧 Hash 兼容。Tabs 圆角、半透明 Surface、3px 轻量模糊保留原生指示器、状态层与吸顶位置。1440 / 1360 / 1359 / 1280 / 1024 / 960 / 390 / 320px 与原断点回归无横向溢出、目录重叠或阅读宽度回退。
+- SPA 过程仍为一个 document 请求；禁用 Worker 时，壁纸 DOM / 图像 / 公共外壳 / MDUI 构造器 / 色板及 timeOrigin 保持同一个对象，一次 API 请求与显式解码。新追加卡片的 Prefetch 与标题共享过渡也在真实浏览器中验证，不执行抓取分页中的公共初始化脚本。
+
+[实际截图与两段正常速度浏览录屏](../screenshots/P24.md)包括桌面 / 手机、浅色 / 深色、默认首页 / 阅读页 / 目录及临时大列表的进入前 / 返回后对照。背景来自此前实际 HTTP 获取并检查的 API 原始图片回放，未生成素材。[体积报告](ASSET-SIZES.md)明确区分 JS / CSS、HTML 与构建期集成；新增 SEO 库不进入客户端。
+
+主要命令：
+
+```sh
+ASTRO_TELEMETRY_DISABLED=1 npm run check
+ASTRO_TELEMETRY_DISABLED=1 npm run build
+python3 -u tests/browser_audit.py --verified-cdn --cdn-cache /tmp/nekomi-p11/cdn --artifacts /tmp/nekomi-p24/regression
+python3 -u tests/browse_audit.py --artifacts /tmp/nekomi-p24/default
+python3 -u tests/browse_audit.py --fixture --artifacts /tmp/nekomi-p24/large-root-final
+python3 -u tests/browse_audit.py --fixture --base /Nekomi/ --artifacts /tmp/nekomi-p24/large-subpath-final
+# 最终索引边界与页码范围修正后另复测 root / subpath 的 --only-seo / --only-loading
+```
+
+仅实测 Chromium，Firefox / Safari 尚未实测。云环境字体响应通过保持代理和 TLS 校验的 curl 获取后回放；没有关闭证书验证。正式上线需配置真实 SITE_URL、发布开关并替换 demo 数据；子路径的 robots 还需由站长合并到域名根 `/robots.txt`，项目仓库不能修改外部根站点。没有新增评论后端、后台、常驻 Node 服务或下一阶段功能。
+
+---
+
 # P2.3 实际验证结果 · 2026-10-23
 
 基于 `work` 分支的 P2.2 `b682539`（与本轮开始时最新 main 合并结果的文件内容一致）。Node.js 24.19.0、npm 11.9.0、Playwright 1.62.0、Chromium 154.0.8037.57。浏览器访问生产静态构建，由 Python 静态服务器托管。

@@ -29,7 +29,7 @@ export function prepareShared(event, base) {
   if (reduced.matches || !document.startViewTransition) return;
   const from = postId(event.from, base);
   const to = postId(event.to, base);
-  const id = event.from.pathname === base ? to : event.to.pathname === base ? from : '';
+  const id = !from && to && document.querySelector('[data-listing]') ? to : from && !to ? from : '';
   if (!id) return;
   const title = find(document, 'title', id);
   if (!visible(title)) return;
@@ -42,7 +42,8 @@ export function prepareShared(event, base) {
 }
 export async function prepareSharedImage(state, incoming) {
   if (!state || active !== state || state.signal.aborted) return;
-  if (!find(incoming, 'title', state.id)) { clear(state); return; }
+  const title = find(incoming, 'title', state.id);
+  if (!title || title.closest('[hidden]')) { clear(state); return; }
   const cover = state.cover && find(incoming, 'cover', state.id);
   const image = cover?.querySelector('img');
   if (!image) return;
