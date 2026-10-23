@@ -1,6 +1,13 @@
 import type { TransitionDirectionalAnimations } from 'astro';
-const timing = { duration: '360ms', easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fillMode: 'both' as const };
+const spatial = { duration: '500ms', easing: 'cubic-bezier(0.38, 1.21, 0.22, 1)', fillMode: 'both' as const };
+const effects = { duration: '200ms', easing: 'cubic-bezier(0.34, 0.8, 0.34, 1)', fillMode: 'both' as const };
 export const pageTransition: TransitionDirectionalAnimations = {
-  forwards: { old: { name: 'nekomi-out', duration: '160ms', fillMode: 'both' }, new: { name: 'nekomi-in', ...timing } },
-  backwards: { old: { name: 'nekomi-out-back', duration: '160ms', fillMode: 'both' }, new: { name: 'nekomi-in-back', ...timing } },
+  forwards: {
+    old: [{ name: 'nekomi-out', ...spatial }, { name: 'nekomi-fade-out', ...effects }],
+    new: [{ name: 'nekomi-in', ...spatial }, { name: 'nekomi-fade-in', ...effects }],
+  },
+  backwards: {
+    old: [{ name: 'nekomi-out-back', ...spatial }, { name: 'nekomi-fade-out', ...effects }],
+    new: [{ name: 'nekomi-in-back', ...spatial }, { name: 'nekomi-fade-in', ...effects }],
+  },
 };

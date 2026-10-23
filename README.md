@@ -2,12 +2,14 @@
 
 基于 **Astro 静态构建、MDUI 2.1.5 / Material Design 3** 的原创博客主题。保留 Stellar 式融入侧栏、P1.1 配色与阅读排版；不使用 React / Vue。所有文章、日期与叙事均为演示内容。
 
-P2.2 将固定版本 MDUI 迁至 npm / Vite 按需构建，接入 Astro 图片优化、选择性 Prefetch 和 Shiki，并以原生 List 呈现文章目录。保留 P2.1 的排版、响应式断点和表面层次。公共结构仍是 Astro 组件，十篇文章由 Content Collections / Markdown 输出，首页与文章通过 `<ClientRouter />` 无刷新切换。生产只需托管 `dist/`，无需运行 Node.js。
+P2.3 在 P2.2 工程基础上补齐 Material 3 Expressive 的视觉反馈：标题与可用封面衔接到阅读页，目录标记连接章节位置，面板进入与颜色过渡使用不同曲线。布局、壁纸、阅读尺度和 MDUI 组件体系保持原样。公开文案整理为普通博客表达；示例仍保留 `demo` 数据字段，方便替换，音乐 / 散步内容不冒充站长的实际经历。
+
+[设计原则、官方依据与动效分工](docs/MOTION.md) · [P2.3 截图与实时动效录屏](screenshots/P23.md)
 
 | 页面 | 桌面浅色 / 深色 | 手机浅色 / 深色 |
 | --- | --- | --- |
-| 首页 | [浅色](screenshots/p22-home-light-1440x900.png) · [深色](screenshots/p22-home-dark-1440x900.png) | [浅色](screenshots/p22-home-light-390x844.png) · [深色](screenshots/p22-home-dark-390x844.png) |
-| 阅读 | [浅色](screenshots/p22-reader-light-1440x900.png) · [深色](screenshots/p22-reader-dark-1440x900.png) | [浅色](screenshots/p22-reader-light-390x844.png) · [深色](screenshots/p22-reader-dark-390x844.png) |
+| 首页 | [浅色](screenshots/p23-home-light-1440x900.png) · [深色](screenshots/p23-home-dark-1440x900.png) | [浅色](screenshots/p23-home-light-390x844.png) · [深色](screenshots/p23-home-dark-390x844.png) |
+| 阅读 | [浅色](screenshots/p23-reader-light-1440x900.png) · [深色](screenshots/p23-reader-dark-1440x900.png) | [浅色](screenshots/p23-reader-light-390x844.png) · [深色](screenshots/p23-reader-dark-390x844.png) |
 
 [P2.2 手机顶部、原生目录与语法高亮截图](screenshots/P22.md) · [P2.1 八个视口与排版样例](screenshots/P21.md) · [P2 手机无刷新导航录屏](screenshots/p2-navigation-390x844.webm)。截图和录屏使用站长 API 实际返回并经检查的图片，不是生成素材；自动化回归使用本项目截图作为确定性图片 fixture。
 
@@ -39,7 +41,7 @@ SITE_BASE=/Nekomi/ npm run build
 
 MDUI 固定 `mdui@2.1.5` npm 依赖，由 Vite 输出本地带 hash 的资源，不再请求 unpkg 或依赖 `window.mdui`。`src/scripts/mdui.js` 逐项注册实际使用的 20 种组件；组件内部的依赖由 Vite 去重。官方公共 CSS 仍完整导入（主题 / Tokens / 工具样式需要），`setTheme` / `setColorScheme` 从功能模块导入，不导入 MDUI 总入口。图标字体仍由 Google Fonts 提供。
 
-文章标题、封面、阅读全文和相邻文章明确设置 `data-astro-prefetch="hover"`；`prefetchAll: false` 避免预取整页链接。普通锚点使用 Astro 原生处理，MDUI Shadow DOM 内的按钮 / Card 使用 Astro `prefetch()` 公共 API，延迟 80ms、URL 归一化并去重，遵循网络节流 / 离线限制。没有额外页面缓存系统。JS / CSS 含原远端 MDUI 总包的原始体积约 441.9 → 302.3 KiB，逐文件 gzip 估算 104.7 → 77.3 KiB（−26.14%），详见[完整体积口径](tests/ASSET-SIZES.md)。
+文章标题、封面、阅读全文和相邻文章明确设置 `data-astro-prefetch="hover"`；`prefetchAll: false` 避免预取整页链接。普通锚点使用 Astro 原生处理，MDUI Shadow DOM 内的按钮 / Card 使用 Astro `prefetch()` 公共 API，延迟 80ms、URL 归一化并去重，遵循网络节流 / 离线限制。没有额外页面缓存系统。P2.3 的 JS / CSS 合计约 308.6 KiB，逐文件 gzip 估算 78.8 KiB；比 P2.2 增加约 1.5 KiB gzip，没有新增动画库，详见[完整体积口径](tests/ASSET-SIZES.md)。
 
 ## 组件、路由与生命周期
 
@@ -51,7 +53,9 @@ MDUI 固定 `mdui@2.1.5` npm 依赖，由 Vite 输出本地带 hash 的资源，
 - 旧 `article.html?post=<id>#<heading>` 入口保留轻量兼容跳转；原 `#preview/<id>` 同样兼容。新内部链接全部使用静态文章 URL。
 - 无效路径使用静态 `404.html`；不再运行时请求正文片段。
 
-`ClientRouter` 管理页面请求、历史、滚动恢复和 View Transitions。只有正文执行 360ms 非线性滑入，后退方向反转；根画面和壁纸不做交叉淡入。`prefers-reduced-motion` 下缩至 1ms，目录立即定位。
+`ClientRouter` 管理请求、历史、滚动恢复和 View Transitions。页面位置 / 尺寸使用 500ms 的官方 Web spatial 转换曲线，透明度单独使用 200ms effects 曲线；后退方向反转。当前可见文章的标题临时命名为 `post-title`，有已解码封面时再衔接 `post-cover`，完成或取消后清理名称。不是给所有卡片同时命名，也不把壁纸或外壳放进淡入快照。慢图 / 坏图只衔接标题；没有 View Transition API 时使用 Astro 原生 fallback。
+
+MDUI 原生 Tabs 指示器、Ripple、状态层、Drawer / Dialog / Collapse 动画保留。Nekomi 只增强面板方向、卡片小幅缩放 / 圆角、目录 3px 移动标记与原生 active 的颜色过渡。空间与透明度 WAAPI 分离，时间解析支持 Vite 压缩后的 `.35s`；页面离开时取消动画、清理计时器和观察器。`prefers-reduced-motion` 下不启用共享元素和自定义进入，CSS / MDUI 时长缩至 1ms，目录立即定位。
 
 **壁纸持久化与缓存是两层独立机制。** 壁纸、公共侧栏和导航都声明了命名 `transition:persist`。此外使用 Astro 官方 `astro:before-swap` / `event.swap` / `swapFunctions`：保留公共外壳在原来的 DOM 位置，只替换 `<main>` 和阅读目录，使用官方 helper 更新 head、根属性、脚本状态和焦点。壁纸容器及已解码的 `<img>` 不被移除、移动或替换，不重新请求随机 API，不再次解码或播放首次淡入。导航发生在图片尚未加载完时，也沿用同一个加载任务。
 
@@ -84,7 +88,7 @@ demo: false
 支持普通 Markdown、代码围栏、图片、列表和表格。
 ```
 
-[详细文章约定](src/content/README.md) · [图片接入](public/images/README.md)。保留全部十篇演示文章的元数据、正文、代码、图片与标题锚点；首页索引、侧栏更新、搜索与相邻文章均由同一 Collection 推导，不再维护第二份文章索引。
+[详细文章约定](src/content/README.md) · [图片接入](public/images/README.md)。保留十篇可替换样例与全部稳定标题锚点；P2.3 整理公开文案，更新两篇日常文章的标题和一般性叙述，并将工程说明与 Astro 现状同步。首页索引、侧栏更新、搜索与相邻文章均由同一 Collection 推导，不再维护第二份文章索引。
 
 代码块由 Astro Shiki 在构建时生成 GitHub Light / Dark 双主题语法颜色，再补齐一层语言栏、原生复制 Button 和横向滚动区域（没有客户端高亮包），表格同样独立横向滚动。目录自动生成扁平的原生 `mdui-list` / `mdui-list-item`，以 H2–H6 深度缩进，原生 `href` / `rounded` / `active` 管理链接和选中状态，1440px 起有足够空间时放右侧，否则使用原生 Collapse。折叠目录点击后等待原生关闭动画，再执行原有弹簧定位；`aria-current` 同步到实际链接。正文保持原有 760px 上限与中文阅读节奏；复制、当前章节、标题永久链接、弹簧滚动、焦点与历史由轻量原生 JS 增强。
 
@@ -105,7 +109,7 @@ demo: false
 }
 ```
 
-写入配置的 `comments` 字段。默认为空，演示评论明确标注；未知文章被过滤。没有评论后端时只进入对应文章，只有真实评论节点已实现后才可启用 `anchorsEnabled`。时间在构建时按 Asia/Shanghai 输出，避免部署机器时区影响。
+写入配置的 `comments` 字段。默认为空，示例通过 `demo` 字段保留数据性质，公开页面不显示开发阶段提示；未知文章被过滤。没有评论后端时只进入对应文章，只有真实评论节点已实现后才可启用 `anchorsEnabled`。时间在构建时按 Asia/Shanghai 输出，避免部署机器时区影响。
 
 ## 排版与响应式参数
 
@@ -176,9 +180,10 @@ src/
   scripts/               单例运行时与可清理的页面增强
   styles/                复用 P1.1 样式与内容 View Transitions
 public/                  不需优化的公开资源与壁纸 Worker
+docs/MOTION.md           官方原则、参数与原生 / 扩展边界
 tests/                   静态产物浏览器回归与迁移基线
 screenshots/             实际页面截图与录屏
 dist/                    构建产物（不提交）
 ```
 
-本轮止于 P2.2 工程优化；未新增评论后端、管理后台、分页或其他独立页面。许可见 [LICENSE](LICENSE) 与 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+本轮止于 P2.3 视觉、动效与公开文案完善；未新增评论后端、管理后台、分页或其他独立页面。许可见 [LICENSE](LICENSE) 与 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。

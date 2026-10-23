@@ -14,22 +14,21 @@ const { Content, headings } = await render(post);
 const posts = await getPosts();
 const index = posts.findIndex(p => p.id === post.id);
 const neighbors = [{ item: posts[index - 1], label: '上一篇', direction: 'previous' }, { item: posts[index + 1], label: '下一篇', direction: 'next' }];
-const { title, excerpt, category, date, tags, cover, coverAlt, demo } = post.data;
+const { title, excerpt, category, date, tags, cover, coverAlt } = post.data;
 ---
 <SiteLayout title={title + ' · ' + config.site.name} description={excerpt} page="article" currentId={post.id}>
   <article id="reader" class="reader">
     <nav class="reader-breadcrumb" aria-label="返回导航"><mdui-button variant="text" href={withBase('') + '#recent'}><Icon name="arrow_back" slot="icon" />返回文章列表</mdui-button></nav>
     <header class="reader-header">
-      <div class="reader-kicker"><a id="article-category" href={filterUrl(category)}>{category}</a>{demo && <span>演示文章</span>}</div>
-      <h1 id="article-title">{title}</h1>
-      <p class="reader-meta"><time id="article-date" datetime={date}>{dateLabel(date)}</time><span aria-hidden="true">·</span><span id="article-source">{config.site.name}{demo && ' · 阅读演示'}</span></p>
+      <div class="reader-kicker"><a id="article-category" href={filterUrl(category)}>{category}</a></div>
+      <h1 id="article-title" data-shared-title={post.id}>{title}</h1>
+      <p class="reader-meta"><time id="article-date" datetime={date}>{dateLabel(date)}</time><span aria-hidden="true">·</span><span id="article-source">{config.site.name}</span></p>
       {tags.length > 0 && <div id="article-tags" class="post-tags">{tags.map(tag => <mdui-chip variant="suggestion" href={filterUrl(tag)}>{tag}</mdui-chip>)}</div>}
-      {demo && <p class="article-demo-note">本文为主题演示内容，不代表站长的真实经历。</p>}
     </header>
-    <div id="article-hero">{assetUrl(cover) && <figure class="article-hero"><SiteImage src={cover} alt={coverAlt} kind="hero" /></figure>}</div>
+    <div id="article-hero">{assetUrl(cover) && <figure class="article-hero" data-shared-cover={post.id}><SiteImage src={cover} alt={coverAlt} kind="hero" /></figure>}</div>
     {headings.length > 0 && <mdui-card variant="outlined" class="toc-inline"><mdui-collapse id="inline-toc" accordion><mdui-collapse-item value="contents" id="inline-toc-item"><mdui-button slot="header" variant="text" class="toc-toggle" id="toc-toggle"><span id="toc-toggle-label">文章目录 · {headings.length} 个章节</span><Icon slot="end-icon" id="toc-toggle-icon" name="expand_more" /></mdui-button><nav id="toc-inline-list" class="toc-content" aria-label="折叠文章目录"><TocTree headings={headings} /></nav></mdui-collapse-item></mdui-collapse></mdui-card>}
     <div id="article-body" class="prose"><Content /></div>
-    <footer class="reader-footer"><p class="reader-endnote">{demo ? '本文仅用于阅读体验演示。感谢读到这里。' : '感谢读到这里。'}</p><mdui-divider></mdui-divider><nav id="article-neighbors" class="article-neighbors" aria-label="相邻文章">{neighbors.map(({ item, label, direction }) => item ? <mdui-card variant="outlined" clickable class="article-neighbor" data-direction={direction} href={postUrl(item.id)} data-astro-prefetch="hover"><span class="neighbor-label">{label}</span><strong>{item.data.title}</strong></mdui-card> : <div class="neighbor-boundary"><span>{label}</span><p>{direction === 'previous' ? '已经是最新的一篇' : '已经是最早的一篇'}</p></div>)}</nav><mdui-button variant="tonal" href={withBase('') + '#recent'}>返回文章列表</mdui-button></footer>
+    <footer class="reader-footer"><p class="reader-endnote">谢谢读到这里。</p><mdui-divider></mdui-divider><nav id="article-neighbors" class="article-neighbors" aria-label="相邻文章">{neighbors.map(({ item, label, direction }) => item ? <mdui-card variant="outlined" clickable class="article-neighbor" data-direction={direction} href={postUrl(item.id)} data-astro-prefetch="hover"><span class="neighbor-label">{label}</span><strong>{item.data.title}</strong></mdui-card> : <div class="neighbor-boundary"><span>{label}</span><p>{direction === 'previous' ? '已经是最新的一篇' : '已经是最早的一篇'}</p></div>)}</nav><mdui-button variant="tonal" href={withBase('') + '#recent'}>返回文章列表</mdui-button></footer>
   </article>
   <aside slot="toc" class="reading-toc" id="reading-toc" aria-label="阅读辅助" hidden={!headings.length}><p class="toc-label">本文目录</p><nav id="toc-desktop-list" aria-label="文章目录"><TocTree headings={headings} /></nav></aside>
 </SiteLayout>

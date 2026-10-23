@@ -13,11 +13,11 @@
 }
 ---
 
-这篇演示笔记讨论吸顶状态的观察。一个标题看起来固定在顶部，并不意味着需要每一帧都执行 JavaScript。
+吸顶导航的实现可以从 CSS 开始。一个标题看起来固定在顶部，并不意味着需要每一帧都执行 JavaScript。
 
 ## 先试 CSS sticky {#css-first}
 
-如果需求只是让导航停在某个位置，`position: sticky` 通常已经足够。需要注意滚动祖先的 overflow，以及固定顶部栏占用的高度。Nekomi 的首页 Tabs 使用原生组件的吸顶能力。
+如果需求只是让导航停在某个位置，`position: sticky` 通常已经足够。需要注意滚动祖先的 overflow，以及固定顶部栏占用的高度。Nekomi 通过 MDUI Tabs 的公开容器 Part 设置吸顶位置。
 
 ## 确实需要状态时，再放一个哨兵 {#sentinel}
 

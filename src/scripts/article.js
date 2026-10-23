@@ -5,6 +5,9 @@ export function initArticle(site, signal, navigationType) {
   const body = document.getElementById('article-body');
   const headings = [...body.querySelectorAll('h2, h3, h4, h5, h6')];
   const links = [...document.querySelectorAll('.toc-list mdui-list-item')];
+  const lists = [...document.querySelectorAll('.toc-list')];
+  let previousSection;
+  let measureToc = true;
   const path = location.pathname;
   const inlineToc = document.getElementById('inline-toc-item');
   let frame = 0;
@@ -19,6 +22,9 @@ export function initArticle(site, signal, navigationType) {
     let current = headings[0];
     for (const heading of headings) { if (heading.getBoundingClientRect().top <= offset) current = heading; else break; }
     if (Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight - 3) current = headings.at(-1);
+    if (previousSection === current.id && !measureToc) return;
+    previousSection = current.id;
+    measureToc = false;
     for (const link of links) {
       const active = link.getAttribute('href') === '#' + encodeURIComponent(current.id);
       link.active = active;
@@ -27,6 +33,18 @@ export function initArticle(site, signal, navigationType) {
       if (active) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current');
       const anchor = link.shadowRoot?.querySelector('a');
       if (active) anchor?.setAttribute('aria-current', 'location'); else anchor?.removeAttribute('aria-current');
+    }
+    positionMarkers();
+  }
+  function positionMarkers() {
+    for (const list of lists) {
+      const item = [...list.querySelectorAll('mdui-list-item')].find(item => item.active);
+      if (!item) continue;
+      const box = item.getBoundingClientRect();
+      const y = box.top - list.getBoundingClientRect().top + 8;
+      list.style.setProperty('--toc-marker-y', `${y}px`);
+      list.style.setProperty('--toc-marker-height', `${Math.max(12, box.height - 16)}px`);
+      list.dataset.positioned = '';
     }
   }
   function update() { if (!frame) frame = requestAnimationFrame(currentSection); }
@@ -44,6 +62,7 @@ export function initArticle(site, signal, navigationType) {
   }
   function settle() {
     tocMoving = false;
+    measureToc = true; update();
     if (pending !== null) { const smooth = pending; pending = null; scrollHash(smooth); }
   }
   function legacyCopy(text) {
@@ -112,7 +131,9 @@ export function initArticle(site, signal, navigationType) {
   on(window, 'resize', () => { motion.cancelScroll(); if (tocMoving && !document.querySelector('.toc-inline').getClientRects().length) settle(); update(); });
   // Let ClientRouter restore a traversed page's actual scroll position, rather than forcing its previous hash.
   if (navigationType !== 'traverse') scrollHash(false);
+  const observer = new ResizeObserver(() => { measureToc = true; update(); });
+  lists.forEach(list => observer.observe(list));
   currentSection();
-  Promise.all(links.map(link => link.updateComplete)).then(() => { if (!signal.aborted) update(); });
-  return () => { cancelAnimationFrame(frame); timers.forEach(clearTimeout); motion.cancelScroll(); };
+  Promise.all(links.map(link => link.updateComplete)).then(() => { if (!signal.aborted) { measureToc = true; update(); } });
+  return () => { observer.disconnect(); cancelAnimationFrame(frame); timers.forEach(clearTimeout); motion.cancelScroll(); };
 }

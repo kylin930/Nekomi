@@ -19,12 +19,23 @@
   --site-reader-paper: var(--site-paper);
   --wallpaper-sidebar-veil: .32;
   --wallpaper-mobile-veil: .10;
-  --nekomi-duration-enter: 360ms;
-  --nekomi-duration-feedback: 220ms;
+  /* M3's official Web conversion curves: spatial may overshoot, effects may not.
+     These are Nekomi extensions, not nonexistent MDUI spring tokens. */
+  --nekomi-spatial-fast-duration: 350ms;
+  --nekomi-spatial-default-duration: 500ms;
+  --nekomi-spatial-fast-easing: cubic-bezier(.42, 1.67, .21, .90);
+  --nekomi-spatial-default-easing: cubic-bezier(.38, 1.21, .22, 1);
+  --nekomi-effects-fast-duration: 150ms;
+  --nekomi-effects-default-duration: 200ms;
+  --nekomi-effects-easing: cubic-bezier(.34, .80, .34, 1);
+  --nekomi-shape-card: 20px;
+  --nekomi-shape-pressed: 16px;
+  --nekomi-duration-enter: var(--nekomi-spatial-default-duration);
+  --nekomi-duration-feedback: var(--nekomi-effects-default-duration);
   --nekomi-duration-background: 650ms;
   --nekomi-easing-enter: cubic-bezier(0.16, 1, 0.3, 1);
-  --nekomi-easing-feedback: cubic-bezier(.2, .8, .2, 1);
-  --nekomi-easing-expressive: cubic-bezier(.2, .9, .25, 1.08);
+  --nekomi-easing-feedback: var(--nekomi-effects-easing);
+  --nekomi-easing-expressive: var(--nekomi-spatial-fast-easing);
   --nekomi-spring-stiffness: 220;
   --nekomi-spring-damping: 28;
   --identity-font: "Noto Serif CJK SC", "Songti SC", "STSong", ui-serif, serif;
@@ -48,6 +59,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   :root {
+    --nekomi-spatial-fast-duration: 1ms;
+    --nekomi-spatial-default-duration: 1ms;
+    --nekomi-effects-fast-duration: 1ms;
+    --nekomi-effects-default-duration: 1ms;
     --nekomi-duration-enter: 1ms;
     --nekomi-duration-feedback: 1ms;
     --nekomi-duration-background: 1ms;

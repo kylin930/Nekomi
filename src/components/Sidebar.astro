@@ -41,16 +41,16 @@ const commentTime = (date: string) => new Intl.DateTimeFormat('zh-CN', { month: 
     <mdui-tab-panel slot="panel" value="comments" id={prefix + '-comments-panel'} role="tabpanel" aria-labelledby={prefix + '-comments'}>
       <div class="side-panel-content"><div class="side-panel-heading"><span>最近的留言</span><span>{comments.length} 条</span></div>
         {comments.length ? <>
-          <p class="comments-note">{comments.some(c => c.demo) && '含明确标注的演示评论。'}{!config.comments.anchorsEnabled && '点击阅读对应文章，评论定位暂未接入。'}</p>
+          <p class="comments-note">{config.comments.anchorsEnabled ? '打开文章，查看这条留言。' : '点击阅读留言对应的文章。'}</p>
           <mdui-list class="comment-list">{comments.slice(0, 4).map(comment => {
             const post = posts.find(p => p.id === comment.postId)!;
             const href = postUrl(post.id) + (config.comments.anchorsEnabled && comment.anchor ? '#' + encodeURIComponent(comment.anchor) : '');
             return <mdui-list-item rounded href={href} data-demo-comment={comment.demo || undefined}>
               <Avatar class="comment-avatar" slot="icon" src={comment.avatar} fallback={Array.from(comment.author)[0]} label={comment.author} />
-              <div class="comment-copy"><div class="comment-byline"><strong>{comment.author}</strong><time datetime={comment.createdAt}>{commentTime(comment.createdAt)}</time></div><p class="comment-excerpt">{comment.excerpt}</p><p class="comment-post">{comment.demo && '演示 · '}{post.data.title}</p></div>
+              <div class="comment-copy"><div class="comment-byline"><strong>{comment.author}</strong><time datetime={comment.createdAt}>{commentTime(comment.createdAt)}</time></div><p class="comment-excerpt">{comment.excerpt}</p><p class="comment-post">{post.data.title}</p></div>
             </mdui-list-item>;
           })}</mdui-list>
-        </> : <p class="friend-empty">还没有收到留言。<small>评论系统尚未接入</small></p>}
+        </> : <p class="friend-empty">还没有留言。<small>有新留言时会显示在这里</small></p>}
       </div>
     </mdui-tab-panel>
   </mdui-tabs>

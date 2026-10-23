@@ -22,21 +22,21 @@ const navigation = [ ['recent', '最近发布', 'view_agenda--outlined'], ['cate
   <mdui-tabs id="content-tabs" value="recent" variant="secondary" aria-label="博客内容">
     {navigation.map(([value, title, icon]) => <mdui-tab id={'tab-' + value} value={value} role="tab" aria-controls={'panel-' + value} inline><Icon name={icon} slot="icon" />{title}</mdui-tab>)}
     <mdui-tab-panel slot="panel" value="recent" id="panel-recent" role="tabpanel" aria-labelledby="tab-recent" tabindex="0">
-      <div class="view-heading"><div><p class="eyebrow">技术、灵感，还有日常</p><h1 id="feed-title" tabindex="-1">最近发布</h1><p id="feed-summary" class="view-description" role="status" aria-live="polite">{posts.length} 篇演示记录 · 按时间收录</p></div></div>
+      <div class="view-heading"><div><p class="eyebrow">技术、灵感，还有日常</p><h1 id="feed-title" tabindex="-1">最近发布</h1><p id="feed-summary" class="view-description" role="status" aria-live="polite">{posts.length} 篇文章 · 按时间收录</p></div></div>
       <div id="search-toolbar" class="search-toolbar" hidden><mdui-chip id="search-chip" variant="input" deletable></mdui-chip><mdui-button variant="text" data-clear-search>清除搜索</mdui-button></div>
       <div id="post-list" class="post-list">{posts.map((post, index) => <PostCard post={post} latest={index === 0} />)}</div>
       <mdui-card id="search-empty" variant="outlined" class="empty-state" hidden><Icon name="search_off--outlined" /><h2>暂时没有找到</h2><p>换个关键词试试，或者回到全部文章。</p><mdui-button variant="tonal" data-clear-search>查看全部文章</mdui-button></mdui-card>
     </mdui-tab-panel>
     <mdui-tab-panel slot="panel" value="categories" id="panel-categories" role="tabpanel" aria-labelledby="tab-categories" tabindex="0">
-      <div class="view-heading"><div><p class="eyebrow">整理与发现</p><h1>文章分类</h1><p class="view-description" id="categories-summary">{categories.length} 个分类，把零散的想法收进不同的抽屉。</p></div></div>
+      <div class="view-heading"><div><p class="eyebrow">整理与发现</p><h1>文章分类</h1><p class="view-description" id="categories-summary">{categories.length} 个分类，按主题找文章。</p></div></div>
       <div id="categories-list" class="collection-list">{categories.map(([category, items]) => <mdui-card variant="outlined" class="collection-card"><section><div class="collection-heading"><h2>{category}</h2><mdui-button variant="text" data-query={category}>查看 {items.length} 篇</mdui-button></div><mdui-list>{items.map(post => <PostListItem post={post} description={dateLabel(post.data.date)} />)}</mdui-list></section></mdui-card>)}</div>
     </mdui-tab-panel>
     <mdui-tab-panel slot="panel" value="tags" id="panel-tags" role="tabpanel" aria-labelledby="tab-tags" tabindex="0">
-      <div class="view-heading"><div><p class="eyebrow">循着兴趣阅读</p><h1>所有标签</h1><p class="view-description" id="tags-summary">{tags.size} 个关键词。选择一个，看看相关的记录。</p></div></div>
+      <div class="view-heading"><div><p class="eyebrow">循着兴趣阅读</p><h1>所有标签</h1><p class="view-description" id="tags-summary">{tags.size} 个标签，看看感兴趣的话题。</p></div></div>
       <mdui-card variant="outlined" class="tag-surface"><div id="tags-list" class="tag-cloud">{Array.from(tags).sort((a, b) => b[1] - a[1]).map(([tag, count]) => <mdui-chip variant="suggestion" data-query={tag}>{tag}<span class="tag-count">{count}</span></mdui-chip>)}</div></mdui-card>
     </mdui-tab-panel>
     <mdui-tab-panel slot="panel" value="archive" id="panel-archive" role="tabpanel" aria-labelledby="tab-archive" tabindex="0">
-      <div class="view-heading"><div><p class="eyebrow">沿着时间回望</p><h1>文章归档</h1><p class="view-description" id="archive-summary">{posts.length} 篇文章，{months.length} 个月份。每一篇，都是当时的一个切片。</p></div></div>
+      <div class="view-heading"><div><p class="eyebrow">沿着时间回望</p><h1>文章归档</h1><p class="view-description" id="archive-summary">{posts.length} 篇文章，收录于 {months.length} 个月份。</p></div></div>
       <div id="archive-list" class="collection-list">{months.map(([month, items]) => <mdui-card variant="outlined" class="collection-card"><section><div class="collection-heading"><h2>{month.slice(0, 4)} 年 {Number(month.slice(5))} 月</h2><span class="collection-count">{items.length} 篇</span></div><mdui-list>{items.map(post => <PostListItem post={post} description={post.data.date.slice(5).replace('-', ' / ') + ' · ' + post.data.category} />)}</mdui-list></section></mdui-card>)}</div>
     </mdui-tab-panel>
   </mdui-tabs>

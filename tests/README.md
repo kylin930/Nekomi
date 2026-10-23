@@ -1,4 +1,4 @@
-# P2 / P2.1 / P2.2 静态构建浏览器回归
+# P2–P2.3 静态构建浏览器回归
 
 依赖 Node.js 24 / npm（构建）、Python 3、Playwright 1.62.0 和 Chromium（浏览器验证）。构建完成后，测试仅用 Python 文件服务器提供 `dist/`，不是 Astro dev / preview，也不需要生产 Node 服务。
 
@@ -25,7 +25,8 @@ python3 tests/browser_audit.py --chromium /usr/bin/chromium \
 - **元素持久化**：Worker 被禁用时，首页 → 文章 → 下一篇 → 首页，再重复四次往返。校验 document 请求仅首次一个；相同 performance.timeOrigin、壁纸容器、图像、公共侧栏、Drawer、色板、主题单例和 MDUI 组件构造器；随机 API 一次请求、一次显式 decode，无新 load / 重新淡入；共享状态不丢、单次主题操作只响应一次、路由播报节点不积累。
 - **真实 View Transitions**：采样浏览器 ViewTransition.ready 后的正文伪元素，确认非线性滑入动画实际运行、根画面不交叉淡入。
 - **P0 首页**：四项主 Tabs、键盘 / ARIA、Hash 与历史、搜索准确数量 / 高亮 / 清空 / 空结果 / 分类 / 标签、搜索 URL 刷新恢复、原生 MDUI 按钮和图标导航，以及默认 / 已筛选首页的返回。
-- **内容迁移**：十篇 Markdown 的可见文本 SHA-256、全部标题 ID / 层级与原始代码逐篇比对迁移前基线；元数据标题、语言、代码复制到真实剪贴板、原生 List 层级目录、图片、表格和长代码溢出；旧文章 URL 和静态 HTTP 404。
+- **内容迁移与文案**：P2 原始迁移基线不覆盖；P2.3 明确记录文案摘要与少量标题 / 代码变更，其余代码及所有标题 ID / 层级仍与原基线逐篇比对；元数据标题、语言、代码复制到真实剪贴板、原生 List 层级目录、图片、表格和长代码溢出；旧文章 URL 和静态 HTTP 404。
+- **P2.3 动效与文案**：读取原生 View Transition 的伪元素、关键帧边界与 500ms 曲线，证明共享标题 / 封面实际运行；正反向 / 历史 / 键盘、两个视口 / 两主题、唯一名称清理、连续目录标记、真实 350 / 200ms WAAPI、原生 Tabs + 面板、卡片状态、减少动效、快速导航和无 API fallback；图片迟迟不返回时仍在预算后完成导航，随后保留失败回退。公开文案遍历首页与十篇文章，保留 demo 数据与真实身份，默认友链 / 评论仍为空。
 - **P2.2 工程**：闲置不预取全站、hover 预取与标题 / 原生按钮去重、原生相邻 Card 预取；Shiki 双主题颜色、单层包装及代码文本；本地响应式 WebP / srcset / 固有尺寸、原生 TOC active / aria-current / H2–H6 缩进与超长标题；配置副本增加相对 Markdown 图片和 H5 / H6，测试生成图片 404 时的全部回退；手机 App Bar 下 16px 间距、目录收起后弹簧定位与焦点。
 - **阅读**：弹簧滚动的启动 / 滚轮和触摸中断 / 再定位 / 精确偏移，当前目录 / 目标焦点 / Hash / 刷新 / 前进后退，手机原生 Collapse 和减少动态效果。
 - **移动导航 / 主题**：原生 Drawer 聚焦 / 关闭 / 跨断点 / 滚动锁，原生列表项 SPA 导航，文章搜索返回首页，浅色 / 深色 / 系统循环、刷新记忆和系统变化。
@@ -39,7 +40,7 @@ python3 tests/browser_audit.py --chromium /usr/bin/chromium \
 
 默认图片 fixture 是本项目现有截图，不为每个用例下载随机大图；不会写入默认文章封面、站点头像、友链或评论。交付截图 / 录屏另使用 P1.1 已实际请求并检查过的 API 原始图片。
 
-`--only persistence|home|content|reader|engineering|mobile|cache|layouts|surfaces|pending|fixtures` 可单独复测；`--skip-fixtures` 跳过额外配置构建。测试产物和临时构建自动清理，`--artifacts` 保存全部指定视口的首页 / 文章明暗截图、部分封面 / 长标题截图、布局与对比度 JSON，以及失败现场。临时构建与仓库放在同一文件系统，适配 Astro 的资源 rename。
+`--only persistence|home|content|reader|engineering|motion|copy|mobile|cache|layouts|surfaces|pending|fixtures|covers` 可单独复测；`--skip-fixtures` 跳过额外配置构建。测试产物和临时构建自动清理，`--artifacts` 保存全部指定视口的首页 / 文章明暗截图、部分封面 / 长标题截图、布局与对比度 JSON，以及失败现场。临时构建与仓库放在同一文件系统，适配 Astro 的资源 rename。
 
 ## 子路径部署
 
@@ -55,3 +56,15 @@ npm run build
 历史正文摘要保存在 `fixtures/content-baseline.json`，仅用于这次迁移的完整性回归；正文、示例代码和标题不应为满足测试而删改。首页数量断言依赖现有演示数据，未来内容更新时需同步调整。
 
 独立配置构建使用临时 `NEKOMI_CONFIG`、`NEKOMI_CONTENT_DIR`、`ASTRO_OUT_DIR` 和 `ASTRO_CACHE_DIR`；最后一个参数隔离 Content Collections 缓存，避免预览副本的同 ID 元数据污染日常构建。临时数据与缓存随测试清理，不写入生产内容或配置。
+
+## 截图与实时录屏
+
+`capture_motion.py` 打开生产静态产物，不修改文章或配置。需安装 Playwright 的 ffmpeg（`python3 -m playwright install ffmpeg`），或沿用已安装浏览器目录。默认从真实 API 加载背景；`--wallpaper` 可回放先前 HTTP 获取并审阅的原始响应。
+
+```sh
+python3 tests/capture_motion.py --video --wallpaper /path/to/reviewed.png --cdn-cache /tmp/nekomi-cdn
+# 对独立封面配置构建进行同样采集，不把测试数据写进默认内容
+python3 tests/capture_motion.py --dist .astro/p23-delivery --label p23-cover --video --wallpaper /path/to/reviewed.png --cdn-cache /tmp/nekomi-cdn
+```
+
+录屏使用正常速度，没有放慢动画或伪造中间帧；只剪除开头浏览器加载阶段。`motion_audit.py` 中的伪元素探针只用于测试，不进入生产 JS。设计与原生 / 扩展边界详见 [MOTION.md](../docs/MOTION.md)。

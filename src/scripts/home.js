@@ -9,6 +9,8 @@ export function initHome(site, signal) {
   const path = location.pathname;
   let query = '';
   let booting = true;
+  let previousTab = tabs.value;
+  let searchMotion = 0;
   const texts = [...document.querySelectorAll('[data-highlight]')].map(node => [node, node.textContent]);
   const on = (element, event, listener) => element.addEventListener(event, listener, { signal });
   function renderFeed() {
@@ -23,7 +25,7 @@ export function initHome(site, signal) {
       node.replaceChildren(original.slice(0, index), mark, original.slice(index + query.trim().length));
     }
     feedTitle.textContent = needle ? '搜索结果' : '最近发布';
-    document.getElementById('feed-summary').textContent = needle ? `“${query.trim()}” · 找到 ${count} 篇文章` : `${cards.length} 篇演示记录 · 按时间收录`;
+    document.getElementById('feed-summary').textContent = needle ? `“${query.trim()}” · 找到 ${count} 篇文章` : `${cards.length} 篇文章 · 按时间收录`;
     document.getElementById('search-toolbar').hidden = !needle;
     document.getElementById('search-chip').textContent = query.trim();
     document.getElementById('search-empty').hidden = count > 0;
@@ -46,7 +48,8 @@ export function initHome(site, signal) {
       history.replaceState(history.state, '', url);
     }
     renderFeed();
-    if (!booting && (!hadQuery || focus || !query.trim())) motion.enter(document.getElementById('post-list'), 6);
+    clearTimeout(searchMotion);
+    if (!booting) searchMotion = setTimeout(() => { if (!signal.aborted) motion.enter(document.getElementById('post-list'), 4); }, 100);
     if (focus) feedTitle.focus({ preventScroll: true });
     else if (!hadQuery && query.trim() && !site.drawer.open && !booting) feedTitle.scrollIntoView({ block: 'start' });
   }
@@ -67,7 +70,9 @@ export function initHome(site, signal) {
     if (event.target !== tabs) return;
     if (tabs.value !== 'recent' && query) { query = ''; site.setSearch(''); renderFeed(); }
     navigateTab(tabs.value);
-    if (!booting) requestAnimationFrame(() => { if (!signal.aborted) motion.enter(document.getElementById('panel-' + tabs.value)); });
+    const direction = tabIds.indexOf(tabs.value) >= tabIds.indexOf(previousTab) ? 1 : -1;
+    previousTab = tabs.value;
+    if (!booting) requestAnimationFrame(() => { if (!signal.aborted) motion.enter(document.getElementById('panel-' + tabs.value), direction * 10); });
   });
   on(tabs, 'click', event => { const tab = event.target.closest('mdui-tab'); if (tab?.value === 'recent' && query) setQuery('', true); });
   on(window, 'popstate', readLocation);
@@ -84,6 +89,7 @@ export function initHome(site, signal) {
     event.preventDefault();
     setQuery(target.hasAttribute('data-query') ? target.dataset.query : '', true);
   });
+  signal.addEventListener('abort', () => clearTimeout(searchMotion), { once: true });
   readLocation();
   requestAnimationFrame(() => { if (!signal.aborted) booting = false; });
 }

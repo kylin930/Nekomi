@@ -13,7 +13,7 @@
   --post-accent: var(--mdui-color-primary);
   --post-accent-container: var(--mdui-color-primary-container);
   --post-on-accent-container: var(--mdui-color-on-primary-container);
-  --shape-corner: 18px;
+  --shape-corner: var(--nekomi-shape-card);
   --mdui-color-outline: var(--mdui-color-outline-variant);
   background: var(--post-paper, var(--site-paper));
 }
@@ -34,7 +34,7 @@
   --post-accent-container: var(--mdui-color-secondary-container);
   --post-on-accent-container: var(--mdui-color-on-secondary-container);
 }
-.post-latest { background: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 18%, var(--site-paper)); --shape-corner: 20px; }
+.post-latest { background: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 18%, var(--site-paper)); --shape-corner: var(--nekomi-shape-card); }
 .post-content { padding: 20px 24px 12px; }
 .post-copy { max-inline-size: 48rem; }
 .post-meta { flex-wrap: wrap; gap: 8px 12px; font-size: 12px; line-height: 1.6; }
@@ -65,10 +65,12 @@
   .post-new { font-size: 10px; }
 }
 
-/* 卡片不是整块按钮：链接仍保留自身的原生反馈，容器只提供轻量层次提示。 */
-.post-card { transition: transform var(--nekomi-duration-feedback) var(--nekomi-easing-expressive), box-shadow var(--nekomi-duration-feedback) var(--nekomi-easing-feedback), background-color var(--nekomi-duration-background) var(--nekomi-easing-feedback); }
+/* Containment responds quietly; links and controls keep their native state layers. */
+.post-card { transition: transform var(--nekomi-spatial-fast-duration) var(--nekomi-spatial-fast-easing), border-radius var(--nekomi-spatial-fast-duration) var(--nekomi-spatial-fast-easing), box-shadow var(--nekomi-effects-default-duration) var(--nekomi-effects-easing), background-color var(--nekomi-duration-background) var(--nekomi-effects-easing); }
 .post-card:focus-within { box-shadow: 0 0 0 2px rgba(var(--mdui-color-primary), .34); }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .post-card:hover { transform: translateY(-3px); box-shadow: 0 5px 18px rgba(var(--mdui-color-shadow), .09); }
-  .post-card:has(a:active) { transform: translateY(-1px) scale(.998); }
+  .post-card:hover { transform: scale(1.003); --shape-corner: 24px; box-shadow: var(--mdui-elevation-level1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .post-card:has(:is(a, mdui-button, mdui-chip):active) { transform: scale(.997); --shape-corner: var(--nekomi-shape-pressed); }
 }

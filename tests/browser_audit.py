@@ -13,11 +13,13 @@ import tempfile
 import threading
 from urllib.parse import urlsplit, unquote, urljoin
 from playwright.sync_api import expect, sync_playwright
+from motion_audit import motion_checks, copy_checks, shared_cover_checks
 
 ROOT = Path(__file__).resolve().parents[1]
 TECH = 'css-grid-two-column-blog'
 ESSAY = 'weekend-walk-by-river'
 BASELINE = json.loads((ROOT / 'tests/fixtures/content-baseline.json').read_text())
+EDITORIAL = json.loads((ROOT / 'tests/fixtures/editorial-p23.json').read_text())
 VIEWPORTS = [(1440, 900), (1360, 900), (1359, 900), (1280, 800), (1024, 768), (960, 720), (390, 844), (320, 700)]
 
 
@@ -126,7 +128,7 @@ def persistence_checks(page, context, url, requests):
       saved.sidebar === document.querySelector('.sidebar') && saved.drawer === document.querySelector('#mobile-drawer') &&
       saved.theme === NekomiTheme && saved.listItem === customElements.get('mdui-list-item') && !window.mdui && !customElements.get('mdui-slider') && saved.palette === document.querySelector('style[id^="mdui-custom-color-scheme"]')''')
     assert page.evaluate('imageLoads === 0 && wallpaperDecodes === 1 && refades === 0')
-    assert page.evaluate('transitions.length >= 11 && transitions.every(t=>t.enter==="nekomi-in" && !t.root.includes("fade"))')
+    assert page.evaluate('transitions.length >= 11 && transitions.every(t=>t.enter.includes("nekomi-in") && !t.root.includes("fade"))')
     expect(page.locator('.sidebar .sidebar-tabs')).to_have_attribute('value', 'comments')
     assert page.evaluate("NekomiTheme.getMode() === 'dark'")
     assert len([r for r in requests if r['type'] == 'document']) == 1
@@ -206,11 +208,13 @@ def content_checks(page, context, url, requests):
         article(page, url, original['id'])
         body = page.locator('#article-body').evaluate('''e => { const clone=e.cloneNode(true); clone.querySelectorAll('.heading-anchor,.code-header').forEach(n=>n.remove()); return clone.textContent; }''')
         digest = hashlib.sha256(re.sub(r'\s', '', body).encode()).hexdigest()
-        assert digest == original['textSha256'], ('lost or changed content', original['id'], digest)
-        assert page.locator('.prose h2,.prose h3,.prose h4,.prose h5,.prose h6').evaluate_all('es=>es.map(e=>({id:e.id,text:e.firstChild.textContent,level:Number(e.tagName.slice(1))}))') == original['headings']
+        edit = EDITORIAL.get(original['id'], {})
+        assert digest == edit.get('textSha256', original['textSha256']), ('lost or changed content', original['id'], digest)
+        assert page.locator('.prose h2,.prose h3,.prose h4,.prose h5,.prose h6').evaluate_all('es=>es.map(e=>({id:e.id,text:e.firstChild.textContent,level:Number(e.tagName.slice(1))}))') == [{**h, 'text': edit.get('headingText', {}).get(h['id'], h['text'])} for h in original['headings']]
         for index, code in enumerate(original['code']):
-            assert page.locator('.code-block code').nth(index).text_content().rstrip('\n') == code.rstrip('\n')
-        expect(page.locator('#article-title')).to_have_text(original['metadata']['title'])
+            expected = edit.get('code', {}).get(str(index), code)
+            assert page.locator('.code-block code').nth(index).text_content().rstrip('\n') == expected.rstrip('\n')
+        expect(page.locator('#article-title')).to_have_text(edit.get('title', original['metadata']['title']))
     article(page, url)
     code = page.locator('.code-block code').first.text_content()
     page.locator('.copy-code').first.click()
@@ -236,7 +240,7 @@ def content_checks(page, context, url, requests):
     assert response.status == 404
     ready(page)
     expect(page.locator('#article-error')).to_be_visible()
-    print('PASS P1/content: all ten Markdown bodies match original text hashes, stable heading IDs/exact code, clipboard/images/tables/overflow, old URL compatibility and static 404')
+    print('PASS P1/content: all ten editorial text hashes, original heading IDs and exact code with explicit P2.3 editorial patches, clipboard/images/tables/overflow, old URL compatibility and static 404')
 
 
 def reader_checks(page, context, url, requests):
@@ -523,7 +527,7 @@ def contrast_checks(page, context, url, requests, artifacts):
                       const item=[...document.querySelectorAll('.sidebar mdui-list-item')].find(e=>!e.active);
                       check('sidebar date',item.shadowRoot.querySelector('[part~="description"]'),null,sidebar);
                     }
-                    if(reader){for(const selector of ['.prose','.prose a:not(.heading-anchor)','.reader-meta','.article-demo-note'])check(selector,document.querySelector(selector),reader);if(innerWidth>=1440)check('right TOC',document.querySelector('#toc-desktop-list mdui-list-item:not([active])').shadowRoot.querySelector('[part=headline]'));}
+                    if(reader){for(const selector of ['.prose','.prose a:not(.heading-anchor)','.reader-meta'])check(selector,document.querySelector(selector),reader);if(innerWidth>=1440)check('right TOC',document.querySelector('#toc-desktop-list mdui-list-item:not([active])').shadowRoot.querySelector('[part=headline]'));}
                     else {check('home description',document.querySelector('.view-description'));for(const selector of ['.post-meta','.post-excerpt','.post-title a']){const node=document.querySelector(selector);check(selector,node,node.closest('.post-card'));}}
                   }
                   return samples;
@@ -638,7 +642,7 @@ def fixture_checks(page, context, url, requests):
     expect(page.locator('.sidebar .comment-list mdui-list-item')).to_have_count(4)
     for item in page.locator('.sidebar .comment-list mdui-list-item').all():
         assert '#' not in item.get_attribute('href')
-    expect(page.locator('.sidebar .comments-note')).to_contain_text('评论定位暂未接入')
+    expect(page.locator('.sidebar .comments-note')).to_contain_text('点击阅读留言对应的文章')
     for width, height in ((390, 844), (390, 600), (320, 568)):
         page.set_viewport_size({'width': width, 'height': height})
         assert page.locator('mdui-top-app-bar-title > .appbar-brand .brand-avatar img').bounding_box()['width'] == 30
@@ -709,10 +713,10 @@ def main():
             return context, page, errors, requests
         server, url = start_server(args.dist, args.base)
         try:
-            cases = [('persistence', persistence_checks), ('home', home_checks), ('content', content_checks), ('reader', reader_checks), ('engineering', engineering_checks), ('mobile', mobile_checks), ('cache', cache_checks), ('layouts', lambda pg,c,u,r:layout_checks(pg,c,u,r,args.artifacts)), ('surfaces',lambda pg,c,u,r:contrast_checks(pg,c,u,r,args.artifacts))]
+            cases = [('persistence', persistence_checks), ('home', home_checks), ('content', content_checks), ('reader', reader_checks), ('engineering', engineering_checks), ('motion', motion_checks), ('copy', copy_checks), ('mobile', mobile_checks), ('cache', cache_checks), ('layouts', lambda pg,c,u,r:layout_checks(pg,c,u,r,args.artifacts)), ('surfaces',lambda pg,c,u,r:contrast_checks(pg,c,u,r,args.artifacts))]
             if args.only:
                 cases = [case for case in cases if case[0] == args.only]
-                assert cases or args.only in ('pending', 'fixtures'), 'Unknown case'
+                assert cases or args.only in ('pending', 'fixtures', 'covers'), 'Unknown case'
             for name, check in cases:
                 context, page, errors, requests = new_page(url, mobile=name == 'mobile', workers='allow' if name == 'cache' else 'block')
                 try:
@@ -768,7 +772,7 @@ def main():
                 expect(page.locator('.code-block')).to_have_count(2)
                 context.close()
                 print('PASS static output: served by Python only, Markdown body/metadata/code/TOC are present without JavaScript')
-            if not args.skip_fixtures and (not args.only or args.only == 'fixtures'):
+            if not args.skip_fixtures and (not args.only or args.only in ('fixtures', 'covers')):
                 fixture = json.loads((ROOT / 'site.config.json').read_text())
                 fixture.update(json.loads((ROOT / 'tests/fixtures/sidebar.json').read_text()))
                 fixture['site']['avatar'] = 'images/demo-home.png'
@@ -792,9 +796,11 @@ def main():
                 fixture_server, fixture_url = start_server(fixture_dist, args.base)
                 context, page, errors, requests = new_page(fixture_url)
                 try:
-                    fixture_checks(page, context, fixture_url, requests)
-                    visual_fixture_checks(page, context, fixture_url, requests, args.artifacts)
-                    image_fixture_checks(page, context, fixture_url, requests)
+                    if args.only != 'covers':
+                        fixture_checks(page, context, fixture_url, requests)
+                        visual_fixture_checks(page, context, fixture_url, requests, args.artifacts)
+                    shared_cover_checks(page, context, fixture_url, requests)
+                    if args.only != 'covers': image_fixture_checks(page, context, fixture_url, requests)
                     assert not errors, errors
                 finally:
                     context.close();fixture_server.shutdown();fixture_server.server_close()
