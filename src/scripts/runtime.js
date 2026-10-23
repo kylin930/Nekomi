@@ -52,7 +52,7 @@ function createSite() {
   const drawerClose = document.getElementById('drawer-close');
   const friendsDialog = document.getElementById('friends-dialog');
   [drawer, friendsDialog].forEach(component => component.addEventListener('close', () => { waitForClosed(component); }));
-  const mobile = matchMedia('(max-width: 860px)');
+  const mobile = matchMedia('(max-width: 1119px)');
   let search = '';
   function setSearch(value) { search = String(value); document.querySelectorAll('[data-search]').forEach(field => { field.value = search; }); }
   function openDrawer(find = false) { drawerClose.autofocus = !find; drawer.querySelector('[data-search]').autofocus = find; drawer.open = true; }

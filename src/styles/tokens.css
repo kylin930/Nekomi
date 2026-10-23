@@ -2,12 +2,23 @@
 :root {
   --site-width: 1440px;
   --sidebar-width: 320px;
-  --layout-gap: 48px;
-  --page-gutter: 40px;
+  --layout-gap: clamp(32px, calc(5vw - 24px), 48px);
+  --page-gutter: clamp(28px, calc(3.75vw - 14px), 40px);
+  --reader-width: 760px;
+  --toc-width: 184px;
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --prose-line-height: 1.85;
+  --prose-block-gap: 1.25em;
   --mobile-header-height: calc(64px + env(safe-area-inset-top, 0px));
   /* 由 MDUI 色板推导的页面表面，明暗模式共用同一语义关系。 */
   --site-canvas: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 14%, rgb(var(--mdui-color-surface)));
   --site-paper: rgb(var(--mdui-color-surface-container-lowest));
+  --site-reader-paper: var(--site-paper);
+  --wallpaper-sidebar-veil: .32;
+  --wallpaper-mobile-veil: .10;
   --nekomi-duration-enter: 360ms;
   --nekomi-duration-feedback: 220ms;
   --nekomi-duration-background: 650ms;
@@ -23,19 +34,16 @@
 .mdui-theme-dark {
   --site-canvas: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 10%, rgb(var(--mdui-color-surface-dim)));
   --site-paper: rgb(var(--mdui-color-surface-container-low));
+  --wallpaper-sidebar-veil: .28;
+  --wallpaper-mobile-veil: .08;
 }
 @media (prefers-color-scheme: dark) {
   .mdui-theme-auto {
     --site-canvas: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 10%, rgb(var(--mdui-color-surface-dim)));
     --site-paper: rgb(var(--mdui-color-surface-container-low));
+    --wallpaper-sidebar-veil: .28;
+    --wallpaper-mobile-veil: .08;
   }
-}
-
-@media (max-width: 1180px) {
-  :root { --sidebar-width: 280px; --layout-gap: 32px; --page-gutter: 28px; }
-}
-@media (max-width: 980px) {
-  :root { --sidebar-width: 260px; --layout-gap: 24px; --page-gutter: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

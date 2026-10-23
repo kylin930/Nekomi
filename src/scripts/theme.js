@@ -59,8 +59,9 @@ export function createTheme(data) {
   }
   async function applyWallpaper() {
     var dark = mode === 'dark' || mode === 'auto' && systemDark.matches;
-    document.body.style.setProperty('--wallpaper-overlay', number(dark ? wallpaper.darkOverlay : wallpaper.lightOverlay, dark ? .68 : .64, 0, 1));
-    document.body.style.setProperty('--wallpaper-paper-opacity', number(dark ? wallpaper.darkSurface : wallpaper.lightSurface, dark ? .92 : .90, .65, 1));
+    document.body.style.setProperty('--wallpaper-overlay', number(dark ? wallpaper.darkOverlay : wallpaper.lightOverlay, dark ? .68 : .60, 0, 1));
+    document.body.style.setProperty('--wallpaper-paper-opacity', number(dark ? wallpaper.darkSurface : wallpaper.lightSurface, dark ? .88 : .84, .65, 1));
+    document.body.style.setProperty('--wallpaper-reader-opacity', number(dark ? wallpaper.darkReaderSurface : wallpaper.lightReaderSurface, .97, .85, 1));
     var path = dark ? wallpaper.dark || wallpaper.light : wallpaper.light;
     var url = '';
     if (path) { try { var parsed = new URL(path, baseUrl); if (['http:', 'https:'].includes(parsed.protocol)) url = parsed.href; } catch (_) { /* 无效图片回退。 */ } }
@@ -135,7 +136,7 @@ export function createTheme(data) {
     // MDUI generates this palette only once. Give Astro a matching persistent head node.
     newDocument.head.append(palette.cloneNode(true));
     newDocument.body.classList.toggle('has-wallpaper', !layer.hidden);
-    ['--wallpaper-overlay', '--wallpaper-paper-opacity'].forEach(function (name) {
+    ['--wallpaper-overlay', '--wallpaper-paper-opacity', '--wallpaper-reader-opacity'].forEach(function (name) {
       newDocument.body.style.setProperty(name, document.body.style.getPropertyValue(name));
     });
   }

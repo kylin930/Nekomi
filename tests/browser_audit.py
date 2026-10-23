@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TECH = 'css-grid-two-column-blog'
 ESSAY = 'weekend-walk-by-river'
 BASELINE = json.loads((ROOT / 'tests/fixtures/content-baseline.json').read_text())
+VIEWPORTS = [(1440, 900), (1360, 900), (1359, 900), (1280, 800), (1024, 768), (960, 720), (390, 844), (320, 700)]
 
 
 class StaticHandler(http.server.SimpleHTTPRequestHandler):
@@ -250,10 +251,24 @@ def reader_checks(page, context, url, requests):
     page.reload(wait_until='networkidle')
     ready(page)
     expect(page.locator('#grid-minimum')).to_be_focused()
+    page.set_viewport_size({'width':960,'height':720})
+    page.evaluate('window.tocOpened=false;document.querySelector("#inline-toc-item").addEventListener("opened",()=>window.tocOpened=true,{once:true})')
+    page.locator('#toc-toggle button').focus()
+    page.keyboard.press('Enter')
+    expect(page.locator('#toc-toggle button')).to_have_attribute('aria-expanded','true')
+    page.wait_for_function('window.tocOpened')
+    page.locator('#toc-inline-list a[href="#state"]').click()
+    settled(page)
+    assert abs(page.locator('#state').bounding_box()['y'] - 84) <= 1
     page.set_viewport_size({'width': 390, 'height': 844})
     article(page, url)
+    # Removing a fragment can be a same-document navigation. Start this separate
+    # interaction phase with a genuinely closed native Collapse at the top.
+    page.reload(wait_until='networkidle');ready(page)
+    page.evaluate('scrollTo(0,0);window.tocOpened=false;document.querySelector("#inline-toc-item").addEventListener("opened",()=>window.tocOpened=true,{once:true})')
     page.locator('#toc-toggle').click()
     expect(page.locator('#toc-toggle button')).to_have_attribute('aria-expanded', 'true')
+    page.wait_for_function('window.tocOpened')
     page.locator('#toc-inline-list a[href="#state"]').click()
     page.wait_for_function('NekomiMotion.isScrolling()')
     page.evaluate('dispatchEvent(new Event("touchstart"))')
@@ -311,6 +326,13 @@ def mobile_checks(page, context, url, requests):
     for scheme in ('dark', 'light'):
         page.emulate_media(color_scheme=scheme)
         assert page.evaluate('getComputedStyle(document.documentElement).colorScheme') == scheme
+    page.set_viewport_size({'width': 960, 'height': 720})
+    page.keyboard.press('/')
+    expect(page.locator('#mobile-drawer')).to_be_visible()
+    expect(page.locator('[data-sidebar=mobile] [data-search] input')).to_be_focused()
+    page.set_viewport_size({'width': 1120, 'height': 800})
+    expect(page.locator('#mobile-drawer')).to_be_hidden()
+    expect(page.locator('.sidebar')).to_be_visible()
     print('PASS mobile: App Bar/Drawer focus/close/resize/scroll lock, native list SPA links, article search through ClientRouter, three-state theme/system/refresh')
 
 
@@ -327,29 +349,148 @@ def cache_checks(page, context, url, requests):
 
 
 def layout_checks(page, context, url, requests, artifacts):
-    for width in (1440, 1024, 861, 860, 390, 320):
+    dimensions = []
+    for width, height in VIEWPORTS + [(1119, 800), (1120, 800), (1439, 900)]:
         for route in ('', 'posts/' + TECH + '/'):
-            page.set_viewport_size({'width': width, 'height': 900 if width > 860 else 844})
+            page.set_viewport_size({'width': width, 'height': height})
             page.goto(url + route, wait_until='networkidle')
             ready(page)
             for mode in ('light', 'dark'):
                 page.evaluate('mode=>NekomiTheme.setMode(mode)', mode)
                 assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
-                if width > 860:
+                if width >= 1120:
                     expect(page.locator('.sidebar')).to_be_visible()
                     assert page.locator('.sidebar').evaluate('e=>getComputedStyle(e).backgroundColor') == 'rgba(0, 0, 0, 0)'
-                    if width == 1440:
-                        assert page.locator('.sidebar').bounding_box()['width'] == 320
+                    assert page.locator('.sidebar').bounding_box()['width'] == 320
                     assert page.locator('.sidebar .site-avatar').evaluate('e=>getComputedStyle(e).borderRadius') == '50%'
                 else:
                     expect(page.locator('.site-appbar')).to_be_visible()
                     assert page.locator('.site-layout').bounding_box()['y'] >= 64
                 if route:
                     assert page.locator('#reader').bounding_box()['width'] <= 760
-                    expect(page.locator('#reading-toc') if width >= 1360 else page.locator('.toc-inline')).to_be_visible()
-                if artifacts and width in (1440, 390):
+                    expect(page.locator('#reading-toc') if width >= 1440 else page.locator('.toc-inline')).to_be_visible()
+                    body = page.locator('.prose').bounding_box()
+                    if width >= 1280 or 888 <= width < 1120:
+                        assert body['width'] == 696, (width, body)
+                    elif width >= 1120:
+                        assert body['width'] >= 648
+                    assert abs(page.locator('.prose').evaluate('e=>Number.parseFloat(getComputedStyle(e).lineHeight)/Number.parseFloat(getComputedStyle(e).fontSize)') - 1.85) < .001
+                    assert page.locator('#article-hero').evaluate('e=>getComputedStyle(e).display') == 'none'
+                    assert body['y'] < (460 if width <= 480 else 510), (width, body['y'])
+                    if mode == 'light': dimensions.append({'viewport':[width,height],'bodyWidth':body['width'],'bodyTop':body['y'],'rightToc':width>=1440})
+                    # Every optional section uses the same gap, without an empty hero row.
+                    gap = page.locator('#reader').evaluate('e=>Number.parseFloat(getComputedStyle(e).rowGap)')
+                    after_header = page.locator('.toc-inline' if width < 1440 else '.prose').bounding_box()
+                    header = page.locator('.reader-header').bounding_box()
+                    assert abs(after_header['y'] - header['y'] - header['height'] - gap) <= 1
+                # Flat MD3 fallback must keep the same geometry and readable solid surfaces.
+                before = page.locator('#main-content').bounding_box()
+                page.evaluate("document.body.classList.remove('has-wallpaper');document.querySelector('.site-wallpaper').hidden=true")
+                assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+                assert page.locator('#main-content').bounding_box() == before
+                page.evaluate("document.body.classList.add('has-wallpaper');document.querySelector('.site-wallpaper').hidden=false")
+                if artifacts and (width, height) in VIEWPORTS:
                     page.screenshot(path=str(artifacts / f'{"article" if route else "home"}-{width}-{mode}.png'), animations='disabled')
-    print('PASS layouts: static home/reader at six widths × two themes, shared sidebar/round avatars/surfaces and no horizontal page overflow')
+    if artifacts: (artifacts/'layout-metrics.json').write_text(json.dumps(dimensions, indent=2))
+    print('PASS P2.1 layouts: eight required viewports + 1119/1120/1439 boundaries, two themes/flat surfaces, stable reader width/first-screen content/section gaps, no overflow')
+
+
+def surface_alpha(page, selector):
+    page.locator(selector).evaluate('async e=>{getComputedStyle(e).backgroundColor;await Promise.allSettled(e.getAnimations().map(a=>a.finished))}')
+    return page.locator(selector).evaluate('''e=>{const c=document.createElement('canvas');c.width=c.height=1;const ctx=c.getContext('2d');ctx.fillStyle=getComputedStyle(e).backgroundColor;ctx.fillRect(0,0,1,1);return ctx.getImageData(0,0,1,1).data[3]/255}''')
+
+
+def contrast_checks(page, context, url, requests, artifacts):
+    results = []
+    for width, height in ((1440,900),(390,844)):
+        page.set_viewport_size({'width':width,'height':height})
+        for route in ('','posts/'+TECH+'/'):
+            page.goto(url+route,wait_until='networkidle');ready(page)
+            page.wait_for_function('document.body.classList.contains("has-wallpaper")')
+            for mode in ('light','dark'):
+                page.evaluate('m=>NekomiTheme.setMode(m)',mode)
+                page.locator('body').evaluate('async e=>{getComputedStyle(e).color;await Promise.allSettled(e.getAnimations().map(a=>a.finished))}')
+                ratios=page.evaluate('''()=>{
+                  const ctx=document.createElement('canvas').getContext('2d');
+                  function color(value){ctx.clearRect(0,0,1,1);ctx.fillStyle=value;ctx.fillRect(0,0,1,1);return [...ctx.getImageData(0,0,1,1).data].map((v,i)=>i===3?v/255:v)}
+                  function mix(f,b){return f.slice(0,3).map((v,i)=>v*f[3]+b[i]*(1-f[3]))}
+                  function luminance(c){return c.map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0)}
+                  function contrast(a,b){const x=[luminance(a),luminance(b)].sort((x,y)=>x-y);return (x[1]+.05)/(x[0]+.05)}
+                  const style=getComputedStyle(document.body),surface=color('rgb('+style.getPropertyValue('--mdui-color-surface')+')');
+                  const overlay=color(getComputedStyle(document.querySelector('.site-wallpaper'),'::after').backgroundColor)[3];
+                  const samples=[],reader=document.querySelector('.reader');
+                  for(const pixel of [[0,0,0],[255,255,255]]){
+                    const wallpaper=mix([...surface.slice(0,3),overlay],pixel);
+                    const sidebar=mix([...surface.slice(0,3),Number(style.getPropertyValue('--wallpaper-sidebar-veil'))],wallpaper);
+                    function check(name,node,paint,base=wallpaper){if(!node)return;const bg=paint?mix(color(getComputedStyle(paint).backgroundColor),base):base;const fg=mix(color(getComputedStyle(node).color),bg);samples.push({name,pixel:pixel[0],ratio:contrast(fg,bg)})}
+                    if(innerWidth>=1120){
+                      for(const selector of ['.site-intro','.site-tagline','.sidebar-settings'])check(selector,document.querySelector(selector),null,sidebar);
+                      const tab=document.querySelector('.sidebar mdui-tab[active]');
+                      check('sidebar active tab',tab.shadowRoot.querySelector('[part="label"]'),tab.shadowRoot.querySelector('[part="container"]'),sidebar);
+                      const item=[...document.querySelectorAll('.sidebar mdui-list-item')].find(e=>!e.active);
+                      check('sidebar date',item.shadowRoot.querySelector('[part~="description"]'),null,sidebar);
+                    }
+                    if(reader){for(const selector of ['.prose','.prose a:not(.heading-anchor)','.reader-meta','.article-demo-note'])check(selector,document.querySelector(selector),reader);if(innerWidth>=1440)check('right TOC',document.querySelector('#toc-desktop-list a:not([aria-current])'));}
+                    else {check('home description',document.querySelector('.view-description'));for(const selector of ['.post-meta','.post-excerpt','.post-title a']){const node=document.querySelector(selector);check(selector,node,node.closest('.post-card'));}}
+                  }
+                  return samples;
+                }''')
+                for sample in ratios:
+                    assert sample['ratio'] >= 4.5, (width,mode,route,sample)
+                results.append({'width':width,'mode':mode,'page':'reader' if route else 'home','minimumContrast':min(s['ratio'] for s in ratios)})
+    if artifacts:(artifacts/'contrast-metrics.json').write_text(json.dumps(results,indent=2))
+    print('PASS P2.1 surfaces: effective light/dark text contrast >=4.5 over black/white wallpapers, including sidebar/tab/metadata/body/links/right TOC and phone overlays')
+
+
+def visual_fixture_checks(page, context, url, requests, artifacts):
+    for width, height in VIEWPORTS:
+        page.set_viewport_size({'width':width,'height':height})
+        page.goto(url, wait_until='networkidle'); ready(page)
+        for mode in ('light','dark'):
+            page.wait_for_function('document.body.classList.contains("has-wallpaper")')
+            page.evaluate('m=>NekomiTheme.setMode(m)',mode)
+            assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+            cover = page.locator('.post-card .post-cover').first
+            page.wait_for_function('document.querySelector(".post-cover img")?.naturalWidth>0')
+            image, copy = cover.bounding_box(), page.locator('.post-card .post-copy').first.bounding_box()
+            if page.locator('.post-card').first.bounding_box()['width'] >= 640:
+                assert image['x'] > copy['x'] + copy['width']
+                assert abs(image['y']-copy['y']) < 1
+            else:
+                assert image['y']+image['height'] < copy['y']
+            card_alpha = surface_alpha(page,'.post-card:nth-child(2)')
+            assert .82 <= card_alpha < .96, (width,mode,card_alpha)
+            if artifacts and width in (1440,1024,390,320):
+                page.screenshot(path=str(artifacts/f'cover-home-{width}-{mode}.png'),animations='disabled')
+            # Native cover links keep the shell and all surface configuration in place.
+            page.evaluate('window.fixtureWallpaper=document.querySelector(".wallpaper-image")')
+            cover.click(); page.wait_for_url(url+'posts/'+TECH+'/');ready(page)
+            assert page.evaluate('fixtureWallpaper===document.querySelector(".wallpaper-image")')
+            assert page.evaluate('Number(document.body.style.getPropertyValue("--wallpaper-reader-opacity"))') == (.96 if mode=='light' else .98)
+            assert surface_alpha(page,'.reader') > card_alpha
+            hero = page.locator('.article-hero').bounding_box()
+            header = page.locator('.reader-header').bounding_box()
+            assert abs(hero['y']-header['y']-header['height']-(16 if width<=480 else 24)) <= 1
+            assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+            page.goto(url+'posts/md3-palette-for-blog/',wait_until='networkidle');ready(page)
+            expect(page.locator('#article-tags mdui-chip')).to_have_count(6)
+            assert page.locator('#article-title').evaluate('e=>e.scrollWidth<=e.clientWidth')
+            assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+            if width <= 480:
+                assert page.locator('.prose').bounding_box()['y'] < height - 24, (width,page.locator('.prose').bounding_box())
+            if artifacts and width in (1440,390,320):
+                page.screenshot(path=str(artifacts/f'long-title-{width}-{mode}.png'),animations='disabled')
+            page.goto(url,wait_until='networkidle');ready(page)
+    page.set_viewport_size({'width':390,'height':844})
+    article(page,url,'no-image-state')
+    expect(page.locator('#article-tags')).to_have_count(0)
+    expect(page.locator('.article-demo-note')).to_have_count(0)
+    assert page.locator('#article-hero').evaluate('e=>getComputedStyle(e).display') == 'none'
+    # An article without a TOC must not leave an empty section gap either.
+    page.evaluate('document.querySelector(".toc-inline").remove();document.querySelector(".reading-toc").hidden=true')
+    header=page.locator('.reader-header').bounding_box();body=page.locator('.prose').bounding_box()
+    assert abs(body['y']-header['y']-header['height']-16) <= 1
+    print('PASS P2.1 fixtures: eight viewports × two themes, actual built cover/hero/long-title/six-tag/no-tag states, matching section gaps, native cover SPA links and persistent reader opacity')
 
 
 def fixture_checks(page, context, url, requests):
@@ -437,7 +578,7 @@ def main():
             return context, page, errors, requests
         server, url = start_server(args.dist, args.base)
         try:
-            cases = [('persistence', persistence_checks), ('home', home_checks), ('content', content_checks), ('reader', reader_checks), ('mobile', mobile_checks), ('cache', cache_checks), ('layouts', lambda pg,c,u,r:layout_checks(pg,c,u,r,args.artifacts))]
+            cases = [('persistence', persistence_checks), ('home', home_checks), ('content', content_checks), ('reader', reader_checks), ('mobile', mobile_checks), ('cache', cache_checks), ('layouts', lambda pg,c,u,r:layout_checks(pg,c,u,r,args.artifacts)), ('surfaces',lambda pg,c,u,r:contrast_checks(pg,c,u,r,args.artifacts))]
             if args.only:
                 cases = [case for case in cases if case[0] == args.only]
                 assert cases or args.only in ('pending', 'fixtures'), 'Unknown case'
@@ -502,14 +643,21 @@ def main():
                 fixture['site']['avatar'] = 'images/missing-fixture-avatar.png'
                 fixture['friends'][0]['avatar'] = 'images/missing-fixture-avatar.png'
                 fixture['friends'][1]['avatar'] = 'images/demo-home.png'
+                fixture['appearance']['wallpaper'].update(lightReaderSurface=.96, darkReaderSurface=.98)
+                posts_dir = temp/'posts'; shutil.copytree(ROOT/'src/content/posts', posts_dir)
+                for post_id, changes in json.loads((ROOT/'tests/fixtures/visual.json').read_text()).items():
+                    post_file=posts_dir/(post_id+'.md'); raw=post_file.read_text(); _,front,body=raw.split('---\n',2); meta=json.loads(front);meta.update(changes);post_file.write_text('---\n'+json.dumps(meta,ensure_ascii=False)+'\n---\n'+body)
                 config = temp / 'site.json'; config.write_text(json.dumps(fixture, ensure_ascii=False))
                 fixture_dist = temp / 'fixture-dist'
-                env = {**os.environ, 'ASTRO_TELEMETRY_DISABLED':'1', 'NEKOMI_CONFIG':str(config), 'ASTRO_OUT_DIR':str(fixture_dist), 'SITE_BASE':args.base}
-                subprocess.run(['npm', 'run', 'build'], cwd=ROOT, env=env, check=True, capture_output=True, text=True)
+                env = {**os.environ, 'ASTRO_TELEMETRY_DISABLED':'1', 'NEKOMI_CONFIG':str(config), 'ASTRO_OUT_DIR':str(fixture_dist), 'ASTRO_CACHE_DIR':str(temp/'cache'), 'SITE_BASE':args.base, 'NEKOMI_CONTENT_DIR':str(posts_dir)}
+                build = subprocess.run(['npm', 'run', 'build'], cwd=ROOT, env=env, capture_output=True, text=True)
+                assert build.returncode == 0, build.stdout + build.stderr
+                assert 'contains multiple entries with the same slug' not in build.stdout, build.stdout
                 fixture_server, fixture_url = start_server(fixture_dist, args.base)
                 context, page, errors, requests = new_page(fixture_url)
                 try:
                     fixture_checks(page, context, fixture_url, requests)
+                    visual_fixture_checks(page, context, fixture_url, requests, args.artifacts)
                     assert not errors, errors
                 finally:
                     context.close();fixture_server.shutdown();fixture_server.server_close()

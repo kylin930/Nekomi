@@ -3,7 +3,8 @@ import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 const posts = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/posts' }),
+  // Previews can build copied frontmatter fixtures without changing authored posts.
+  loader: glob({ pattern: '**/*.md', base: process.env.NEKOMI_CONTENT_DIR || './src/content/posts' }),
   schema: z.object({
     title: z.string().min(1),
     excerpt: z.string(),
