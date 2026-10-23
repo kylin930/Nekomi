@@ -9,6 +9,7 @@ import Wallpaper from '../components/Wallpaper.astro';
 import Sidebar from '../components/Sidebar.astro';
 import ThemeControl from '../components/ThemeControl.astro';
 import Footer from '../components/Footer.astro';
+import 'mdui/mdui.css';
 import '../styles/tokens.css';
 import '../styles/main.css';
 import '../styles/home.css';
@@ -43,8 +44,6 @@ const data = { ...config, posts: posts.map(postMetadata), base };
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Icons&family=Material+Icons+Outlined&display=swap" />
-    <link rel="stylesheet" href="https://unpkg.com/mdui@2.1.5/mdui.css" />
-    <script is:inline src="https://unpkg.com/mdui@2.1.5/mdui.global.js" defer></script>
     <ClientRouter />
   </head>
   <body data-page={page} data-post-id={currentId}>

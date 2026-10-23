@@ -1,0 +1,17 @@
+---
+import { Image } from 'astro:assets';
+import { imageSource } from '../lib/images';
+interface Props {
+  src: string; alt: string; kind: 'avatar' | 'cover' | 'hero';
+  size?: number;
+}
+const { src, alt, kind, size = 72 } = Astro.props;
+const source = imageSource(src);
+const avatar = kind === 'avatar';
+const sizes = avatar ? `${size}px` : kind === 'cover' ? '(min-width: 720px) 208px, calc(100vw - 72px)' : '(min-width: 824px) 696px, calc(100vw - 72px)';
+const widths = avatar ? [size, size * 2] : [320, 640, 960, 1440];
+const attributes = { 'data-avatar': avatar || undefined, 'data-cover': kind === 'cover' || undefined, 'data-hero': kind === 'hero' || undefined };
+---
+{typeof source === 'object'
+  ? <Image src={source} alt={alt} format="webp" widths={widths.filter(w => w <= source.width)} sizes={sizes} width={avatar ? size * 2 : Math.min(source.width, 1440)} height={avatar ? size * 2 : undefined} fit={avatar ? 'cover' : undefined} loading={kind === 'cover' ? 'lazy' : 'eager'} decoding="async" {...attributes} />
+  : source && <img src={source} alt={alt} width={avatar ? size : undefined} height={avatar ? size : undefined} loading={kind === 'cover' ? 'lazy' : 'eager'} decoding="async" {...attributes} />}

@@ -1,7 +1,9 @@
+import { setTheme } from 'mdui/functions/setTheme.js';
+import { setColorScheme } from 'mdui/functions/setColorScheme.js';
+
 /* 单按钮循环切换：浅色 → 深色 → 跟随系统。 */
 export function createTheme(data) {
   'use strict';
-  if (!window.mdui) return;
   var KEY = 'nekomi-theme';
   var modes = ['light', 'dark', 'auto'];
   var labels = { light: '浅色', dark: '深色', auto: '跟随系统' };
@@ -14,7 +16,7 @@ export function createTheme(data) {
   var appearance = data.appearance;
   var baseUrl = new URL(data.base, location.origin);
   var source = /^#(?:[a-f0-9]{3}|[a-f0-9]{6})$/i.test(appearance.color || '') ? appearance.color : '#8064b1';
-  mdui.setColorScheme(source, { customColors: [
+  setColorScheme(source, { customColors: [
     { name: 'blossom', value: '#b65e82' }, { name: 'sky', value: '#427f9d' }
   ] });
   var wallpaper = appearance.wallpaper || {};
@@ -110,7 +112,7 @@ export function createTheme(data) {
   function apply(next, persist) {
     if (!modes.includes(next)) return;
     mode = next;
-    mdui.setTheme(mode);
+    setTheme(mode);
     applyWallpaper();
     if (persist !== false) {
       try { localStorage.setItem(KEY, mode); } catch (_) { /* 无存储权限时仍可切换。 */ }
@@ -118,7 +120,7 @@ export function createTheme(data) {
     syncDocument();
   }
   function syncDocument() {
-    mdui.setTheme(mode);
+    setTheme(mode);
     document.body.classList.toggle('has-wallpaper', !layer.hidden);
     var nextLabel = labels[modes[(modes.indexOf(mode) + 1) % modes.length]];
     document.querySelectorAll('[data-theme-control]').forEach(function (container) {

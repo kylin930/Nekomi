@@ -22,12 +22,10 @@ html:has(body[data-page="article"]) { scroll-padding-top: 0; }
 .toc-content { padding: 0 16px 12px; max-height: 360px; overflow-y: auto; }
 .reading-toc { display: none; }
 .toc-label { font-size: 12px; font-weight: 600; margin: 0 0 16px; color: rgb(var(--mdui-color-on-surface-variant)); }
-.toc-list, .toc-list ol { list-style: none; padding: 0; margin: 0; }
-.toc-list ol { padding-left: 12px; }
-.toc-list li { margin: 2px 0; }
-.toc-list a { display: block; padding: 7px 10px; border-radius: var(--mdui-shape-corner-small); text-decoration: none; color: rgb(var(--mdui-color-on-surface-variant)); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
-.toc-list a:hover { color: rgb(var(--mdui-color-primary)); }
-.toc-list a[aria-current="location"] { background: rgb(var(--mdui-color-secondary-container)); color: rgb(var(--mdui-color-on-secondary-container)); font-weight: 600; }
+.toc-list { display: block; margin: 0; padding: 0; }
+.toc-list mdui-list-item { --mdui-typescale-body-large-size: .75rem; --mdui-typescale-body-large-line-height: 1.6; --shape-corner-rounded: var(--mdui-shape-corner-small); margin-block: 2px; }
+.toc-list mdui-list-item::part(container) { min-height: 36px; padding: 8px 8px 8px calc(8px + var(--toc-depth) * 10px); }
+.toc-list mdui-list-item::part(headline) { overflow-wrap: anywhere; }
 .prose { min-width: 0; font-size: 17px; line-height: var(--prose-line-height); overflow-wrap: anywhere; line-break: strict; }
 .prose > :first-child { margin-top: 0; }
 .prose p, .prose ul, .prose ol, .prose blockquote, .prose figure, .prose .table-scroll, .prose .code-block { margin: 0 0 var(--prose-block-gap); }
@@ -85,6 +83,7 @@ html:has(body[data-page="article"]) { scroll-padding-top: 0; }
 }
 @media (max-width: 1119px) {
   #main-content { scroll-margin-top: var(--mobile-header-height); }
+  .reading-layout { padding-top: var(--space-2); }
   .reading-layout #main-content { margin-inline: auto; }
   .reader { padding: var(--space-3) var(--space-4); }
   .reader-header h1 { font-size: 30px; }
@@ -107,11 +106,16 @@ html:has(body[data-page="article"]) { scroll-padding-top: 0; }
   .reader-header h1 { font-size: 26px; line-height: 1.4; }
 }
 
-.toc-list a { transition: color var(--nekomi-duration-feedback) var(--nekomi-easing-feedback), background-color var(--nekomi-duration-feedback) var(--nekomi-easing-feedback), box-shadow var(--nekomi-duration-feedback) var(--nekomi-easing-feedback); }
-.toc-list a[aria-current="location"] { box-shadow: inset 2px 0 0 rgb(var(--mdui-color-primary)); }
 .heading-anchor { transition: opacity var(--nekomi-duration-feedback) var(--nekomi-easing-feedback); }
 .article-neighbor { background: rgb(var(--mdui-color-surface-container-low)); transition: transform var(--nekomi-duration-feedback) var(--nekomi-easing-expressive); }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .article-neighbor:hover { transform: translateY(-2px); }
 }
 .article-neighbor:active { transform: translateY(0); }
+
+/* Shiki emits paired token colors at build time; no client highlighter is loaded. */
+.astro-code, .astro-code span { color: var(--shiki-light); background-color: var(--shiki-light-bg); }
+html.mdui-theme-dark .astro-code, html.mdui-theme-dark .astro-code span { color: var(--shiki-dark); background-color: var(--shiki-dark-bg); }
+@media (prefers-color-scheme: dark) {
+  html.mdui-theme-auto .astro-code, html.mdui-theme-auto .astro-code span { color: var(--shiki-dark); background-color: var(--shiki-dark-bg); }
+}

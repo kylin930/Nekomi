@@ -11,7 +11,7 @@ import shutil
 import subprocess
 import tempfile
 import threading
-from urllib.parse import urlsplit, unquote
+from urllib.parse import urlsplit, unquote, urljoin
 from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -69,6 +69,12 @@ def settled(page):
     page.wait_for_function('!NekomiMotion.isScrolling()')
 
 
+def inline_toc_click(page, heading):
+    page.evaluate('window.tocClosed=false;document.querySelector("#inline-toc-item").addEventListener("closed",()=>window.tocClosed=true,{once:true})')
+    page.locator('#toc-inline-list a[href="#' + heading + '"]').click()
+    page.wait_for_function('window.tocClosed')
+
+
 def selected(page, tab):
     expect(page.locator('#content-tabs')).to_have_attribute('value', tab)
     expect(page.locator('#panel-' + tab)).to_be_visible()
@@ -84,7 +90,7 @@ def persistence_checks(page, context, url, requests):
       window.saved = { marker: Math.random(), origin: performance.timeOrigin,
         wallpaper: document.querySelector('.site-wallpaper'), image: document.querySelector('.wallpaper-image'),
         sidebar: document.querySelector('.sidebar'), drawer: document.querySelector('#mobile-drawer'),
-        theme: NekomiTheme, mdui, palette: document.querySelector('style[id^="mdui-custom-color-scheme"]') };
+        theme: NekomiTheme, listItem: customElements.get('mdui-list-item'), palette: document.querySelector('style[id^="mdui-custom-color-scheme"]') };
       window.imageLoads = 0; saved.image.addEventListener('load', () => imageLoads++);
       window.refades = 0;
       new MutationObserver(() => { if (!saved.image.classList.contains('is-visible')) refades++; }).observe(saved.image, {attributes:true,attributeFilter:['class']});
@@ -118,14 +124,14 @@ def persistence_checks(page, context, url, requests):
     assert page.evaluate('''saved.origin === performance.timeOrigin && saved.wallpaper === document.querySelector('.site-wallpaper') &&
       saved.image === document.querySelector('.wallpaper-image') && saved.image.parentElement === saved.wallpaper &&
       saved.sidebar === document.querySelector('.sidebar') && saved.drawer === document.querySelector('#mobile-drawer') &&
-      saved.theme === NekomiTheme && saved.mdui === mdui && saved.palette === document.querySelector('style[id^="mdui-custom-color-scheme"]')''')
+      saved.theme === NekomiTheme && saved.listItem === customElements.get('mdui-list-item') && !window.mdui && !customElements.get('mdui-slider') && saved.palette === document.querySelector('style[id^="mdui-custom-color-scheme"]')''')
     assert page.evaluate('imageLoads === 0 && wallpaperDecodes === 1 && refades === 0')
     assert page.evaluate('transitions.length >= 11 && transitions.every(t=>t.enter==="nekomi-in" && !t.root.includes("fade"))')
     expect(page.locator('.sidebar .sidebar-tabs')).to_have_attribute('value', 'comments')
     assert page.evaluate("NekomiTheme.getMode() === 'dark'")
     assert len([r for r in requests if r['type'] == 'document']) == 1
     assert len([r for r in requests if r['url'].startswith('https://www.nekopara.uk/pic_api')]) == 1
-    assert len([r for r in requests if r['url'] == 'https://unpkg.com/mdui@2.1.5/mdui.global.js']) == 1
+    assert not any('unpkg.com' in r['url'] for r in requests)
     expect(page.locator('.site-wallpaper')).to_have_count(1)
     expect(page.locator('style[id^="mdui-custom-color-scheme"]')).to_have_count(1)
     expect(page.locator('.astro-route-announcer')).to_have_count(1)
@@ -210,7 +216,9 @@ def content_checks(page, context, url, requests):
     page.locator('.copy-code').first.click()
     expect(page.locator('#site-feedback')).to_contain_text('代码已复制')
     assert page.evaluate('navigator.clipboard.readText()') == code
-    expect(page.locator('#toc-desktop-list ol ol ol')).to_have_count(1)
+    expect(page.locator('#toc-desktop-list mdui-list')).to_have_count(1)
+    expect(page.locator('#toc-desktop-list mdui-list-item[data-depth="4"]')).to_have_count(1)
+    expect(page.locator('#toc-desktop-list mdui-list-item[rounded]')).to_have_count(len(BASELINE[0]['headings']))
     expect(page.locator('.prose table caption')).to_contain_text('布局决策示例')
     page.locator('.prose img').scroll_into_view_if_needed()
     page.wait_for_function('document.querySelector(".prose img").naturalWidth > 0')
@@ -245,8 +253,10 @@ def reader_checks(page, context, url, requests):
     assert abs(page.locator('#grid-minimum').bounding_box()['y'] - 28) <= 1
     expect(page.locator('#toc-desktop-list a[href="#grid-minimum"]')).to_have_attribute('aria-current', 'location')
     page.go_back()
+    page.wait_for_url('**/#keyboard')
     expect(page.locator('#keyboard')).to_be_focused()
     page.go_forward()
+    page.wait_for_url('**/#grid-minimum')
     expect(page.locator('#grid-minimum')).to_be_focused()
     page.reload(wait_until='networkidle')
     ready(page)
@@ -257,7 +267,7 @@ def reader_checks(page, context, url, requests):
     page.keyboard.press('Enter')
     expect(page.locator('#toc-toggle button')).to_have_attribute('aria-expanded','true')
     page.wait_for_function('window.tocOpened')
-    page.locator('#toc-inline-list a[href="#state"]').click()
+    inline_toc_click(page, 'state')
     settled(page)
     assert abs(page.locator('#state').bounding_box()['y'] - 84) <= 1
     page.set_viewport_size({'width': 390, 'height': 844})
@@ -269,19 +279,98 @@ def reader_checks(page, context, url, requests):
     page.locator('#toc-toggle').click()
     expect(page.locator('#toc-toggle button')).to_have_attribute('aria-expanded', 'true')
     page.wait_for_function('window.tocOpened')
-    page.locator('#toc-inline-list a[href="#state"]').click()
+    inline_toc_click(page, 'state')
     page.wait_for_function('NekomiMotion.isScrolling()')
     page.evaluate('dispatchEvent(new Event("touchstart"))')
     assert not page.evaluate('NekomiMotion.isScrolling()')
-    page.locator('#toc-inline-list a[href="#state"]').click()
+    page.locator('#toc-toggle').click()
+    page.wait_for_timeout(400)
+    inline_toc_click(page, 'state')
     settled(page)
     assert abs(page.locator('#state').bounding_box()['y'] - 84) <= 1
+    page.locator('#toc-toggle').click()
+    page.wait_for_timeout(400)
     page.emulate_media(reduced_motion='reduce')
-    page.locator('#toc-inline-list a[href="#grid-minimum"]').click()
+    inline_toc_click(page, 'grid-minimum')
     assert not page.evaluate('NekomiMotion.isScrolling()')
     expect(page.locator('#grid-minimum')).to_be_focused()
     assert page.locator('.wallpaper-image').evaluate('e=>getComputedStyle(e).transitionDuration') == '0.001s'
     print('PASS reading: nested/current TOC, spring interruption/repeat/offset/bounds, hash/reload/history/focus, native mobile collapse, reduced motion')
+
+
+def engineering_checks(page, context, url, requests):
+    ready(page)
+    # Opt-in only: an idle page must not prefetch every article in view.
+    assert not any('/posts/' in r['url'] for r in requests), requests
+    target = url + 'posts/' + TECH + '/'
+    page.locator('.post-title a').first.hover()
+    page.wait_for_timeout(250)
+    assert len([r for r in requests if r['url'] == target]) == 1
+    assert page.locator('link[rel=prefetch]').evaluate_all('(es,u)=>es.some(e=>e.href===u)', target)
+    page.mouse.move(0, 0)
+    page.locator('.post-title a').first.hover()
+    page.wait_for_timeout(250)
+    assert len([r for r in requests if r['url'] == target]) == 1
+    page.locator('.post-card mdui-button[data-post]').first.hover()
+    page.wait_for_timeout(250)
+    assert len([r for r in requests if r['url'] == target]) == 1
+    page.locator('.post-title a').first.click()
+    page.wait_for_url(target);ready(page)
+    expect(page.locator('pre.astro-code')).to_have_count(2)
+    expect(page.locator('.code-block .code-block')).to_have_count(0)
+    expect(page.locator('.code-header')).to_have_count(2)
+    expect(page.locator('.code-header').first).to_contain_text('CSS')
+    colors = []
+    for mode in ('light','dark'):
+        page.evaluate('m=>NekomiTheme.setMode(m)',mode)
+        palette = page.locator('pre.astro-code span[style]').evaluate_all('es=>[...new Set(es.map(e=>getComputedStyle(e).color))]')
+        assert len(palette) > 2, palette
+        colors.append(palette)
+    assert colors[0] != colors[1]
+    page.evaluate("NekomiTheme.setMode('auto')")
+    for scheme, palette in zip(('light','dark'),colors):
+        page.emulate_media(color_scheme=scheme)
+        assert page.locator('pre.astro-code span[style]').evaluate_all('es=>[...new Set(es.map(e=>getComputedStyle(e).color))]') == palette
+    image = page.locator('.prose img')
+    image.scroll_into_view_if_needed()
+    page.wait_for_function('document.querySelector(".prose img").naturalWidth > 0')
+    assert image.get_attribute('src').startswith(urlsplit(url).path + '_astro/')
+    assert '.webp' in image.get_attribute('src') and '640w' in image.get_attribute('srcset')
+    assert image.get_attribute('width') == '1440' and image.get_attribute('height') == '900'
+    assert '__ASTRO_IMAGE_' not in page.content()
+    # MDUI shadow links use Astro's public prefetch API too, without eagerly
+    # discovering sidebar, tags or every native component link.
+    next_link = page.locator('[data-direction=next]')
+    next_url = next_link.get_attribute('href')
+    next_link.hover();page.wait_for_timeout(250)
+    assert len([r for r in requests if r['url'] == urljoin(url, next_url)]) == 1
+    # Current section uses native active on both responsive copies, and forwards
+    # aria-current to the actual shadow anchor for screen readers.
+    page.locator('#toc-desktop-list a[href="#grid-minimum"]').click();settled(page)
+    expect(page.locator('#toc-desktop-list mdui-list-item[active]')).to_have_count(1)
+    expect(page.locator('#toc-inline-list mdui-list-item[active]')).to_have_count(1)
+    expect(page.locator('#toc-desktop-list mdui-list-item[active] a')).to_have_attribute('aria-current','location')
+    # Extremely long labels and H2-H6 offsets must not widen the reading shell.
+    for depth in range(2,7):
+        item = page.locator('#toc-desktop-list mdui-list-item').first
+        item.evaluate('(e,d)=>{e.style.setProperty("--toc-depth",d-2);e.textContent="长标题"+"verylongunbrokenheading".repeat(8)}', depth)
+        assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+        assert item.evaluate('e=>e.scrollWidth<=e.clientWidth')
+    page.set_viewport_size({'width':390,'height':844})
+    article(page,url)
+    appbar = page.locator('.site-appbar').bounding_box()
+    reader = page.locator('#reader').bounding_box()
+    assert 12 <= reader['y']-appbar['y']-appbar['height'] <= 16
+    page.evaluate('scrollTo(0,0)')
+    page.locator('#toc-toggle').click()
+    page.wait_for_function('document.querySelector("#inline-toc-item").active')
+    inline_toc_click(page, 'state')
+    page.wait_for_function('!document.querySelector("#inline-toc-item").active && NekomiMotion.isScrolling()')
+    settled(page)
+    expect(page.locator('#state')).to_be_focused()
+    expect(page.locator('#toc-toggle button')).to_have_attribute('aria-expanded','false')
+    assert abs(page.locator('#state').bounding_box()['y'] - 84) <= 1
+    print('PASS P2.2: selective/deduplicated hover prefetch incl. native shadow links, dual Shiki colors/exact wrappers, optimized responsive body image, native active TOC/long labels, mobile 16px App Bar gap and close-before-spring/focus')
 
 
 def mobile_checks(page, context, url, requests):
@@ -367,6 +456,10 @@ def layout_checks(page, context, url, requests, artifacts):
                     expect(page.locator('.site-appbar')).to_be_visible()
                     assert page.locator('.site-layout').bounding_box()['y'] >= 64
                 if route:
+                    if width < 1120:
+                        appbar = page.locator('.site-appbar').bounding_box()
+                        top = page.locator('#reader').bounding_box()['y'] - appbar['y'] - appbar['height']
+                        assert top == 16, (width, top)
                     assert page.locator('#reader').bounding_box()['width'] <= 760
                     expect(page.locator('#reading-toc') if width >= 1440 else page.locator('.toc-inline')).to_be_visible()
                     body = page.locator('.prose').bounding_box()
@@ -430,7 +523,7 @@ def contrast_checks(page, context, url, requests, artifacts):
                       const item=[...document.querySelectorAll('.sidebar mdui-list-item')].find(e=>!e.active);
                       check('sidebar date',item.shadowRoot.querySelector('[part~="description"]'),null,sidebar);
                     }
-                    if(reader){for(const selector of ['.prose','.prose a:not(.heading-anchor)','.reader-meta','.article-demo-note'])check(selector,document.querySelector(selector),reader);if(innerWidth>=1440)check('right TOC',document.querySelector('#toc-desktop-list a:not([aria-current])'));}
+                    if(reader){for(const selector of ['.prose','.prose a:not(.heading-anchor)','.reader-meta','.article-demo-note'])check(selector,document.querySelector(selector),reader);if(innerWidth>=1440)check('right TOC',document.querySelector('#toc-desktop-list mdui-list-item:not([active])').shadowRoot.querySelector('[part=headline]'));}
                     else {check('home description',document.querySelector('.view-description'));for(const selector of ['.post-meta','.post-excerpt','.post-title a']){const node=document.querySelector(selector);check(selector,node,node.closest('.post-card'));}}
                   }
                   return samples;
@@ -452,6 +545,9 @@ def visual_fixture_checks(page, context, url, requests, artifacts):
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
             cover = page.locator('.post-card .post-cover').first
             page.wait_for_function('document.querySelector(".post-cover img")?.naturalWidth>0')
+            assert cover.locator('img').get_attribute('src').endswith('.webp')
+            assert cover.locator('img').get_attribute('srcset')
+            assert cover.locator('img').get_attribute('width')
             image, copy = cover.bounding_box(), page.locator('.post-card .post-copy').first.bounding_box()
             if page.locator('.post-card').first.bounding_box()['width'] >= 640:
                 assert image['x'] > copy['x'] + copy['width']
@@ -493,13 +589,46 @@ def visual_fixture_checks(page, context, url, requests, artifacts):
     print('PASS P2.1 fixtures: eight viewports × two themes, actual built cover/hero/long-title/six-tag/no-tag states, matching section gaps, native cover SPA links and persistent reader opacity')
 
 
+def image_fixture_checks(page, context, url, requests):
+    page.set_viewport_size({'width':390,'height':844})
+    article(page,url)
+    expect(page.locator('.prose img')).to_have_count(2)
+    for image in page.locator('.prose img').all():
+        image.scroll_into_view_if_needed()
+        expect(image).to_have_attribute('srcset',re.compile('640w'))
+        assert image.get_attribute('width') and image.get_attribute('height')
+    for depth in ('5','6'):
+        expect(page.locator('#toc-desktop-list mdui-list-item[data-depth="'+depth+'"]').first).to_have_count(1)
+    page.evaluate('scrollTo(0,0)')
+    page.locator('#toc-toggle').click()
+    expect(page.locator('#toc-inline-list mdui-list-item[data-depth="6"]')).to_be_visible()
+    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+    # Fail the generated asset itself, rather than bypassing Image: retain the
+    # existing avatar/text/cover/hero fallbacks with responsive srcset enabled.
+    context.route('**/_astro/demo-home*.webp',lambda r:r.fulfill(status=404,body=b'missing image'))
+    page.reload(wait_until='networkidle');ready(page)
+    expect(page.locator('.article-hero')).to_have_count(0)
+    expect(page.locator('[data-avatar]')).to_have_count(0)
+    expect(page.locator('.sidebar .site-avatar')).to_contain_text('林')
+    for _ in range(2):
+        page.locator('.prose img').first.scroll_into_view_if_needed()
+        expect(page.locator('.image-fallback')).to_have_count(_+1)
+    page.goto(url,wait_until='networkidle');ready(page)
+    expect(page.locator('.post-cover')).to_have_count(0)
+    print('PASS P2.2 image fixtures: relative Markdown + existing HTML figure optimized with dimensions/srcset, actual H5/H6 long TOC labels, generated asset failures retain avatar/cover/hero/body fallbacks')
+
+
 def fixture_checks(page, context, url, requests):
     ready(page)
     expect(page.locator('img[src*="missing-fixture-avatar"]')).to_have_count(0)
-    expect(page.locator('.sidebar .site-avatar')).to_contain_text('林')
+    page.wait_for_function('document.querySelector(".sidebar .site-avatar img")?.naturalWidth>0')
+    assert page.locator('.sidebar .site-avatar img').get_attribute('width') == '144'
     page.locator('#side-desktop-friends').click()
     expect(page.locator('.sidebar .friend-list mdui-list-item')).to_have_count(5)
     page.wait_for_function('document.querySelector(".sidebar .friend-avatar img")?.naturalWidth>0')
+    assert page.locator('.sidebar .friend-avatar img').get_attribute('src').endswith('.webp')
+    assert page.locator('.sidebar .friend-avatar img').get_attribute('width') == '72'
+    assert page.locator('.sidebar .friend-avatar img').get_attribute('srcset')
     page.locator('.sidebar [data-friends-all]').click()
     expect(page.locator('#friends-dialog')).to_be_visible()
     expect(page.locator('#friends-dialog mdui-list-item')).to_have_count(7)
@@ -512,6 +641,8 @@ def fixture_checks(page, context, url, requests):
     expect(page.locator('.sidebar .comments-note')).to_contain_text('评论定位暂未接入')
     for width, height in ((390, 844), (390, 600), (320, 568)):
         page.set_viewport_size({'width': width, 'height': height})
+        assert page.locator('mdui-top-app-bar-title > .appbar-brand .brand-avatar img').bounding_box()['width'] == 30
+        assert page.locator('mdui-top-app-bar-title > .appbar-brand .brand-avatar img').bounding_box()['height'] == 30
         page.locator('#menu-button').click()
         page.locator('#side-mobile-comments').click()
         expect(page.locator('#side-mobile-comments')).to_be_in_viewport(ratio=1)
@@ -564,7 +695,7 @@ def main():
             if args.verified_cdn:
                 context.route('https://**/*', cdn)
             # Only deterministic artwork in the regression suite. Delivery screenshots use the actual reviewed API image.
-            context.route('https://www.nekopara.uk/pic_api', lambda r: delayed_image.append(r) if delayed_image is not None else r.fulfill(status=503 if failed_image else 200, body=b'failed image' if failed_image else (ROOT / 'public/images/demo-home.png').read_bytes(), content_type='text/plain' if failed_image else 'image/png'))
+            context.route('https://www.nekopara.uk/pic_api', lambda r: delayed_image.append(r) if delayed_image is not None else r.fulfill(status=503 if failed_image else 200, body=b'failed image' if failed_image else (ROOT / 'src/assets/images/demo-home.png').read_bytes(), content_type='text/plain' if failed_image else 'image/png'))
             context.add_init_script('window.wallpaperDecodes=0;const decode=HTMLImageElement.prototype.decode;HTMLImageElement.prototype.decode=function(){if(this.classList.contains("wallpaper-image"))wallpaperDecodes++;return decode.call(this)}')
             if storage_denied:
                 context.add_init_script("Object.defineProperty(window,'localStorage',{get(){throw new DOMException('denied','SecurityError')}})")
@@ -578,7 +709,7 @@ def main():
             return context, page, errors, requests
         server, url = start_server(args.dist, args.base)
         try:
-            cases = [('persistence', persistence_checks), ('home', home_checks), ('content', content_checks), ('reader', reader_checks), ('mobile', mobile_checks), ('cache', cache_checks), ('layouts', lambda pg,c,u,r:layout_checks(pg,c,u,r,args.artifacts)), ('surfaces',lambda pg,c,u,r:contrast_checks(pg,c,u,r,args.artifacts))]
+            cases = [('persistence', persistence_checks), ('home', home_checks), ('content', content_checks), ('reader', reader_checks), ('engineering', engineering_checks), ('mobile', mobile_checks), ('cache', cache_checks), ('layouts', lambda pg,c,u,r:layout_checks(pg,c,u,r,args.artifacts)), ('surfaces',lambda pg,c,u,r:contrast_checks(pg,c,u,r,args.artifacts))]
             if args.only:
                 cases = [case for case in cases if case[0] == args.only]
                 assert cases or args.only in ('pending', 'fixtures'), 'Unknown case'
@@ -607,7 +738,7 @@ def main():
                     context.wait_for_event('request', predicate=lambda r:r.url == 'https://www.nekopara.uk/pic_api')
                 page.wait_for_timeout(100)
                 assert len(pending) == 1, ('pending API requests', len(pending), requests)
-                pending[0].fulfill(body=(ROOT / 'public/images/demo-home.png').read_bytes(), content_type='image/png')
+                pending[0].fulfill(body=(ROOT / 'src/assets/images/demo-home.png').read_bytes(), content_type='image/png')
                 page.wait_for_function('document.querySelector(".wallpaper-image")?.naturalWidth > 0')
                 assert page.evaluate('pendingLayer === document.querySelector(".site-wallpaper") && wallpaperDecodes === 1')
                 assert len([r for r in requests if r['type'] == 'document']) == 1
@@ -640,13 +771,18 @@ def main():
             if not args.skip_fixtures and (not args.only or args.only == 'fixtures'):
                 fixture = json.loads((ROOT / 'site.config.json').read_text())
                 fixture.update(json.loads((ROOT / 'tests/fixtures/sidebar.json').read_text()))
-                fixture['site']['avatar'] = 'images/missing-fixture-avatar.png'
+                fixture['site']['avatar'] = 'images/demo-home.png'
                 fixture['friends'][0]['avatar'] = 'images/missing-fixture-avatar.png'
                 fixture['friends'][1]['avatar'] = 'images/demo-home.png'
                 fixture['appearance']['wallpaper'].update(lightReaderSurface=.96, darkReaderSurface=.98)
                 posts_dir = temp/'posts'; shutil.copytree(ROOT/'src/content/posts', posts_dir)
                 for post_id, changes in json.loads((ROOT/'tests/fixtures/visual.json').read_text()).items():
                     post_file=posts_dir/(post_id+'.md'); raw=post_file.read_text(); _,front,body=raw.split('---\n',2); meta=json.loads(front);meta.update(changes);post_file.write_text('---\n'+json.dumps(meta,ensure_ascii=False)+'\n---\n'+body)
+                # Only this temporary Collection copy adds image / deep-heading
+                # cases; authored bodies and metadata in src/content stay intact.
+                probe = posts_dir / (TECH + '.md')
+                relative_image = os.path.relpath(ROOT/'src/assets/images/demo-home.png', posts_dir)
+                probe.write_text(probe.read_text() + '\n##### 五级标题回归 {#fixture-h5}\n\n###### 六级长标题回归：' + 'unbrokenheading'.join(['目录']*12) + ' {#fixture-h6}\n\n![相对路径图片回归](' + relative_image + ')\n')
                 config = temp / 'site.json'; config.write_text(json.dumps(fixture, ensure_ascii=False))
                 fixture_dist = temp / 'fixture-dist'
                 env = {**os.environ, 'ASTRO_TELEMETRY_DISABLED':'1', 'NEKOMI_CONFIG':str(config), 'ASTRO_OUT_DIR':str(fixture_dist), 'ASTRO_CACHE_DIR':str(temp/'cache'), 'SITE_BASE':args.base, 'NEKOMI_CONTENT_DIR':str(posts_dir)}
@@ -658,6 +794,7 @@ def main():
                 try:
                     fixture_checks(page, context, fixture_url, requests)
                     visual_fixture_checks(page, context, fixture_url, requests, args.artifacts)
+                    image_fixture_checks(page, context, fixture_url, requests)
                     assert not errors, errors
                 finally:
                     context.close();fixture_server.shutdown();fixture_server.server_close()

@@ -1,5 +1,15 @@
 # 变更记录
 
+## 2026-10-23 · P2.2 Astro 与 MDUI 工程优化
+
+- MDUI 固定 2.1.5 从 unpkg 迁至 npm / Vite：逐项导入 20 种实际组件，主题函数使用 ES Module，删除全局 mdui 依赖；官方 CSS 合并构建，不升级版本或引入 UI 框架。
+- 文章目录改为原生 List / List Item，扁平输出 H2–H6 深度缩进，使用原生 href / rounded / active 与链接 aria-current；移除自制选中样式，保留章节跟踪、Hash / 历史、焦点和弹簧滚动。折叠目录先完成原生关闭动画再定位。
+- 紧凑导航下文章阅读容器与 App Bar 间增加 16px，复用已有安全区域高度；首页和 P2.1 行宽 / 排版 / 1120 / 1440px 断点不变。
+- 新增共享 SiteImage 与本地资源解析：头像 / 封面 / 头图使用 Astro Image，Markdown 与原有 HTML figure 交给 Astro 图片流程，输出 WebP / srcset / 固有尺寸，保留失败回退。随机壁纸继续运行时 API / Worker 缓存及原 DOM 持久化。
+- 明确启用选择性 hover Prefetch；原生 MDUI Shadow DOM 链接使用 Astro 公共 prefetch API，与普通文章锚点归一化去重。保留对固定 MDUI 版本必需的原位 Swap、深层链接桥接、模态关闭顺序和页面清理。
+- 启用 Astro Shiki GitHub Light / Dark 双主题高亮，跟随浅色 / 深色 / 系统，保留原始代码、语言标识与单层复制区域；不加载客户端高亮包。
+- 扩展 npm 注册 / 无 CDN、原生目录收起与长标题、响应式图片及失败回退、选择性预取、明暗高亮和移动顶部间距回归；更新配置说明、资源体积对比与实际截图。
+
 ## 2026-10-23 · P2.1 排版、响应式与表面层次精修
 
 - 阅读正文行高改为 1.85、块间距 1.25em，收紧 H2–H6、引用、代码、图片和文章末尾导航，保留中文长文的舒适尺度。
