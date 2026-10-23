@@ -1,0 +1,14 @@
+{
+  "css-grid-two-column-blog": {
+    "cover": "images/demo-home.png",
+    "coverAlt": "本项目截图，封面测试"
+  },
+  "md3-palette-for-blog": {
+    "title": "当屏幕宽度改变时：检查中文技术长标题、多标签与 Material Design 3 的阅读层次",
+    "tags": ["响应式布局", "中文排版", "Material Design 3", "CSS Grid", "阅读体验", "无障碍"]
+  },
+  "no-image-state": {
+    "tags": [],
+    "demo": false
+  }
+}

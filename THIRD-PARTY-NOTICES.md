@@ -7,9 +7,7 @@
 ### MDUI 2.1.5
 
 - 用途：Material Design 3 Web Components（Tabs / Tab Panel、Avatar、Card、List / List Item、Chip、Button、Text Field、Top App Bar、Collapse、Dialog、Snackbar、Navigation Drawer 等）与 MD3 Design Tokens。
-- 引入方式：unpkg CDN，固定版本，不使用 `latest`。
-  - `https://unpkg.com/mdui@2.1.5/mdui.css`
-  - `https://unpkg.com/mdui@2.1.5/mdui.global.js`
+- 引入方式：npm 固定 `mdui@2.1.5`，Vite 按需构建组件 / 函数与官方 CSS，不再使用 CDN 总包。
 - 许可证：MIT
 - 版权：Copyright (c) zdhxiong / MDUI contributors
 - 项目主页：https://github.com/zdhxiong/mdui
@@ -47,6 +45,7 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 ## 构建依赖
 
 - Astro 7.4.2（MIT）：静态页面、Content Collections、客户端导航和 View Transitions；构建后不需要 Astro 服务。主页：https://astro.build/ 。
+- Shiki（MIT，与 Astro 一同安装）仅用于构建期语法高亮；GitHub Light / Dark 主题随 Shiki 提供，不加载客户端高亮脚本。
 - @astrojs/markdown-remark 7.3.4（MIT）与 rehype-raw 7.0.0（MIT）：构建期 Markdown 与可信 HTML 处理。
 - @astrojs/check 与 @types/node 为 MIT 许可，TypeScript 为 Apache-2.0 许可；均只用于开发检查。具体版本与传递依赖固定在 package-lock.json，许可文件随 npm 包提供。
 

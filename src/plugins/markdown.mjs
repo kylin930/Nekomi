@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs';
+import { resolve, relative, dirname } from 'node:path';
+
 // Preserve established heading IDs and base-aware links in otherwise standard Markdown.
 export function remarkPost({ base = '/' } = {}) {
   const prefix = '/' + base.split('/').filter(Boolean).join('/');
@@ -21,6 +24,30 @@ export function remarkPost({ base = '/' } = {}) {
 }
 const element = (tagName, properties = {}, children = []) => ({ type: 'element', tagName, properties, children });
 const text = value => ({ type: 'text', value });
+// Feed authored assets (including existing HTML figures) into Astro's own
+// Markdown image pipeline. Missing/public/external URLs keep their normal fallback.
+export function rehypeLocalImages({ base = '/' } = {}) {
+  return (tree, file) => {
+    function walk(node) {
+      if (node.tagName === 'img' && typeof node.properties.src === 'string') {
+        let src = node.properties.src;
+        const logical = src.startsWith(base) ? src.slice(base.length) : src.replace(/^\//, '');
+        const asset = resolve('src/assets', logical);
+        if (!URL.canParse(src) && logical.startsWith('images/') && existsSync(asset)) {
+          src = relative(dirname(file.path), asset).split('\\').join('/');
+          node.properties.src = src;
+          file.data.astro.localImagePaths.push(src);
+        }
+        // Astro resolves normal relative Markdown images as well.
+        if (file.data.astro.localImagePaths.includes(src)) {
+          Object.assign(node.properties, { widths: [320, 640, 960, 1440], sizes: '(min-width: 824px) 696px, calc(100vw - 72px)', format: 'webp' });
+        }
+      }
+      node.children?.forEach(walk);
+    }
+    walk(tree);
+  };
+}
 export function rehypeArticle() {
   return tree => {
     function walk(node) {
@@ -37,7 +64,7 @@ export function rehypeArticle() {
         }
         if (child.tagName === 'pre') {
           const code = child.children.find(n => n.tagName === 'code');
-          const language = code?.properties.className?.find(n => n.startsWith('language-'))?.slice(9) || 'text';
+          const language = child.properties.dataLanguage || child.properties['data-language'] || code?.properties.className?.find(n => n.startsWith('language-'))?.slice(9) || 'text';
           Object.assign(child.properties, { tabIndex: 0, role: 'region', ariaLabel: language.toUpperCase() + ' 代码，可横向滚动' });
           return element('figure', { className: ['code-block'] }, [
             element('div', { className: ['code-header'] }, [element('span', {}, [text(language.toUpperCase())]),

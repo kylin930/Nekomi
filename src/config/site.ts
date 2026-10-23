@@ -11,8 +11,9 @@ const schema = z.object({
     wallpaper: z.object({
       enabled: z.boolean().default(true), light: picture, dark: picture,
       position: z.string().default('center'), fit: z.enum(['cover', 'contain']).default('cover'),
-      lightOverlay: z.number().min(0).max(1).default(.64), darkOverlay: z.number().min(0).max(1).default(.68),
-      lightSurface: z.number().min(.65).max(1).default(.9), darkSurface: z.number().min(.65).max(1).default(.92),
+      lightOverlay: z.number().min(0).max(1).default(.60), darkOverlay: z.number().min(0).max(1).default(.68),
+      lightSurface: z.number().min(.65).max(1).default(.84), darkSurface: z.number().min(.65).max(1).default(.88),
+      lightReaderSurface: z.number().min(.85).max(1).default(.97), darkReaderSurface: z.number().min(.85).max(1).default(.97),
       cacheHours: z.number().min(0).max(168).default(24),
     }),
   }),

@@ -16,14 +16,19 @@ body {
 .site-wallpaper { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
 .wallpaper-image { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity var(--nekomi-duration-background) var(--nekomi-easing-feedback); }
 .wallpaper-image.is-visible { opacity: 1; }
-.site-wallpaper::after { content: ""; position: absolute; inset: 0; background-color: rgba(var(--mdui-color-surface), var(--wallpaper-overlay, .64)); transition: background-color var(--nekomi-duration-background) var(--nekomi-easing-feedback); }
-.site-wallpaper::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(var(--mdui-color-surface), .6) calc(max(0px, (100vw - var(--site-width)) / 2) + var(--page-gutter) + var(--sidebar-width)), transparent calc(max(0px, (100vw - var(--site-width)) / 2) + var(--page-gutter) + var(--sidebar-width) + 200px)); }
+.site-wallpaper::after { content: ""; position: absolute; inset: 0; background-color: rgba(var(--mdui-color-surface), var(--wallpaper-effective-overlay, var(--wallpaper-overlay, .60))); transition: background-color var(--nekomi-duration-background) var(--nekomi-easing-feedback); }
+.site-wallpaper::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(var(--mdui-color-surface), var(--wallpaper-sidebar-veil)) calc(max(0px, (100vw - var(--site-width)) / 2) + var(--page-gutter) + var(--sidebar-width)), transparent calc(max(0px, (100vw - var(--site-width)) / 2) + var(--page-gutter) + var(--sidebar-width) + 200px)); }
 body { transition: background-color var(--nekomi-duration-background) var(--nekomi-easing-feedback), color var(--nekomi-duration-feedback) var(--nekomi-easing-feedback); }
-.has-wallpaper { --site-paper: rgba(var(--mdui-color-surface), var(--wallpaper-paper-opacity, .90)); }
-.has-wallpaper :is(.post-card, .collection-card, .tag-surface, .empty-state, .reader-error) { background: var(--site-paper); }
+.has-wallpaper {
+  --site-paper: rgba(var(--mdui-color-surface), var(--wallpaper-paper-opacity, .84));
+  --site-reader-paper: rgba(var(--mdui-color-surface), var(--wallpaper-reader-opacity, .97));
+}
+.has-wallpaper :is(.collection-card, .tag-surface, .empty-state) { background: var(--site-paper); }
+.has-wallpaper .reader-error { background: var(--site-reader-paper); }
 .has-wallpaper #content-tabs::part(container), .has-wallpaper .site-appbar { background: rgba(var(--mdui-color-surface), .95); }
 .has-wallpaper :is(.view-heading, .site-footer, .reading-toc) { color: rgb(var(--mdui-color-on-surface)); }
-.has-wallpaper :is(.view-heading .eyebrow, .view-description, .site-footer, .toc-label, .toc-list a) { color: rgb(var(--mdui-color-on-surface)); }
+.has-wallpaper :is(.view-heading .eyebrow, .view-description, .site-footer, .toc-label) { color: rgb(var(--mdui-color-on-surface)); }
+.has-wallpaper .site-tagline, .has-wallpaper .sidebar-tabs mdui-tab[active]::part(label) { color: rgb(var(--mdui-color-on-primary-container)); }
 a { color: inherit; }
 button, input { font: inherit; }
 :where(a, [tabindex]):focus-visible {
@@ -69,7 +74,7 @@ main { min-width: 0; }
 .site-avatar { position: relative; flex: 0 0 auto; width: 72px; height: 72px; font-size: 30px; font-family: var(--identity-font); }
 /* Avatar 的公开形状变量同时约束内部图片，不加边框和外框。 */
 .site-avatar, .brand-avatar, .friend-avatar, .comment-avatar { --shape-corner: 50%; border-radius: 50%; border: 0; outline: 0; }
-.site-avatar img, .friend-avatar img, .comment-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.site-avatar img, .brand-avatar img, .friend-avatar img, .comment-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .site-name { margin: 0; font-family: var(--identity-font); font-size: 26px; font-weight: 700; letter-spacing: -.035em; line-height: 1.4; overflow-wrap: anywhere; }
 .site-tagline { margin: 6px 0 0; line-height: 1.7; font-size: 12px; letter-spacing: .04em; color: rgb(var(--mdui-color-primary)); }
 .site-intro { margin: 16px 0 0; font-size: 13px; line-height: 1.8; color: rgb(var(--mdui-color-on-surface-variant)); }
@@ -139,9 +144,9 @@ h1 { margin: 0; font-size: var(--mdui-typescale-headline-medium-size); line-heig
 @container article-card (min-width: 640px) {
   .post-main:has(.post-cover) {
     grid-template-areas: "copy cover";
-    grid-template-columns: minmax(0, 1fr) min(28%, 224px);
+    grid-template-columns: minmax(0, 1fr) min(28%, 208px);
     gap: 24px;
-    align-items: center;
+    align-items: start;
   }
   .post-cover { aspect-ratio: 4 / 3; }
 }
@@ -179,9 +184,10 @@ mark { background: rgb(var(--mdui-color-primary-container)); color: rgb(var(--md
 .drawer-content { padding: 12px 16px 24px; }
 .loading-note { font-size: 14px; padding: 24px; }
 
-@media (max-width: 860px) {
+/* 320 sidebar + 32 gap + 56 gutters + 712 reading surface = 1120px. */
+@media (max-width: 1119px) {
   html { scroll-padding-top: calc(var(--mobile-header-height) + 64px); }
-  .site-layout { display: block; padding: 0 24px; max-width: 760px; }
+  .site-layout { display: block; padding: 0 var(--space-4); max-width: 888px; }
   .sidebar { display: none; }
   .site-appbar {
     display: flex;
@@ -217,14 +223,19 @@ mdui-tab[active]::part(container) { background: rgba(var(--mdui-color-primary-co
 .comment-excerpt { margin: 4px 0; font-size: 13px; line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .comment-post { margin: 0; font-size: 11px; line-height: 1.6; color: rgb(var(--mdui-color-primary)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .comments-note { margin: 0 12px 8px; font-size: 11px; line-height: 1.7; color: rgb(var(--mdui-color-on-surface-variant)); }
-@media (max-width: 1180px) {
-  .site-name { font-size: 24px; }
-  .site-avatar { width: 64px; height: 64px; font-size: 28px; }
-}
-@media (max-width: 860px) {
+@media (max-width: 1119px) {
   .site-avatar { width: 60px; height: 60px; font-size: 26px; }
   .profile-brand { gap: 14px; }
   .site-wallpaper::before { background: none; }
+}
+
+/* Phones keep the atmosphere in the gutters; reading surfaces remain quiet. */
+@media (max-width: 600px) {
+  .has-wallpaper {
+    --wallpaper-effective-overlay: clamp(0, calc(var(--wallpaper-overlay) + var(--wallpaper-mobile-veil)), 1);
+    --site-paper: rgba(var(--mdui-color-surface), max(.92, var(--wallpaper-paper-opacity)));
+    --site-reader-paper: rgba(var(--mdui-color-surface), max(.985, var(--wallpaper-reader-opacity)));
+  }
 }
 
 .post-tags mdui-chip { --shape-corner: var(--mdui-shape-corner-full); --mdui-color-outline: var(--mdui-color-outline-variant); background: transparent; font-size: 12px; }

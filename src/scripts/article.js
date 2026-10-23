@@ -4,7 +4,7 @@ import { motion } from './motion';
 export function initArticle(site, signal, navigationType) {
   const body = document.getElementById('article-body');
   const headings = [...body.querySelectorAll('h2, h3, h4, h5, h6')];
-  const links = [...document.querySelectorAll('.toc-list a')];
+  const links = [...document.querySelectorAll('.toc-list mdui-list-item')];
   const path = location.pathname;
   const inlineToc = document.getElementById('inline-toc-item');
   let frame = 0;
@@ -20,7 +20,13 @@ export function initArticle(site, signal, navigationType) {
     for (const heading of headings) { if (heading.getBoundingClientRect().top <= offset) current = heading; else break; }
     if (Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight - 3) current = headings.at(-1);
     for (const link of links) {
-      if (link.hash === '#' + encodeURIComponent(current.id)) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current');
+      const active = link.getAttribute('href') === '#' + encodeURIComponent(current.id);
+      link.active = active;
+      // The actual link lives in the public container part. Forward its current
+      // location semantics without reproducing MDUI's native active visuals.
+      if (active) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current');
+      const anchor = link.shadowRoot?.querySelector('a');
+      if (active) anchor?.setAttribute('aria-current', 'location'); else anchor?.removeAttribute('aria-current');
     }
   }
   function update() { if (!frame) frame = requestAnimationFrame(currentSection); }
@@ -82,15 +88,21 @@ export function initArticle(site, signal, navigationType) {
   on(document, 'click', event => {
     const button = event.target.closest('.copy-code');
     if (button) { copyCode(button); return; }
-    const anchor = event.target.closest('.toc-list a, .heading-anchor, .prose a[href^="#"]');
+    const anchor = event.target.closest('.toc-list mdui-list-item, .heading-anchor, .prose a[href^="#"]');
     if (!anchor || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || event.button) return;
+    const hash = new URL(anchor.getAttribute('href'), location.href).hash;
     let target;
-    try { target = document.getElementById(decodeURIComponent(anchor.hash.slice(1))); } catch { return; }
+    try { target = document.getElementById(decodeURIComponent(hash.slice(1))); } catch { return; }
     if (!target || !body.contains(target)) return;
     // Capture precedes ClientRouter's default same-document anchor handling.
     event.preventDefault();
-    if (location.hash !== anchor.hash) history.pushState(history.state, '', anchor.hash);
-    scrollHash(true);
+    if (location.hash !== hash) history.pushState(history.state, '', hash);
+    // Set pending first: Collapse closes on the next Lit update, before the final
+    // offset is known. Its native closed event starts the spring at stable layout.
+    if (anchor.closest('#toc-inline-list') && inlineToc.active) {
+      pending = true;
+      document.getElementById('inline-toc').value = '';
+    } else scrollHash(true);
   }, { capture: true });
   on(window, 'hashchange', () => scrollHash(false));
   on(window, 'popstate', () => scrollHash(false));
@@ -101,5 +113,6 @@ export function initArticle(site, signal, navigationType) {
   // Let ClientRouter restore a traversed page's actual scroll position, rather than forcing its previous hash.
   if (navigationType !== 'traverse') scrollHash(false);
   currentSection();
+  Promise.all(links.map(link => link.updateComplete)).then(() => { if (!signal.aborted) update(); });
   return () => { cancelAnimationFrame(frame); timers.forEach(clearTimeout); motion.cancelScroll(); };
 }

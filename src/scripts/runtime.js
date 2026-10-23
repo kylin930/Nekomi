@@ -1,3 +1,5 @@
+import './mdui';
+import { prefetch } from 'astro:prefetch';
 import { navigate, swapFunctions } from 'astro:transitions/client';
 import { a11y } from './a11y';
 import { motion } from './motion';
@@ -52,7 +54,7 @@ function createSite() {
   const drawerClose = document.getElementById('drawer-close');
   const friendsDialog = document.getElementById('friends-dialog');
   [drawer, friendsDialog].forEach(component => component.addEventListener('close', () => { waitForClosed(component); }));
-  const mobile = matchMedia('(max-width: 860px)');
+  const mobile = matchMedia('(max-width: 1119px)');
   let search = '';
   function setSearch(value) { search = String(value); document.querySelectorAll('[data-search]').forEach(field => { field.value = search; }); }
   function openDrawer(find = false) { drawerClose.autofocus = !find; drawer.querySelector('[data-search]').autofocus = find; drawer.open = true; }
@@ -120,6 +122,18 @@ function createSite() {
     event.preventDefault();
     navigate(url.href, { sourceElement: link });
   }, true);
+  // Astro's anchor discovery does not cross Web Component shadow roots. Use its
+  // public, deduplicating API only for explicitly opted-in MDUI navigation links.
+  let prefetchTimer;
+  const cancelPrefetch = () => { clearTimeout(prefetchTimer); };
+  const hoverPrefetch = event => {
+    const link = event.target.closest('mdui-button[data-astro-prefetch="hover"], mdui-card[data-astro-prefetch="hover"]');
+    if (!link?.href || link.contains(event.relatedTarget)) return;
+    cancelPrefetch();
+    prefetchTimer = setTimeout(() => prefetch(new URL(link.href, location.href).href), 80);
+  };
+  ['pointerover', 'focusin'].forEach(type => document.addEventListener(type, hoverPrefetch, { passive: true }));
+  ['pointerout', 'focusout', 'astro:before-preparation'].forEach(type => document.addEventListener(type, cancelPrefetch, { passive: true }));
   return { data, drawer, setSearch, notify, postUrl, closeModal, go: navigate };
 }
 async function initialize() {
@@ -131,7 +145,7 @@ async function initialize() {
   await boot;
   if (current !== generation) return;
   theme.syncDocument();
-  // Static images may finish before the CDN/runtime on a direct visit.
+  // Static images may finish before the bundled runtime on a direct visit.
   recoverImages(document);
   pageController?.abort();
   disposePage?.();

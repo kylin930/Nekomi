@@ -1,9 +1,9 @@
 ---
-import { assetUrl } from '../lib/urls';
+import SiteImage from './SiteImage.astro';
 interface Props { src?: string; fallback?: string; label: string; class?: string; slot?: string; hidden?: boolean }
 const { src = '', fallback = '林', label, class: className = 'site-avatar', slot, hidden } = Astro.props;
-const url = assetUrl(src);
+const size = className === 'brand-avatar' ? 30 : className === 'site-avatar' ? 72 : 36;
 ---
 <mdui-avatar class={className} role="img" aria-label={label} aria-hidden={hidden || undefined} slot={slot}>
-  {fallback}{url && <img src={url} alt="" data-avatar />}
+  {fallback}{src && <SiteImage src={src} alt="" kind="avatar" size={size} />}
 </mdui-avatar>

@@ -16,6 +16,7 @@
   "dependencies": {
     "@astrojs/markdown-remark": "7.3.4",
     "astro": "7.4.2",
+    "mdui": "2.1.5",
     "rehype-raw": "7.0.0"
   },
   "devDependencies": {

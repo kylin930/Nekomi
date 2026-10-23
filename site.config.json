@@ -9,11 +9,13 @@
       "dark": "",
       "position": "center",
       "fit": "cover",
-      "lightOverlay": 0.64,
+      "lightOverlay": 0.6,
       "darkOverlay": 0.68,
-      "lightSurface": 0.9,
-      "darkSurface": 0.92,
-      "cacheHours": 24
+      "lightSurface": 0.84,
+      "darkSurface": 0.88,
+      "cacheHours": 24,
+      "lightReaderSurface": 0.97,
+      "darkReaderSurface": 0.97
     }
   },
   "site": {

@@ -1,7 +1,9 @@
+import { setTheme } from 'mdui/functions/setTheme.js';
+import { setColorScheme } from 'mdui/functions/setColorScheme.js';
+
 /* 单按钮循环切换：浅色 → 深色 → 跟随系统。 */
 export function createTheme(data) {
   'use strict';
-  if (!window.mdui) return;
   var KEY = 'nekomi-theme';
   var modes = ['light', 'dark', 'auto'];
   var labels = { light: '浅色', dark: '深色', auto: '跟随系统' };
@@ -14,7 +16,7 @@ export function createTheme(data) {
   var appearance = data.appearance;
   var baseUrl = new URL(data.base, location.origin);
   var source = /^#(?:[a-f0-9]{3}|[a-f0-9]{6})$/i.test(appearance.color || '') ? appearance.color : '#8064b1';
-  mdui.setColorScheme(source, { customColors: [
+  setColorScheme(source, { customColors: [
     { name: 'blossom', value: '#b65e82' }, { name: 'sky', value: '#427f9d' }
   ] });
   var wallpaper = appearance.wallpaper || {};
@@ -59,8 +61,9 @@ export function createTheme(data) {
   }
   async function applyWallpaper() {
     var dark = mode === 'dark' || mode === 'auto' && systemDark.matches;
-    document.body.style.setProperty('--wallpaper-overlay', number(dark ? wallpaper.darkOverlay : wallpaper.lightOverlay, dark ? .68 : .64, 0, 1));
-    document.body.style.setProperty('--wallpaper-paper-opacity', number(dark ? wallpaper.darkSurface : wallpaper.lightSurface, dark ? .92 : .90, .65, 1));
+    document.body.style.setProperty('--wallpaper-overlay', number(dark ? wallpaper.darkOverlay : wallpaper.lightOverlay, dark ? .68 : .60, 0, 1));
+    document.body.style.setProperty('--wallpaper-paper-opacity', number(dark ? wallpaper.darkSurface : wallpaper.lightSurface, dark ? .88 : .84, .65, 1));
+    document.body.style.setProperty('--wallpaper-reader-opacity', number(dark ? wallpaper.darkReaderSurface : wallpaper.lightReaderSurface, .97, .85, 1));
     var path = dark ? wallpaper.dark || wallpaper.light : wallpaper.light;
     var url = '';
     if (path) { try { var parsed = new URL(path, baseUrl); if (['http:', 'https:'].includes(parsed.protocol)) url = parsed.href; } catch (_) { /* 无效图片回退。 */ } }
@@ -109,7 +112,7 @@ export function createTheme(data) {
   function apply(next, persist) {
     if (!modes.includes(next)) return;
     mode = next;
-    mdui.setTheme(mode);
+    setTheme(mode);
     applyWallpaper();
     if (persist !== false) {
       try { localStorage.setItem(KEY, mode); } catch (_) { /* 无存储权限时仍可切换。 */ }
@@ -117,7 +120,7 @@ export function createTheme(data) {
     syncDocument();
   }
   function syncDocument() {
-    mdui.setTheme(mode);
+    setTheme(mode);
     document.body.classList.toggle('has-wallpaper', !layer.hidden);
     var nextLabel = labels[modes[(modes.indexOf(mode) + 1) % modes.length]];
     document.querySelectorAll('[data-theme-control]').forEach(function (container) {
@@ -135,7 +138,7 @@ export function createTheme(data) {
     // MDUI generates this palette only once. Give Astro a matching persistent head node.
     newDocument.head.append(palette.cloneNode(true));
     newDocument.body.classList.toggle('has-wallpaper', !layer.hidden);
-    ['--wallpaper-overlay', '--wallpaper-paper-opacity'].forEach(function (name) {
+    ['--wallpaper-overlay', '--wallpaper-paper-opacity', '--wallpaper-reader-opacity'].forEach(function (name) {
       newDocument.body.style.setProperty(name, document.body.style.getPropertyValue(name));
     });
   }
