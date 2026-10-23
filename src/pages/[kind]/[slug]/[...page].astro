@@ -1,0 +1,24 @@
+---
+import type { GetStaticPaths } from 'astro';
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+import ArticleFeed from '../../../components/ArticleFeed.astro';
+import { getPosts, facets } from '../../../lib/posts';
+import { listing } from '../../../lib/pagination';
+import { publishing } from '../../../config/publishing.mjs';
+import { config } from '../../../config/site';
+import { facetUrl } from '../../../lib/urls';
+import { canIndex } from '../../../lib/seo';
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getPosts();
+  return ['categories', 'tags', 'archive'].flatMap(kind => facets(posts, kind as 'categories' | 'tags' | 'archive').flatMap(group =>
+    paginate(group.posts, { pageSize: publishing.pageSize, params: { kind, slug: group.slug } }).map(item => ({ ...item, props: { feed: listing(group.posts, item.props.page.currentPage, kind + '/' + group.slug), group } }))));
+}) satisfies GetStaticPaths;
+const { feed, group } = Astro.props;
+const labels: Record<string, string> = { categories: '分类', tags: '标签', archive: '归档' };
+const kind = Astro.params.kind!;
+const title = kind === 'archive' ? group.name.replace('-', ' 年 ') + ' 月' : group.name;
+---
+<SiteLayout title={title + (feed.number > 1 ? ' · 第 ' + feed.number + ' 页' : '') + ' · ' + config.site.name} description={title + '相关的文章'} page="home" noindex={!canIndex(feed.items)}>
+  <nav class="listing-breadcrumb" aria-label="文章浏览"><mdui-button variant="text" href={facetUrl(kind)}>全部{labels[kind]}</mdui-button></nav>
+  <ArticleFeed feed={feed} title={title} description={labels[kind] + ' · ' + feed.total + ' 篇文章'} />
+</SiteLayout>

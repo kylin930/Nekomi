@@ -1,0 +1,39 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { config } from '../config/site';
+import { getPosts, facets } from '../lib/posts';
+import type { Listing } from '../lib/pagination';
+import ArticleFeed from './ArticleFeed.astro';
+import PostListItem from './PostListItem.astro';
+import Icon from './Icon.astro';
+import { facetUrl, withBase, dateLabel } from '../lib/urls';
+import { canIndex } from '../lib/seo';
+interface Props { feed: Listing; initialTab?: string }
+const { feed, initialTab = 'recent' } = Astro.props;
+const posts = await getPosts();
+const categories = facets(posts, 'categories');
+const tags = facets(posts, 'tags');
+const months = facets(posts, 'archive');
+const navigation = [['recent', '全部文章', 'view_agenda--outlined'], ['categories', '分类', 'category--outlined'], ['tags', '标签', 'sell--outlined'], ['archive', '归档', 'inventory_2--outlined']];
+const label = navigation.find(item => item[0] === initialTab)![1];
+const title = (initialTab === 'recent' && feed.number === 1 ? config.site.name + ' · ' + config.site.tagline : (initialTab === 'recent' ? '全部文章 · 第 ' + feed.number + ' 页' : label) + ' · ' + config.site.name);
+---
+<SiteLayout title={title} page="home" noindex={!canIndex(initialTab === 'recent' ? feed.items : posts)}>
+  <noscript><nav class="browse-links" aria-label="博客内容">{navigation.map(([value, text]) => <a href={value === 'recent' ? withBase('') : facetUrl(value)}>{text}</a>)}</nav></noscript>
+  <mdui-tabs id="content-tabs" value={initialTab} data-initial-tab={initialTab} variant="secondary" aria-label="博客内容">
+    {navigation.map(([value, text, icon]) => <mdui-tab id={'tab-' + value} value={value} role="tab" aria-controls={'panel-' + value} inline><Icon name={icon} slot="icon" />{text}</mdui-tab>)}
+    <mdui-tab-panel slot="panel" value="recent" id="panel-recent" role="tabpanel" aria-labelledby="tab-recent" tabindex="0" hidden={initialTab !== 'recent' || undefined}><ArticleFeed feed={feed} /></mdui-tab-panel>
+    <mdui-tab-panel slot="panel" value="categories" id="panel-categories" role="tabpanel" aria-labelledby="tab-categories" tabindex="0" hidden={initialTab !== 'categories' || undefined}>
+      <div class="view-heading"><div><p class="eyebrow">整理与发现</p><h1>文章分类</h1><p class="view-description" id="categories-summary">{categories.length} 个分类，按主题找文章。</p></div></div>
+      <div id="categories-list" class="collection-list">{categories.map(group => <mdui-card variant="outlined" class="collection-card"><section><div class="collection-heading"><h2><a href={facetUrl('categories', group.slug)}>{group.name}</a></h2><mdui-button variant="text" href={facetUrl('categories', group.slug)}>查看 {group.posts.length} 篇</mdui-button></div><mdui-list>{group.posts.slice(0, 3).map(post => <PostListItem post={post} description={dateLabel(post.data.date)} />)}</mdui-list></section></mdui-card>)}</div>
+    </mdui-tab-panel>
+    <mdui-tab-panel slot="panel" value="tags" id="panel-tags" role="tabpanel" aria-labelledby="tab-tags" tabindex="0" hidden={initialTab !== 'tags' || undefined}>
+      <div class="view-heading"><div><p class="eyebrow">循着兴趣阅读</p><h1>所有标签</h1><p class="view-description" id="tags-summary">{tags.length} 个标签，看看感兴趣的话题。</p></div></div>
+      <mdui-card variant="outlined" class="tag-surface"><div id="tags-list" class="tag-cloud">{tags.map(group => <mdui-chip variant="suggestion" href={facetUrl('tags', group.slug)}>{group.name}<span class="tag-count">{group.posts.length}</span></mdui-chip>)}</div><noscript><ul>{tags.map(group => <li><a href={facetUrl('tags', group.slug)}>{group.name} · {group.posts.length} 篇</a></li>)}</ul></noscript></mdui-card>
+    </mdui-tab-panel>
+    <mdui-tab-panel slot="panel" value="archive" id="panel-archive" role="tabpanel" aria-labelledby="tab-archive" tabindex="0" hidden={initialTab !== 'archive' || undefined}>
+      <div class="view-heading"><div><p class="eyebrow">沿着时间回望</p><h1>文章归档</h1><p class="view-description" id="archive-summary">{posts.length} 篇文章，收录于 {months.length} 个月份。</p></div></div>
+      <div id="archive-list" class="collection-list">{months.map(group => <mdui-card variant="outlined" class="collection-card"><section><div class="collection-heading"><h2><a href={facetUrl('archive', group.slug)}>{group.name.slice(0, 4)} 年 {Number(group.name.slice(5))} 月</a></h2><span class="collection-count">{group.posts.length} 篇</span></div><mdui-list>{group.posts.slice(0, 3).map(post => <PostListItem post={post} description={post.data.date.slice(5).replace('-', ' / ') + ' · ' + post.data.category} />)}</mdui-list></section></mdui-card>)}</div>
+    </mdui-tab-panel>
+  </mdui-tabs>
+</SiteLayout>

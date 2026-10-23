@@ -72,10 +72,10 @@ def motion_checks(page, context, url, requests):
             page.locator('.reader-breadcrumb mdui-button').click()
             page.wait_for_url(url+'#recent');ready(page)
             shared(finish(page,2))
-            page.go_back();page.wait_for_url(url+'posts/'+TECH+'/');ready(page)
+            page.go_forward();page.wait_for_url(url+'posts/'+TECH+'/');ready(page)
             shared(finish(page,3))
-            assert any(a['name']=='nekomi-in-back' for a in page.evaluate('motionLog[2].animations'))
-            page.go_forward();page.wait_for_url(url+'#recent');ready(page)
+            assert any(a['name']=='nekomi-in-back' for a in page.evaluate('motionLog[1].animations'))
+            page.go_back();page.wait_for_url(url+'#recent');ready(page)
             shared(finish(page,4))
             assert page.evaluate('motionOrigin===performance.timeOrigin && motionWallpaper===document.querySelector(".wallpaper-image")')
             # Real native indicator motion plus the separate panel extension.

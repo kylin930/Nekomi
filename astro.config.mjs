@@ -1,12 +1,35 @@
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import rehypeRaw from 'rehype-raw';
+import sitemap from '@astrojs/sitemap';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { publishing } from './src/config/publishing.mjs';
 import { remarkPost, rehypeLocalImages, rehypeArticle } from './src/plugins/markdown.mjs';
 
-const base = process.env.SITE_BASE || '/';
+const base = publishing.base;
+const output = resolve(process.env.ASTRO_OUT_DIR || './dist');
+const documents = new Map();
+function builtPage(url) {
+  if (documents.has(url)) return documents.get(url);
+  const pathname = decodeURIComponent(new URL(url).pathname);
+  const file = resolve(output, pathname.slice(base.length), 'index.html');
+  let html = '';
+  if (file.startsWith(output + '/')) { try { html = readFileSync(file, 'utf8'); } catch { /* Non-HTML endpoints are not indexed. */ } }
+  documents.set(url, html); return html;
+}
 export default defineConfig({
-  site: 'https://kylin930.github.io',
+  // An unconfigured preview deliberately has no public canonical URL.
+  site: publishing.url || 'http://localhost:4321',
   base,
+  integrations: [sitemap({
+    filter: url => publishing.indexing && Boolean(builtPage(url)) && !/name="robots" content="noindex/.test(builtPage(url)),
+    serialize(item) {
+      const updated = builtPage(item.url).match(/property="article:modified_time" content="([^"]+)"/);
+      if (updated) item.lastmod = updated[1];
+      return item;
+    },
+  })],
   output: 'static',
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   trailingSlash: 'always',

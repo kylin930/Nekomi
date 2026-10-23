@@ -30,6 +30,7 @@
   --nekomi-effects-easing: cubic-bezier(.34, .80, .34, 1);
   --nekomi-shape-card: 20px;
   --nekomi-shape-pressed: 16px;
+  --nekomi-nav-opacity: .88;
   --nekomi-duration-enter: var(--nekomi-spatial-default-duration);
   --nekomi-duration-feedback: var(--nekomi-effects-default-duration);
   --nekomi-duration-background: 650ms;
@@ -43,6 +44,7 @@
 }
 
 .mdui-theme-dark {
+  --nekomi-nav-opacity: .92;
   --site-canvas: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 10%, rgb(var(--mdui-color-surface-dim)));
   --site-paper: rgb(var(--mdui-color-surface-container-low));
   --wallpaper-sidebar-veil: .28;
@@ -50,6 +52,7 @@
 }
 @media (prefers-color-scheme: dark) {
   .mdui-theme-auto {
+    --nekomi-nav-opacity: .92;
     --site-canvas: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 10%, rgb(var(--mdui-color-surface-dim)));
     --site-paper: rgb(var(--mdui-color-surface-container-low));
     --wallpaper-sidebar-veil: .28;

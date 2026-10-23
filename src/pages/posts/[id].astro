@@ -2,8 +2,8 @@
 import { render } from 'astro:content';
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import { config } from '../../config/site';
-import { getPosts, type Post } from '../../lib/posts';
-import { assetUrl, dateLabel, filterUrl, postUrl, withBase } from '../../lib/urls';
+import { getPosts, facets, type Post } from '../../lib/posts';
+import { assetUrl, dateLabel, facetUrl, postUrl, withBase } from '../../lib/urls';
 import Icon from '../../components/Icon.astro';
 import TocTree from '../../components/TocTree.astro';
 import SiteImage from '../../components/SiteImage.astro';
@@ -15,20 +15,22 @@ const posts = await getPosts();
 const index = posts.findIndex(p => p.id === post.id);
 const neighbors = [{ item: posts[index - 1], label: '上一篇', direction: 'previous' }, { item: posts[index + 1], label: '下一篇', direction: 'next' }];
 const { title, excerpt, category, date, tags, cover, coverAlt } = post.data;
+const categoryUrl = facetUrl('categories', facets(posts, 'categories').find(group => group.name === category)!.slug);
+const tagGroups = facets(posts, 'tags');
 ---
-<SiteLayout title={title + ' · ' + config.site.name} description={excerpt} page="article" currentId={post.id}>
+<SiteLayout title={title + ' · ' + config.site.name} description={excerpt} page="article" currentId={post.id} post={post}>
   <article id="reader" class="reader">
-    <nav class="reader-breadcrumb" aria-label="返回导航"><mdui-button variant="text" href={withBase('') + '#recent'}><Icon name="arrow_back" slot="icon" />返回文章列表</mdui-button></nav>
+    <nav class="reader-breadcrumb" aria-label="返回导航"><mdui-button variant="text" data-return-list href={withBase('') + '#recent'}><Icon name="arrow_back" slot="icon" />返回文章列表</mdui-button></nav>
     <header class="reader-header">
-      <div class="reader-kicker"><a id="article-category" href={filterUrl(category)}>{category}</a></div>
+      <div class="reader-kicker"><a id="article-category" href={categoryUrl}>{category}</a></div>
       <h1 id="article-title" data-shared-title={post.id}>{title}</h1>
       <p class="reader-meta"><time id="article-date" datetime={date}>{dateLabel(date)}</time><span aria-hidden="true">·</span><span id="article-source">{config.site.name}</span></p>
-      {tags.length > 0 && <div id="article-tags" class="post-tags">{tags.map(tag => <mdui-chip variant="suggestion" href={filterUrl(tag)}>{tag}</mdui-chip>)}</div>}
+      {tags.length > 0 && <div id="article-tags" class="post-tags">{tags.map(tag => <mdui-chip variant="suggestion" href={facetUrl('tags', tagGroups.find(group => group.name === tag)!.slug)}>{tag}</mdui-chip>)}</div>}
     </header>
     <div id="article-hero">{assetUrl(cover) && <figure class="article-hero" data-shared-cover={post.id}><SiteImage src={cover} alt={coverAlt} kind="hero" /></figure>}</div>
     {headings.length > 0 && <mdui-card variant="outlined" class="toc-inline"><mdui-collapse id="inline-toc" accordion><mdui-collapse-item value="contents" id="inline-toc-item"><mdui-button slot="header" variant="text" class="toc-toggle" id="toc-toggle"><span id="toc-toggle-label">文章目录 · {headings.length} 个章节</span><Icon slot="end-icon" id="toc-toggle-icon" name="expand_more" /></mdui-button><nav id="toc-inline-list" class="toc-content" aria-label="折叠文章目录"><TocTree headings={headings} /></nav></mdui-collapse-item></mdui-collapse></mdui-card>}
     <div id="article-body" class="prose"><Content /></div>
-    <footer class="reader-footer"><p class="reader-endnote">谢谢读到这里。</p><mdui-divider></mdui-divider><nav id="article-neighbors" class="article-neighbors" aria-label="相邻文章">{neighbors.map(({ item, label, direction }) => item ? <mdui-card variant="outlined" clickable class="article-neighbor" data-direction={direction} href={postUrl(item.id)} data-astro-prefetch="hover"><span class="neighbor-label">{label}</span><strong>{item.data.title}</strong></mdui-card> : <div class="neighbor-boundary"><span>{label}</span><p>{direction === 'previous' ? '已经是最新的一篇' : '已经是最早的一篇'}</p></div>)}</nav><mdui-button variant="tonal" href={withBase('') + '#recent'}>返回文章列表</mdui-button></footer>
+    <footer class="reader-footer"><p class="reader-endnote">谢谢读到这里。</p><mdui-divider></mdui-divider><nav id="article-neighbors" class="article-neighbors" aria-label="相邻文章">{neighbors.map(({ item, label, direction }) => item ? <mdui-card variant="outlined" clickable class="article-neighbor" data-direction={direction} href={postUrl(item.id)} data-astro-prefetch="hover"><span class="neighbor-label">{label}</span><strong>{item.data.title}</strong></mdui-card> : <div class="neighbor-boundary"><span>{label}</span><p>{direction === 'previous' ? '已经是最新的一篇' : '已经是最早的一篇'}</p></div>)}</nav><mdui-button variant="tonal" data-return-list href={withBase('') + '#recent'}>返回文章列表</mdui-button></footer>
   </article>
   <aside slot="toc" class="reading-toc" id="reading-toc" aria-label="阅读辅助" hidden={!headings.length}><p class="toc-label">本文目录</p><nav id="toc-desktop-list" aria-label="文章目录"><TocTree headings={headings} /></nav></aside>
 </SiteLayout>

@@ -8,7 +8,7 @@ const { post, latest } = Astro.props;
 const { title, excerpt, category, tags, date, cover } = post.data;
 const tones: Record<string, string> = { '设计': 'blossom', '日常': 'sky', '工程': 'secondary' };
 ---
-<mdui-card variant={latest ? 'filled' : 'outlined'} class:list={['post-card', { 'post-latest': latest }]} data-tone={tones[category] || 'primary'} data-search-text={[title, excerpt, category, ...tags].join(' ').toLocaleLowerCase()}>
+<mdui-card variant={latest ? 'filled' : 'outlined'} class:list={['post-card', { 'post-latest': latest }]} data-post-id={post.id} data-tone={tones[category] || 'primary'} data-search-text={[title, excerpt, category, ...tags].join(' ').toLocaleLowerCase()}>
   <article class="post-content"><div class="post-main"><div class="post-copy">
     <div class="post-meta"><span class="post-category">{category}</span><time datetime={date}>{dateLabel(date)}</time>{latest && <span class="post-new">最新一篇</span>}</div>
     <h2 class="post-title" data-shared-title={post.id}><a href={postUrl(post.id)} data-astro-prefetch="hover" data-post={post.id} data-highlight>{title}</a></h2>

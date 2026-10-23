@@ -9,25 +9,33 @@ import Wallpaper from '../components/Wallpaper.astro';
 import Sidebar from '../components/Sidebar.astro';
 import ThemeControl from '../components/ThemeControl.astro';
 import Footer from '../components/Footer.astro';
+import Seo from '../components/Seo.astro';
+import { canIndex } from '../lib/seo';
+import { publishing } from '../config/publishing.mjs';
+import type { Post } from '../lib/posts';
+import { withBase } from '../lib/urls';
+import { createHash } from 'node:crypto';
 import 'mdui/mdui.css';
 import '../styles/tokens.css';
 import '../styles/main.css';
 import '../styles/home.css';
 import '../styles/article.css';
 import '../styles/transitions.css';
-interface Props { title: string; description?: string; page?: 'home' | 'article' | 'error'; currentId?: string }
-const { title, description = '小林的小窝，分享前端技术、设计与生活。', page = 'home', currentId } = Astro.props;
+interface Props { title: string; description?: string; page?: 'home' | 'article' | 'error'; currentId?: string; post?: Post; noindex?: boolean }
+const { title, description = config.site.tagline, page = 'home', currentId, post } = Astro.props;
 const posts = await getPosts();
-const data = { ...config, posts: posts.map(postMetadata), base };
+const noindex = Astro.props.noindex ?? (page === 'error' || !canIndex(post ? [post] : posts));
+const data = { ...config, posts: posts.map(postMetadata), base, pageSize: publishing.pageSize };
+const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest('hex').slice(0, 16);
 ---
 <!doctype html>
-<html lang="zh-CN" class="mdui-theme-auto" transition:animate="none">
+<html lang={publishing.language} class="mdui-theme-auto" transition:animate="none">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
+    <Seo title={title} description={description} noindex={noindex} post={post} />
+    <link rel="alternate" type="application/rss+xml" title={config.site.name + ' RSS'} href={withBase('rss.xml')} />
     <meta name="color-scheme" content="light dark" />
-    <title>{title}</title>
     <style is:global>
       html { background: #fdf7ff; color-scheme: light; }
       html.mdui-theme-dark { background: #19151f; color-scheme: dark; }
@@ -61,7 +69,7 @@ const data = { ...config, posts: posts.map(postMetadata), base };
       </main>
       <slot name="toc" />
     </div>
-    <script id="site-data" type="application/json" set:html={JSON.stringify(data).replace(/</g, '\\u003c')}></script>
+    <script id="site-data" type="application/json" data-version={contentVersion} set:html={JSON.stringify(data).replace(/</g, '\\u003c')}></script>
     <script>import '../scripts/runtime.js';</script>
   </body>
 </html>
