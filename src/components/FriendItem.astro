@@ -1,0 +1,9 @@
+---
+import Avatar from './Avatar.astro';
+import { externalUrl } from '../lib/urls';
+interface Props { friend: { name: string; url: string; avatar?: string; description: string } }
+const { friend } = Astro.props;
+---
+<mdui-list-item rounded href={externalUrl(friend.url)} target="_blank" rel="noopener noreferrer" headline={friend.name} description={friend.description} description-line="2">
+  <Avatar class="friend-avatar" slot="icon" src={friend.avatar} fallback={Array.from(friend.name)[0]} label={friend.name} />
+</mdui-list-item>

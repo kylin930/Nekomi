@@ -42,7 +42,13 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 - 参考范围：自然的文章卡片排版、标题 / 摘要 / 日期 / 标签的节奏、圆角卡片、正文阅读节奏与排版密度，以及清新个人博客的视觉气质。
 - 项目：https://github.com/youranreus/G
 - 许可证：GPL-3.0
-- 复用情况：没有复制 G 的任何 PHP、CSS、JavaScript、图片或素材；本项目为纯静态 HTML/CSS/JS，不包含 GPL 代码。
+- 复用情况：没有复制 G 的任何 PHP、CSS、JavaScript、图片或素材；本项目由 Astro 输出纯静态 HTML/CSS/JS，不包含 GPL 代码。
+
+## 构建依赖
+
+- Astro 7.4.2（MIT）：静态页面、Content Collections、客户端导航和 View Transitions；构建后不需要 Astro 服务。主页：https://astro.build/ 。
+- @astrojs/markdown-remark 7.3.4（MIT）与 rehype-raw 7.0.0（MIT）：构建期 Markdown 与可信 HTML 处理。
+- @astrojs/check 与 @types/node 为 MIT 许可，TypeScript 为 Apache-2.0 许可；均只用于开发检查。具体版本与传递依赖固定在 package-lock.json，许可文件随 npm 包提供。
 
 ## 开发与截图工具（非运行时依赖）
 

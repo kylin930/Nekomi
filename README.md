@@ -1,176 +1,171 @@
 # Nekomi · 小林的小窝
 
-基于 **MDUI 2.1.5 / Material Design 3** 的原创静态博客主题。参考 Stellar 的融入式侧栏、内容导航与辅助目录，以及 G 的文章信息层次和阅读节奏；所有页面代码独立实现。
+基于 **Astro 静态构建、MDUI 2.1.5 / Material Design 3** 的原创博客主题。保留 Stellar 式融入侧栏、P1.1 配色与阅读排版；不使用 React / Vue。所有文章、日期与叙事均为演示内容。
 
-P1.1 已统一首页与阅读页的视觉、默认 API 壁纸、评论预览接口与轻弹簧目录滚动。继续使用 HTML、CSS、原生 JavaScript，不绑定博客框架，没有构建步骤。全部文章、日期与叙事均为演示，不代表站长的真实经历。
+P2 将公共结构改为 Astro 组件，十篇文章迁入 Content Collections / Markdown，首页与文章通过 `<ClientRouter />` 无刷新切换。生产只需托管 `dist/`，无需运行 Node.js。
 
-!| 页面 | 桌面浅色 / 深色 | 手机浅色 / 深色 |
+| 页面 | 桌面浅色 / 深色 | 手机浅色 / 深色 |
 | --- | --- | --- |
-| 首页 | [浅色](screenshots/p11-home-desktop-light-1440x900.png) · [深色](screenshots/p11-home-desktop-dark-1440x900.png) | [浅色](screenshots/p11-home-mobile-light-390x844.png) · [深色](screenshots/p11-home-mobile-dark-390x844.png) |
-| 阅读 | [浅色](screenshots/p11-article-desktop-light-1440x1000.png) · [深色](screenshots/p11-article-desktop-dark-1440x1000.png) | [浅色](screenshots/p11-article-mobile-light-390x844.png) · [深色](screenshots/p11-article-mobile-dark-390x844.png) |
+| 首页 | [浅色](screenshots/p2-home-desktop-light-1440x900.png) · [深色](screenshots/p2-home-desktop-dark-1440x900.png) | [浅色](screenshots/p2-home-mobile-light-390x844.png) · [深色](screenshots/p2-home-mobile-dark-390x844.png) |
+| 阅读 | [浅色](screenshots/p2-article-desktop-light-1440x900.png) · [深色](screenshots/p2-article-desktop-dark-1440x900.png) | [浅色](screenshots/p2-article-mobile-light-390x844.png) · [深色](screenshots/p2-article-mobile-dark-390x844.png) |
 
-[演示评论](screenshots/p11-comments-desktop-1440x900.png) · [手机评论](screenshots/p11-comments-mobile-390x844.png) · [实际动效录屏](screenshots/p11-motion-390x844.webm)
+[手机无刷新导航录屏](screenshots/p2-navigation-390x844.webm)。截图和录屏使用站长 API 实际返回并经检查的图片，不是生成素材；自动化回归使用本项目截图作为确定性图片 fixture。
 
-截图背景为站长 API 实际返回且经检查的图片，不是生成素材；演示评论只在截图和测试中临时注入，默认配置为空。
+## 开发、构建与部署
 
-## 本地开发
-
-在仓库根目录启动任意静态 HTTP 服务：
+推荐 Node.js **24 LTS**（`.nvmrc`），npm。依赖版本由 `package-lock.json` 固定。
 
 ```sh
-python3 -m http.server 8080 --bind 127.0.0.1
+npm ci
+npm run dev
+# http://localhost:4321
+
+npm run check
+npm run build
+npm run preview
 ```
 
-访问本地 8080 端口。阅读演示地址：
+`npm run preview` 仅用于本地预览。发布 `dist/` 内的静态文件即可，生产不需要安装 npm 依赖、运行 Astro 服务或 SPA fallback。服务器应将目录请求映射到 `index.html`，不存在的路径返回 `404.html` 并保留 HTTP 404 状态。
 
-- 技术长文：`article.html?post=css-grid-two-column-blog`
-- 虚构随笔：`article.html?post=weekend-walk-by-river`
-- 章节深链接：`article.html?post=css-grid-two-column-blog#grid-minimum`
+根域部署默认使用 `/`。部署到 GitHub Pages 的 `/Nekomi/` 等子目录时：
 
-需要 HTTP 服务，不能直接以 `file://` 打开。运行时需能访问 `unpkg.com`、`fonts.googleapis.com` 与 `fonts.gstatic.com`。MDUI CSS / JS 均固定为 **2.1.5**，继续通过 unpkg 引入。
-
-## 页面与原生组件
-
-- **公共外壳**：`site.js` 复用侧栏、移动 App Bar、Navigation Drawer、页尾和 Snackbar。全站侧栏为 320px、页面最大宽度 1440px；保持透明、无整体边框 / 圆角 / 阴影。只有短屏需要侧栏自身的一层滚动，面板内部没有额外滚动区。
-- **首页**：保留 Tabs / Tab Panel、Card、Chip、List / List Item；浅紫色页面搭配樱粉、清蓝分类色，首篇使用原生 filled Card，其余文章保留轻轮廓。卡片减少过量留白，标题、元信息、两行摘要与操作分级；个人区使用横向头像、衬线站名和简洁简介，有图与无图布局均完整。分类、标签、归档和最近更新由同一份元数据推导；标题、封面、按钮和原生列表项均使用真实文章链接。
-- **侧栏 Tabs**：桌面与 Drawer 共用原生 Tabs / Tab Panel，默认最近更新，原位切换友链 / 最近评论；预览最多五个站点，显示头像 / 名称 / 简介。“查看全部”在原生 Dialog 中展示全部配置，移动端先关闭 Drawer，保持原生焦点返回。无友链时保留空状态并禁用该入口。最近评论展示作者、头像回退、摘要、文章与时间；没有后端时只进入文章，不虚构评论定位。
-- **阅读页**：标题、日期、分类、标签、可选头图；正文提供多级标题、段落、引用、列表、图片、分割线、表格与代码排版。桌面正文上限 760px，手机保持单列。
-- **目录**：按 h2–h6 自动生成嵌套列表，支持当前章节、标题永久链接与焦点定位。1360px 起放在右侧，较窄屏幕使用原生 Collapse；不挤占正文空间。
-- **技术内容**：代码块显示语言，原生 Button 复制原始文本，Snackbar 反馈；长代码和宽表格在自身区域横向滚动，支持键盘访问。
-- **移动端**：860px 及以下使用原生 Top App Bar 和模态 Navigation Drawer；App Bar 在文档流中占位并吸顶，组件负责抽屉焦点约束、滚动锁定、Escape / 遮罩关闭。
-- **主题**：图标按钮依次切换“浅色 → 深色 → 跟随系统”，同时显示当前模式与下次动作；`setColorScheme()` 从可配置主色生成语义色，并通过官方 `customColors` 生成樱粉与清蓝的明暗角色，`setTheme()` 管理主题，偏好跨页面保存。没有主题下拉菜单。
-- **壁纸**：全站可配置浅色 / 深色图片和裁切位置，默认启用站长提供的图片 API；使用可配置的明暗遮罩、左侧渐隐和阅读表面维持可读性。图片解码后淡入，失败恢复默认表面；壁纸专用 Worker 缓存随机图片，跨页和刷新复用。
-- **过渡**：页面内容与首页 Tab 面板使用短暂的非线性滑入，正常文档链接保留分享、新标签页和浏览器历史；减少动态效果偏好下禁用自定义过渡。
-
-CSS 主要负责布局与文章排版，组件调整使用官方公开 CSS Parts / 变量。没有复制 G 的 PHP、CSS、JavaScript 或素材，也没有添加其他 UI 框架或美术资源。许可与参考范围见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
-
-## 动效与阅读导航
-
-MDUI 2.1.5 的 Tabs 指示器、涟漪、Drawer、Dialog 和 Collapse 仍使用组件原生动画。自定义部分统一在 `tokens.css` / `motion.js`：内容进入 360ms，反馈 220ms，背景淡入 650ms。首页卡片提供轻量 Hover / Press / Focus 反馈，搜索结果与 Tab 内容复用进入过渡；目录当前章节平滑变色，主题切换过渡背景和阅读表面。没有引入动画库。
-
-目录点击使用 `requestAnimationFrame` 小步弹簧积分（质量 1、刚度 220、阻尼 28，接近临界阻尼），最后准确吸附到标题偏移并限制文档边界；目标位置随布局变化重新计算。滚轮、触摸、指针、导航键和再次点击可取消或重新定位，折叠目录改变高度时等原生 Collapse 完成后再定位。真实 Hash 链接、键盘焦点与前进后退保留。
-
-`prefers-reduced-motion: reduce` 下目录立即定位，内容进入与卡片位移动效关闭，MDUI 和背景过渡缩至 1ms。原生动画没有被全局删除。
-
-## 配色与全站壁纸
-
-在 `assets/js/data.js` 的 `appearance` 中配置：
-
-```js
-appearance: {
-  color: '#8064b1',
-  wallpaper: {
-    enabled: true,
-    light: 'https://www.nekopara.uk/pic_api',
-    dark: '',              // 空值沿用同一图片，减少主题切换时的随机变化
-    position: 'center',    // CSS object-position，例如 '65% 30%'
-    fit: 'cover',          // cover 铺满 / contain 完整显示
-    lightOverlay: .64,     // 0–1，全局浅色遮罩
-    darkOverlay: .68,      // 0–1，全局深色遮罩
-    lightSurface: .90,     // .65–1，正文和卡片表面
-    darkSurface: .92,
-    cacheHours: 24         // 1–168；0 禁用专用缓存
-  }
-}
+```sh
+SITE_BASE=/Nekomi/ npm run build
 ```
 
-关闭背景可设置 `enabled: false` 或将图片地址留空。仅配置 `dark` 时浅色模式不显示壁纸；也可换成站长自有的固定图片地址。主色接受 3 位或 6 位十六进制值，无效配置回退默认值。遮罩降低后应重新检查对比度；侧栏采用连续渐隐，没有添加独立背景卡片。阅读页使用一块稳定的正文表面，不将所有区域玻璃化。
+这会统一处理文章、脚本、CSS、图片、搜索和壁纸 Worker 的站内路径。`astro.config.mjs` 中的 `site` 可按最终域名修改。需要 HTTP(S)，不支持直接以 `file://` 打开构建产物。
 
-2026-10-23 实测 API：`/pic_api` **301** 到 `/pic_api/`，再 **302** 到对象存储，最终为 **200 image/png**，不是 JSON；样本为 2220×1380、4,248,854 字节，另一次请求跳转到不同图片。随机响应未给出稳定的 Cache-Control / Expires，观察到 `CF-Cache-Status: DYNAMIC`、FastCGI MISS / EXPIRED；最终图片有 ETag / Last-Modified。重定向本身没有开放 CORS，因此不依赖跨域 fetch 读取最终 URL，也不假设图片域名固定。
+云环境若默认缓存目录不可写，可运行 `npm --cache /tmp/nekomi-npm-cache ci`；若 Astro 遥测配置目录不可写，使用 `ASTRO_TELEMETRY_DISABLED=1 npm run build` / `npm run check`。不需要改动 HOME 或证书设置。
 
-`wallpaper-cache.js` 只拦截本站 `__nekomi_wallpaper` 的图片请求，以 no-cors 获取并缓存原始 opaque 响应；默认 24 小时内复用，最多保留两张不同配置的图片。同源标签页并发请求合并；缓存不可用时仍可展示网络图片；图片解码失败会清除错误缓存。它不缓存页面、脚本、文章或提供离线博客。需要 HTTPS 或 localhost；没有 Service Worker 时退回普通图片加载，随机图片跨页复用能力相应受限。全站背景使用低优先级异步解码，不阻塞正文；首次加载先显示 MD3 表面，主题初始底色在 head 中提前设置。
+运行时继续从以下固定地址加载 MDUI，字体仍由 Google Fonts 提供：
 
-API 当前返回的图片可较大，不支持已确认的缩略图参数，因此没有臆造裁切 URL；手机同样复用缓存，不重复请求随机大图。若需要严格控制内容或首次下载体积，请配置经站长审核和压缩的固定图片。随机池的后续内容和可用性由 API 维护者控制，主题不能保证每次返回的素材及其授权。
+- `https://unpkg.com/mdui@2.1.5/mdui.css`
+- `https://unpkg.com/mdui@2.1.5/mdui.global.js`
 
-## 数据与正文
+## 组件、路由与生命周期
 
-编辑 [`assets/js/data.js`](assets/js/data.js) 配置站点、文章元数据与友链：
+`SiteLayout.astro` 统一输出侧栏、原生 Top App Bar、Navigation Drawer、Dialog、Snackbar、主题控制和壁纸。公共 HTML 在构建时生成，不再由客户端字符串拼装。首页列表、分类、标签、归档、文章正文、目录和相邻导航也直接输出到静态 HTML。
 
-```js
+- 首页：`/`，筛选链接仍为 `/?q=CSS#recent`；顶部 Tabs 状态与 Hash 同步。
+- 文章：`/posts/css-grid-two-column-blog/`、`/posts/weekend-walk-by-river/`，可直接访问、刷新与分享。
+- 章节：`/posts/css-grid-two-column-blog/#grid-minimum`，保留 P1 的显式标题 ID。
+- 旧 `article.html?post=<id>#<heading>` 入口保留轻量兼容跳转；原 `#preview/<id>` 同样兼容。新内部链接全部使用静态文章 URL。
+- 无效路径使用静态 `404.html`；不再运行时请求正文片段。
+
+`ClientRouter` 管理页面请求、历史、滚动恢复和 View Transitions。只有正文执行 360ms 非线性滑入，后退方向反转；根画面和壁纸不做交叉淡入。`prefers-reduced-motion` 下缩至 1ms，目录立即定位。
+
+**壁纸持久化与缓存是两层独立机制。** 壁纸、公共侧栏和导航都声明了命名 `transition:persist`。此外使用 Astro 官方 `astro:before-swap` / `event.swap` / `swapFunctions`：保留公共外壳在原来的 DOM 位置，只替换 `<main>` 和阅读目录，使用官方 helper 更新 head、根属性、脚本状态和焦点。壁纸容器及已解码的 `<img>` 不被移除、移动或替换，不重新请求随机 API，不再次解码或播放首次淡入。导航发生在图片尚未加载完时，也沿用同一个加载任务。
+
+这个替换边界同时适配固定的 MDUI 2.1.5：Astro 默认 body swap 会在同一任务中两次移动持久化元素，触发该版本 ResizeObserver 清理异常。保留外壳原位避免了重复 disconnect；没有修改 MDUI 内部代码、屏蔽异常或升级 CDN 版本。新增公共区域应放进布局 / 公共组件；新增页面沿用相同布局与 `main-content` 边界。
+
+`runtime.js` 是只执行一次的模块：共享监听与主题单例只初始化一次。`astro:page-load` 为当前正文建立 AbortController，离开时清理监听、RAF、弹簧滚动和复制反馈计时器。导航前等待原生 Drawer / Dialog 关闭，焦点约束和滚动锁交由 MDUI 管理。MDUI 深层 Shadow DOM 中的图标链接也桥接到 Astro 导航，保留修饰键和新窗口行为。必要的固定版本无障碍补充在 `a11y.js`，不重做组件面板或模态机制。
+
+## 内容与配置
+
+站点配置集中在 [`site.config.json`](site.config.json)：个人名称、简介、圆形头像、配色、壁纸、友链与最近评论。构建时有 schema 校验，配置修改后需要重新构建。可用 `NEKOMI_CONFIG=/absolute/site.json` 指定完整配置，用于预览 / 测试，不改变默认数据。
+
+文章放在 [`src/content/posts/`](src/content/posts/)，Content Collection schema 位于 [`src/content.config.ts`](src/content.config.ts)。文件名就是稳定文章 ID：
+
+```md
+---
+title: 文章标题
+excerpt: 用于首页与搜索的摘要
+date: "2026-10-23"
+category: 前端
+tags: [CSS, Astro]
+cover: ""
+coverAlt: ""
+demo: false
+---
+
+正文从这里开始，不重复页面标题。
+
+## 稳定章节 {#stable-section}
+
+支持普通 Markdown、代码围栏、图片、列表和表格。
+```
+
+[详细文章约定](src/content/README.md) · [图片接入](public/images/README.md)。保留全部十篇演示文章的元数据、正文、代码、图片与标题锚点；首页索引、侧栏更新、搜索与相邻文章均由同一 Collection 推导，不再维护第二份文章索引。
+
+代码块在构建时补齐语言、原生复制 Button 和横向滚动区域，表格同样独立横向滚动。目录自动生成嵌套层级，1360px 起放右侧，否则使用原生 Collapse。正文保持原有 760px 上限与中文阅读节奏；复制、当前章节、标题永久链接、弹簧滚动、焦点与历史由轻量原生 JS 增强。
+
+首页搜索范围为标题、摘要、分类和标签，输入过滤已有静态卡片，不重建 Web Components。文章页搜索按 Enter 无刷新返回首页。友链预览最多五项，“查看全部”使用原生 Dialog；侧栏三个 Tabs 在首页、文章和移动 Drawer 中共用。
+
+最近评论配置示例：
+
+```json
 {
-  id: 'example-post',
-  title: '文章标题',
-  excerpt: '用于首页和搜索的摘要。',
-  date: '2026-10-20',
-  category: '前端',
-  tags: ['CSS'],
-  content: 'content/posts/example-post.html',
-  cover: '',
-  coverAlt: ''
-}
-```
-
-正文存放在 [`content/posts/`](content/posts/)，不重复页头与 h1。两篇主要样本分别展示技术长文与普通随笔，其余八篇也有独立正文。详细约定及生成器迁移边界见 [content/README.md](content/README.md)。
-
-- 没有封面时不创建空图片位；首页宽卡片右图、窄卡片上图，阅读页头图独立显示。
-- 坏封面收起，坏正文图保留替代文字提示，头像失败回退文字。
-- 默认不添加封面或虚构友链。友链格式为 `name`、`url`、`avatar`、`description`，侧栏预览最多 5 个，完整列表使用同一份配置。头像缺失或失败均回退为名称首字。
-- 搜索标题、摘要、分类与标签，不搜索正文；首页 `?q=关键词#recent` 可独立分享。文章页搜索输入后按 Enter 返回首页结果。
-- 无效文章 ID 显示友好提示与返回入口；正文载入失败可重试。静态演示错误界面仍是 HTTP 200，正式发布时应由生成器或服务器提供真正的 404。
-
-封面示例：[桌面右图](screenshots/cover-layout-desktop-1440x900.png) · [手机上图](screenshots/cover-layout-mobile-390x844.png)。测试临时使用本项目界面截图，默认数据保持无封面。图片接入见 [assets/images/README.md](assets/images/README.md)。
-
-## 最近评论数据接口
-
-默认 `comments.items` 为空。未来评论提供方只需输出统一数据，不需要修改侧栏渲染：
-
-```js
-comments: {
-  anchorsEnabled: false, // 只有真实评论节点已接入后才启用
-  items: [{
-    id: 'demo-1', author: '演示访客', avatar: '',
-    excerpt: '这是一条 UI 测试留言。',
-    postId: 'css-grid-two-column-blog',
-    createdAt: '2026-10-23T08:30:00+08:00',
-    anchor: '', demo: true
+  "anchorsEnabled": false,
+  "items": [{
+    "id": "demo-1", "author": "演示访客", "avatar": "",
+    "excerpt": "这是一条 UI 测试留言。",
+    "postId": "css-grid-two-column-blog",
+    "createdAt": "2026-10-23T08:30:00+08:00",
+    "anchor": "", "demo": true
   }]
 }
 ```
 
-按有效时间降序预览最近四条；未知文章、无效日期和缺失作者 / 内容的条目忽略。`demo: true` 明确显示“演示”。默认点击只进入文章；只有 `anchorsEnabled: true` 且提供 `anchor` 时生成评论 Hash，请未来接入方保证该节点真实存在。当前没有编写评论表单、后台或评论服务。
+写入配置的 `comments` 字段。默认为空，演示评论明确标注；未知文章被过滤。没有评论后端时只进入对应文章，只有真实评论节点已实现后才可启用 `anchorsEnabled`。时间在构建时按 Asia/Shanghai 输出，避免部署机器时区影响。
 
-## 键盘与历史
+## 配色、壁纸与动效
 
-- 首页 Tabs 支持方向键 / Home / End，状态与 Hash 同步；搜索参数可刷新恢复。
-- `/` 聚焦搜索；手机上打开抽屉并通过原生 `autofocus` 聚焦。输入框内的 `/` 正常输入。
-- 首页搜索支持空结果、原生清空、可删除关键词 Chip；桌面 Escape 清空，手机 Escape 关闭抽屉；Enter 进入首个结果焦点或空结果标题。
-- 文章目录使用真实片段链接，点击后聚焦目标标题；直接打开、刷新、前进后退均能恢复章节。上一篇 / 下一篇和返回列表使用原生链接。
-- 提供跳过导航、可见焦点、可访问名称、存储不可用回退与减少动效支持。
+主题按钮循环“浅色 → 深色 → 跟随系统”，使用 MDUI `setColorScheme()` / `setTheme()`；偏好本地保存，无存储权限时仍在客户端导航中保留。主色与樱粉 / 清蓝语义色、320px 透明侧栏、圆形无边框头像均沿用 P1.1。
 
-MDUI 2.1.5 尚未提供完整的 Tabs 键盘 / ARIA 与图标按钮 ARIA 转发。[`a11y.js`](assets/js/a11y.js) 只补齐固定版本缺失能力，不重做面板管理、组件视觉或模态焦点机制。
+`site.config.json` 中的 `appearance.wallpaper`：
+
+| 字段 | 默认值 / 用途 |
+| --- | --- |
+| `enabled` | `true` |
+| `light` | `https://www.nekopara.uk/pic_api` |
+| `dark` | 空，沿用浅色同一图片 |
+| `position` / `fit` | `center` / `cover`，可用 CSS object-position 与 `contain` |
+| `lightOverlay` / `darkOverlay` | `.64` / `.68`，遮罩范围 0–1 |
+| `lightSurface` / `darkSurface` | `.90` / `.92`，正文表面范围 .65–1 |
+| `cacheHours` | `24`，1–168；0 禁用辅助缓存 |
+
+图片加载失败回退 MD3 默认背景；低优先级异步解码后首次淡入 650ms，不阻塞正文。明暗模式沿用同一图时只改变遮罩和表面。侧栏保持融入式渐隐，不新增浮动玻璃卡片。
+
+API 在 P1.1 已实际验证：`/pic_api` 301 → `/pic_api/` 302 → 对象存储 200 `image/png`，不是 JSON；随机响应没有稳定 Cache-Control / Expires，最终图有 ETag / Last-Modified。样本约 2.8–4.2MB。没有假设固定图片地址或未经确认的缩略图参数。
+
+`public/wallpaper-cache.js` 继续作为刷新 / 重访的辅助：仅缓存 `__nekomi_wallpaper` 图片请求，no-cors opaque 响应默认保存 24 小时、最多两张，合并并发并清理坏图；需要 HTTPS / localhost。它不缓存页面、脚本或文章，不是离线站点。**即使禁用 Worker，内部导航也保持同一个图片元素与图像。** 随机池内容与首次下载体积由 API 控制；需要稳定素材时可配置站长审核、压缩后的固定图片。
+
+目录滚动继续采用质量 1、刚度 220、阻尼 28 的小步弹簧积分，响应滚轮 / 触摸 / 指针 / 键盘中断和重复定位。原生 Tabs 指示器、涟漪、Drawer、Dialog、Collapse 动画交由 MDUI；没有大型动画库。自定义 CSS 负责布局、排版与公开 Parts，不重复实现已有组件。
 
 ## 验证
 
 ```sh
+npm run check
+npm run build
+python3 -m pip install -r tests/requirements.txt
 python3 tests/browser_audit.py --chromium /usr/bin/chromium --artifacts /tmp/nekomi-browser
 ```
 
-覆盖 P0 / P0.5 / P0.6 / P1 / P1.1 的浏览器回归，详见 [tests/README.md](tests/README.md)。截图由实际 Chromium 页面生成，包含桌面与手机明暗模式。
+测试只用 Python 静态文件服务器托管构建产物，覆盖无刷新导航、壁纸 / 图像身份、一次请求 / 解码、内容迁移完整性、直接访问与历史、原生组件、主题、复制与目录、六档宽度及明暗模式；还单独构建填充友链 / 评论的 fixture。详见 [测试说明](tests/README.md)与[本轮实测结果](tests/RESULTS.md)。
 
-当前云环境使用 `--verified-cdn`：curl 保持代理与 TLS 校验，取得原始 CDN 响应后在 Chromium 中回放。它不更改应用的 CDN 地址、资源或浏览器信任库，不关闭证书验证；测试验证页面行为，不代表 Chromium 原生 CDN 证书链已配置。Firefox / Safari 尚未实测。
+云环境验证通过 `--verified-cdn` 保留代理和 TLS 校验，用 curl 获取原始 CDN 响应后向 Chromium 回放；不改 CDN、不关闭证书验证，不代表 Chromium 原生 CDN 证书链已配置。交付截图的背景来自实际 API 样本。仅实测 Chromium，Firefox / Safari 尚未实测。
 
-当前功能边界为首页与文章阅读：未开发评论后端、后台、分页、服务端搜索或静态生成器。正文载入与公共组件增强依赖 JavaScript；生产环境的静态正文、SEO 与路由输出留给未来选定的生成器。
-
-## 文件
+## 目录
 
 ```text
-index.html                首页 Tabs 与索引容器
-article.html              阅读页语义结构
-assets/css/tokens.css     共用布局尺度与减少动效令牌
-assets/css/main.css       公共布局、首页和公开 CSS Parts
-assets/css/home.css       首页比例、阅读密度与 Tabs 状态表面
-assets/css/article.css    阅读排版与目录响应式布局
-assets/js/data.js         文章元数据索引
-assets/js/site.js         公共外壳、真实路由与搜索入口
-assets/js/a11y.js         固定 MDUI 版本的必要无障碍补充
-assets/js/theme.js        MD3 色板、三态主题按钮与壁纸载入
-assets/js/motion.js       内容进入与可中断弹簧滚动
-wallpaper-cache.js        仅处理壁纸的缓存 Worker
-assets/js/app.js          首页渲染、筛选与 URL 状态
-assets/js/article.js      正文载入、目录、锚点与复制
-content/posts/            独立、可信的演示正文片段
-screenshots/              实际浏览器截图
-tests/                    P0 / P1 浏览器回归
+astro.config.mjs          静态构建、子路径、Markdown 插件
+site.config.json          站点 / 主题 / 壁纸 / 友链 / 评论配置
+src/
+  layouts/SiteLayout.astro 公共布局与 ClientRouter
+  components/            侧栏、导航、壁纸、卡片、目录等
+  pages/index.astro      首页静态索引
+  pages/posts/[id].astro  独立文章静态路由
+  pages/404.astro         错误页面
+  pages/article.html.ts   旧链接兼容入口
+  content.config.ts      Content Collections schema
+  content/posts/*.md     十篇完整 Markdown 演示文章
+  plugins/markdown.mjs   稳定标题 ID、代码 / 表格构建增强
+  scripts/               单例运行时与可清理的页面增强
+  styles/                复用 P1.1 样式与内容 View Transitions
+public/                  原样复制的图片与壁纸 Worker
+tests/                   静态产物浏览器回归与迁移基线
+screenshots/             实际页面截图与录屏
+dist/                    构建产物（不提交）
 ```
 
-本项目采用 [MIT License](LICENSE)。
+本轮止于 P2 架构迁移；未新增评论后端、管理后台、分页或其他独立页面。许可见 [LICENSE](LICENSE) 与 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。

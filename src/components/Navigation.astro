@@ -1,0 +1,30 @@
+---
+import type { Post } from '../lib/posts';
+import { config } from '../config/site';
+import { withBase, externalUrl } from '../lib/urls';
+import Sidebar from './Sidebar.astro';
+import Avatar from './Avatar.astro';
+import ThemeControl from './ThemeControl.astro';
+import Icon from './Icon.astro';
+import FriendItem from './FriendItem.astro';
+interface Props { posts: Post[]; currentId?: string }
+const { posts, currentId } = Astro.props;
+const { site } = config;
+const friends = config.friends.filter(f => externalUrl(f.url));
+---
+<div data-site-appbar transition:persist="mobile-appbar" transition:animate="none">
+  <mdui-top-app-bar class="site-appbar" variant="small">
+    <mdui-button-icon id="menu-button"><Icon name="menu" /><span class="visually-hidden">打开侧栏</span></mdui-button-icon>
+    <mdui-top-app-bar-title><a href={withBase('') + '#recent'} class="appbar-brand" data-site-name><Avatar src={site.avatar} fallback={site.avatarFallback} label={site.avatarAlt} class="brand-avatar" hidden /><span>{site.name}</span></a></mdui-top-app-bar-title>
+    <ThemeControl />
+  </mdui-top-app-bar>
+</div>
+<mdui-navigation-drawer id="mobile-drawer" modal close-on-esc close-on-overlay-click role="dialog" aria-modal="true" aria-label="站点侧栏" transition:persist="mobile-drawer" transition:animate="none">
+  <div class="drawer-toolbar"><span>我的小窝</span><mdui-button-icon id="drawer-close" autofocus><Icon name="close" /><span class="visually-hidden">关闭侧栏</span></mdui-button-icon></div>
+  <div class="drawer-content"><Sidebar context="mobile" posts={posts} currentId={currentId} /></div>
+</mdui-navigation-drawer>
+<mdui-dialog id="friends-dialog" headline="友情链接" close-on-esc close-on-overlay-click transition:persist="friends-dialog" transition:animate="none">
+  <span slot="description">共 {friends.length} 个站点，按配置顺序展示。</span><mdui-list class="friend-list">{friends.map(friend => <FriendItem friend={friend} />)}</mdui-list>
+  <mdui-button slot="action" variant="text" id="friends-close">关闭</mdui-button>
+</mdui-dialog>
+<mdui-snackbar id="site-feedback" role="status" aria-live="polite" auto-close-delay="3000" transition:persist="site-feedback" transition:animate="none"></mdui-snackbar>

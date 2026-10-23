@@ -1,0 +1,68 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { config } from '../config/site';
+import { getPosts, postMetadata } from '../lib/posts';
+import { base } from '../lib/urls';
+import { pageTransition } from '../lib/transitions';
+import Navigation from '../components/Navigation.astro';
+import Wallpaper from '../components/Wallpaper.astro';
+import Sidebar from '../components/Sidebar.astro';
+import ThemeControl from '../components/ThemeControl.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/tokens.css';
+import '../styles/main.css';
+import '../styles/home.css';
+import '../styles/article.css';
+import '../styles/transitions.css';
+interface Props { title: string; description?: string; page?: 'home' | 'article' | 'error'; currentId?: string }
+const { title, description = '小林的小窝，分享前端技术、设计与生活。', page = 'home', currentId } = Astro.props;
+const posts = await getPosts();
+const data = { ...config, posts: posts.map(postMetadata), base };
+---
+<!doctype html>
+<html lang="zh-CN" class="mdui-theme-auto" transition:animate="none">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="light dark" />
+    <title>{title}</title>
+    <style is:global>
+      html { background: #fdf7ff; color-scheme: light; }
+      html.mdui-theme-dark { background: #19151f; color-scheme: dark; }
+      @media (prefers-color-scheme: dark) { html.mdui-theme-auto { background: #19151f; color-scheme: dark; } }
+    </style>
+    <link rel="icon" href="data:," />
+    <script is:inline>
+      try {
+        var savedTheme = window.NekomiTheme?.getMode() || localStorage.getItem('nekomi-theme');
+        document.documentElement.classList.remove('mdui-theme-light', 'mdui-theme-dark', 'mdui-theme-auto');
+        document.documentElement.classList.add('mdui-theme-' + (['light', 'dark', 'auto'].includes(savedTheme) ? savedTheme : 'auto'));
+      } catch (_) { /* 无存储权限时跟随系统，单例在导航后恢复当前内存偏好。 */ }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Icons&family=Material+Icons+Outlined&display=swap" />
+    <link rel="stylesheet" href="https://unpkg.com/mdui@2.1.5/mdui.css" />
+    <script is:inline src="https://unpkg.com/mdui@2.1.5/mdui.global.js" defer></script>
+    <ClientRouter />
+  </head>
+  <body data-page={page} data-post-id={currentId}>
+    <Wallpaper />
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    <Navigation posts={posts} currentId={currentId} />
+    <div class:list={['site-layout', { 'reading-layout': page === 'article' }]}>
+      <aside class="sidebar" aria-label="站点信息" data-site-sidebar transition:persist="desktop-sidebar" transition:animate="none">
+        <Sidebar context="desktop" posts={posts} currentId={currentId} />
+        <div class="sidebar-settings"><span>外观</span><ThemeControl /></div>
+      </aside>
+      <main id="main-content" tabindex="-1" aria-busy="false" transition:name="page-content" transition:animate={pageTransition}>
+        <slot />
+        <Footer />
+      </main>
+      <slot name="toc" />
+    </div>
+    <script id="site-data" type="application/json" set:html={JSON.stringify(data).replace(/</g, '\\u003c')}></script>
+    <script>import '../scripts/runtime.js';</script>
+  </body>
+</html>

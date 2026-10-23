@@ -1,0 +1,415 @@
+[
+  {
+    "id": "css-grid-two-column-blog",
+    "metadata": {
+      "title": "用 CSS Grid 搭一个稳定的两栏博客布局",
+      "excerpt": "从 280px 侧栏和自适应正文开始，把间距、断点与内容密度一次理清。写布局时先把结构定下来，再处理视觉细节。",
+      "date": "2026-10-20",
+      "category": "前端",
+      "tags": [
+        "CSS",
+        "布局"
+      ],
+      "cover": ""
+    },
+    "textSha256": "66d268148b8230877f1d86558ee7bdf4b2addee46fdc0b29370288330fa29079",
+    "headings": [
+      {
+        "id": "layout",
+        "text": "先确定内容的边界",
+        "level": 2
+      },
+      {
+        "id": "grid-minimum",
+        "text": "为什么要写 minmax(0, 1fr)",
+        "level": 3
+      },
+      {
+        "id": "nested-layout",
+        "text": "嵌套内容也需要边界",
+        "level": 4
+      },
+      {
+        "id": "responsive",
+        "text": "断点由内容决定",
+        "level": 2
+      },
+      {
+        "id": "check-real-page",
+        "text": "拿实际页面做检查",
+        "level": 3
+      },
+      {
+        "id": "state",
+        "text": "让导航状态可以分享",
+        "level": 2
+      },
+      {
+        "id": "keyboard",
+        "text": "用键盘检查一次",
+        "level": 3
+      },
+      {
+        "id": "finish",
+        "text": "收尾：把简单的约定留下来",
+        "level": 2
+      }
+    ],
+    "code": [
+      ".page {\n  display: grid;\n  grid-template-columns: 224px minmax(0, 1fr);\n  gap: 40px;\n  max-width: 1200px;\n  margin-inline: auto;\n  padding-inline: 32px;\n}\n\n.article {\n  min-width: 0;\n  max-width: 760px;\n}\n\npre {\n  overflow-x: auto;\n}",
+      "const params = new URLSearchParams(location.search);\nconst postId = params.get('post');\nconst post = posts.find(item => item.id === postId);\n\nif (!post) {\n  showNotFound();\n} else {\n  renderArticle(post);\n}\n\n// 故意保留的长代码行：用于检查横向滚动，复制时应保持完整内容。\nconst example = 'https://example.com/articles/a-very-long-readable-identifier?layout=sidebar-and-reading-area&theme=follow-system&source=nekomi-reading-demo&check=horizontal-overflow';"
+    ]
+  },
+  {
+    "id": "md3-palette-for-blog",
+    "metadata": {
+      "title": "把 MD3 色板用在博客里，而不是做成控制台",
+      "excerpt": "Surface 层次、Tabs 和输入框之外，真正决定阅读体验的仍然是排版、留白与克制的颜色。",
+      "date": "2026-10-17",
+      "category": "设计",
+      "tags": [
+        "MDUI",
+        "设计系统"
+      ],
+      "cover": ""
+    },
+    "textSha256": "93c5bc6597e97c4a1a4c2848c4022b1c7236837fb725458d8361129393ae4dea",
+    "headings": [
+      {
+        "id": "roles",
+        "text": "先选角色，再看颜色",
+        "level": 2
+      },
+      {
+        "id": "surfaces",
+        "text": "让背景保留连续性",
+        "level": 2
+      },
+      {
+        "id": "tokens",
+        "text": "在正文样式中使用令牌",
+        "level": 3
+      },
+      {
+        "id": "review",
+        "text": "切换主题后重新阅读",
+        "level": 2
+      }
+    ],
+    "code": [
+      ".prose a {\n  color: rgb(var(--mdui-color-primary));\n  text-underline-offset: 4px;\n}\n\n.prose blockquote {\n  color: rgb(var(--mdui-color-on-surface-variant));\n}"
+    ]
+  },
+  {
+    "id": "lightweight-page-state",
+    "metadata": {
+      "title": "原生 JavaScript 的页面状态可以有多轻",
+      "excerpt": "用一份数据源驱动文章列表、最近更新、搜索和归档，不引入框架，也能让状态流向保持清楚。",
+      "date": "2026-10-14",
+      "category": "前端",
+      "tags": [
+        "JavaScript",
+        "状态管理"
+      ],
+      "cover": ""
+    },
+    "textSha256": "2bb10e8d9cf2a81138b40f74953c936bd2928328b363f2185e16cae178a7258e",
+    "headings": [
+      {
+        "id": "source",
+        "text": "为每种信息选一个来源",
+        "level": 2
+      },
+      {
+        "id": "url",
+        "text": "让 URL 参与页面状态",
+        "level": 2
+      },
+      {
+        "id": "ownership",
+        "text": "组件状态交给组件",
+        "level": 3
+      },
+      {
+        "id": "checks",
+        "text": "从用户动作验证",
+        "level": 2
+      }
+    ],
+    "code": [
+      "const url = new URL(location.href);\nurl.searchParams.set('q', 'CSS');\nurl.hash = 'recent';\nhistory.replaceState(null, '', url);\n"
+    ]
+  },
+  {
+    "id": "intersection-observer-sticky",
+    "metadata": {
+      "title": "IntersectionObserver 做吸顶，比监听 scroll 更省心",
+      "excerpt": "用一个哨兵元素判断 Tabs 是否吸顶，只在状态变化时更新样式，滚动过程不再反复触发布局计算。",
+      "date": "2026-10-11",
+      "category": "前端",
+      "tags": [
+        "JavaScript",
+        "浏览器"
+      ],
+      "cover": ""
+    },
+    "textSha256": "466d067d25ddcd93f3bceef0ac08eb39eb4432c8ec1e758ca04a5b108f93b3cd",
+    "headings": [
+      {
+        "id": "css-first",
+        "text": "先试 CSS sticky",
+        "level": 2
+      },
+      {
+        "id": "sentinel",
+        "text": "确实需要状态时，再放一个哨兵",
+        "level": 2
+      },
+      {
+        "id": "limits",
+        "text": "观察范围需要明确",
+        "level": 3
+      },
+      {
+        "id": "section",
+        "text": "章节高亮是另一类需求",
+        "level": 2
+      }
+    ],
+    "code": [
+      "const observer = new IntersectionObserver(([entry]) => {\n  nav.classList.toggle('is-stuck', !entry.isIntersecting);\n}, { threshold: 0 });\n\nobserver.observe(sentinel);\n// 销毁页面功能时：observer.disconnect();"
+    ]
+  },
+  {
+    "id": "chinese-typography-checklist",
+    "metadata": {
+      "title": "写给自己的中文排版检查清单",
+      "excerpt": "字号、行高、行宽和标点，先让文章读起来舒服，再谈视觉风格。附一份每次改版都会重看的检查项。",
+      "date": "2026-10-08",
+      "category": "设计",
+      "tags": [
+        "排版",
+        "CSS"
+      ],
+      "cover": ""
+    },
+    "textSha256": "6e69b411578e99ea11aad8a2537f25562fdb7c70f04b06cae2769a101b5a7ede",
+    "headings": [
+      {
+        "id": "measure",
+        "text": "先检查行宽",
+        "level": 2
+      },
+      {
+        "id": "rhythm",
+        "text": "建立可辨认的节奏",
+        "level": 2
+      },
+      {
+        "id": "mixed",
+        "text": "中英文混排",
+        "level": 3
+      },
+      {
+        "id": "last-pass",
+        "text": "最后通读一遍",
+        "level": 2
+      }
+    ],
+    "code": []
+  },
+  {
+    "id": "no-image-state",
+    "metadata": {
+      "title": "无图状态也是布局的一部分",
+      "excerpt": "封面缺席时，文章卡片不应该留下空白矩形，也不该用占位插画填满。让纯文本布局同样完整、可读。",
+      "date": "2026-10-04",
+      "category": "前端",
+      "tags": [
+        "图片",
+        "性能"
+      ],
+      "cover": ""
+    },
+    "textSha256": "cf20c96feed67d3d09610f07073ea36025d6081e9c84b38568c05b7fc83e989a",
+    "headings": [
+      {
+        "id": "optional",
+        "text": "把图片真正设为可选",
+        "level": 2
+      },
+      {
+        "id": "failure",
+        "text": "区分无图和图片失败",
+        "level": 2
+      },
+      {
+        "id": "balance",
+        "text": "用内容决定密度",
+        "level": 2
+      }
+    ],
+    "code": [
+      "<figure>\n  <img src=\"assets/images/example.webp\"\n       alt=\"描述图中与正文有关的信息\"\n       width=\"1200\" height=\"800\">\n  <figcaption>补充说明与来源。</figcaption>\n</figure>"
+    ]
+  },
+  {
+    "id": "keyboard-focus-notes",
+    "metadata": {
+      "title": "用键盘走完一个首页：焦点管理笔记",
+      "excerpt": "Tabs、搜索、抽屉和对话框，每个交互都需要看得见的焦点与合理的返回路径。",
+      "date": "2026-09-29",
+      "category": "前端",
+      "tags": [
+        "无障碍",
+        "JavaScript"
+      ],
+      "cover": ""
+    },
+    "textSha256": "a8c09863f9ba7ef1cc6192fcffca1b438db0d51b7bbf44629bb9d7da58b31e34",
+    "headings": [
+      {
+        "id": "start",
+        "text": "从页面开头开始",
+        "level": 2
+      },
+      {
+        "id": "components",
+        "text": "尊重组件的交互边界",
+        "level": 2
+      },
+      {
+        "id": "destination",
+        "text": "跳转后把焦点交给目标",
+        "level": 3
+      },
+      {
+        "id": "review",
+        "text": "走完一条完整路径",
+        "level": 2
+      }
+    ],
+    "code": []
+  },
+  {
+    "id": "three-albums-recently",
+    "metadata": {
+      "title": "最近在听的三张专辑",
+      "excerpt": "没有主题，只是把最近循环的几张唱片记下来。通勤路上和深夜写代码时听的，往往是同一批。",
+      "date": "2026-09-24",
+      "category": "日常",
+      "tags": [
+        "音乐",
+        "生活"
+      ],
+      "cover": ""
+    },
+    "textSha256": "58c359f0fdcc83730d8e7c539a7e72b6402710707536a48bc834778f70e6b105",
+    "headings": [
+      {
+        "id": "morning",
+        "text": "第一张：早晨的空白",
+        "level": 2
+      },
+      {
+        "id": "afternoon",
+        "text": "第二张：经过城市",
+        "level": 2
+      },
+      {
+        "id": "night",
+        "text": "第三张：灯光之后",
+        "level": 2
+      }
+    ],
+    "code": []
+  },
+  {
+    "id": "weekend-walk-by-river",
+    "metadata": {
+      "title": "周末沿着江边走了很久",
+      "excerpt": "天气转凉之后，城市的声音好像也慢了下来。没有目的地的散步，反而更容易记住一些细节。",
+      "date": "2026-09-18",
+      "category": "日常",
+      "tags": [
+        "生活",
+        "散步"
+      ],
+      "cover": ""
+    },
+    "textSha256": "9ff342d99d516eabd7cdeda646d5cf9276e599382a794347cb44da93dc6516f0",
+    "headings": [
+      {
+        "id": "departure",
+        "text": "从熟悉的街口出发",
+        "level": 2
+      },
+      {
+        "id": "small-details",
+        "text": "几件很小的事",
+        "level": 3
+      },
+      {
+        "id": "river",
+        "text": "沿着水面走",
+        "level": 2
+      },
+      {
+        "id": "sound",
+        "text": "听见背景里的声音",
+        "level": 3
+      },
+      {
+        "id": "rest",
+        "text": "在长椅上停一会儿",
+        "level": 2
+      },
+      {
+        "id": "packing",
+        "text": "下次出门，带得再少一些",
+        "level": 3
+      },
+      {
+        "id": "homeward",
+        "text": "天色变暗之前回去",
+        "level": 2
+      }
+    ],
+    "code": []
+  },
+  {
+    "id": "static-blog-structure",
+    "metadata": {
+      "title": "静态博客的目录结构：先够用，再生长",
+      "excerpt": "数据、渲染和样式分开，后续换成模板引擎或静态生成器时，也不用把整个项目推倒重来。",
+      "date": "2026-09-12",
+      "category": "工程",
+      "tags": [
+        "工程",
+        "静态站点"
+      ],
+      "cover": ""
+    },
+    "textSha256": "9632b0ddd2c4a68ddae58d12993d03241e7b47b29959f35073a60af99a42d861",
+    "headings": [
+      {
+        "id": "files",
+        "text": "按职责放置文件",
+        "level": 2
+      },
+      {
+        "id": "contract",
+        "text": "留下简单的数据约定",
+        "level": 2
+      },
+      {
+        "id": "migration",
+        "text": "迁移时保留验证过的部分",
+        "level": 2
+      }
+    ],
+    "code": [
+      "index.html                 首页索引\narticle.html               演示阅读入口\nassets/js/data.js          文章元数据\nassets/js/site.js          共用侧栏与入口\nassets/js/article.js       正文增强\nassets/css/article.css     正文排版\ncontent/posts/*.html       独立正文片段"
+    ]
+  }
+]

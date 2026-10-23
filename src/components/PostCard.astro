@@ -1,0 +1,17 @@
+---
+import type { Post } from '../lib/posts';
+import { assetUrl, dateLabel, postUrl } from '../lib/urls';
+import Icon from './Icon.astro';
+interface Props { post: Post; latest: boolean }
+const { post, latest } = Astro.props;
+const { title, excerpt, category, tags, date, cover } = post.data;
+const tones: Record<string, string> = { '设计': 'blossom', '日常': 'sky', '工程': 'secondary' };
+---
+<mdui-card variant={latest ? 'filled' : 'outlined'} class:list={['post-card', { 'post-latest': latest }]} data-tone={tones[category] || 'primary'} data-search-text={[title, excerpt, category, ...tags].join(' ').toLocaleLowerCase()}>
+  <article class="post-content"><div class="post-main"><div class="post-copy">
+    <div class="post-meta"><span class="post-category">{category}</span><time datetime={date}>{dateLabel(date)}</time>{latest && <span class="post-new">最新一篇</span>}</div>
+    <h2 class="post-title"><a href={postUrl(post.id)} data-post={post.id} data-highlight>{title}</a></h2>
+    <p class="post-excerpt" data-highlight>{excerpt}</p>
+  </div>{assetUrl(cover) && <a class="post-cover" href={postUrl(post.id)} data-post={post.id} aria-label={'阅读文章：' + title}><img src={assetUrl(cover)} alt="" loading="lazy" decoding="async" data-cover /></a>}</div>
+  <div class="post-footer"><div class="post-tags">{tags.map(tag => <mdui-chip variant="suggestion" data-query={tag}>{tag}</mdui-chip>)}</div><mdui-button variant="text" href={postUrl(post.id)} data-post={post.id}>阅读全文<Icon name="arrow_forward" slot="end-icon" /></mdui-button></div></article>
+</mdui-card>

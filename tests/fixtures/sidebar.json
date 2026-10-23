@@ -1,0 +1,91 @@
+{
+  "friends": [
+    {
+      "name": "演示友邻 0",
+      "url": "https://example.com/0",
+      "description": "明确标注的布局测试简介。",
+      "avatar": ""
+    },
+    {
+      "name": "演示友邻 1",
+      "url": "https://example.com/1",
+      "description": "明确标注的布局测试简介。",
+      "avatar": ""
+    },
+    {
+      "name": "演示友邻 2",
+      "url": "https://example.com/2",
+      "description": "明确标注的布局测试简介。",
+      "avatar": ""
+    },
+    {
+      "name": "演示友邻 3",
+      "url": "https://example.com/3",
+      "description": "明确标注的布局测试简介。",
+      "avatar": ""
+    },
+    {
+      "name": "演示友邻 4",
+      "url": "https://example.com/4",
+      "description": "明确标注的布局测试简介。",
+      "avatar": ""
+    },
+    {
+      "name": "演示友邻 5",
+      "url": "https://example.com/5",
+      "description": "明确标注的布局测试简介。",
+      "avatar": ""
+    },
+    {
+      "name": "演示友邻 6",
+      "url": "https://example.com/6",
+      "description": "明确标注的布局测试简介。",
+      "avatar": ""
+    }
+  ],
+  "comments": {
+    "anchorsEnabled": false,
+    "items": [
+      {
+        "id": "0",
+        "author": "演示访客0",
+        "excerpt": "这是一条明确标注的演示留言，用于测试多行文本、头像回退与对应文章。",
+        "postId": "css-grid-two-column-blog",
+        "createdAt": "2026-10-23T08:30:00+08:00",
+        "avatar": "",
+        "demo": true,
+        "anchor": "not-a-real-comment"
+      },
+      {
+        "id": "1",
+        "author": "演示访客1",
+        "excerpt": "这是一条明确标注的演示留言，用于测试多行文本、头像回退与对应文章。",
+        "postId": "css-grid-two-column-blog",
+        "createdAt": "2026-10-22T08:30:00+08:00",
+        "avatar": "",
+        "demo": true,
+        "anchor": "not-a-real-comment"
+      },
+      {
+        "id": "2",
+        "author": "演示访客2",
+        "excerpt": "这是一条明确标注的演示留言，用于测试多行文本、头像回退与对应文章。",
+        "postId": "css-grid-two-column-blog",
+        "createdAt": "2026-10-21T08:30:00+08:00",
+        "avatar": "",
+        "demo": true,
+        "anchor": "not-a-real-comment"
+      },
+      {
+        "id": "3",
+        "author": "演示访客3",
+        "excerpt": "这是一条明确标注的演示留言，用于测试多行文本、头像回退与对应文章。",
+        "postId": "css-grid-two-column-blog",
+        "createdAt": "2026-10-20T08:30:00+08:00",
+        "avatar": "",
+        "demo": true,
+        "anchor": "not-a-real-comment"
+      }
+    ]
+  }
+}

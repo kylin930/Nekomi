@@ -1,0 +1,17 @@
+---
+interface Heading { depth: number; slug: string; text: string }
+interface Node extends Heading { children: Node[] }
+interface Props { nodes?: Node[]; headings?: Heading[]; nested?: boolean }
+const { headings = [], nodes, nested = false } = Astro.props;
+let tree: Node[] = nodes || [];
+if (!nodes) {
+  const stack: Node[] = [];
+  for (const heading of headings) {
+    const node: Node = { ...heading, children: [] };
+    while (stack.length && stack.at(-1)!.depth >= node.depth) stack.pop();
+    if (stack.length) stack.at(-1)!.children.push(node); else tree.push(node);
+    stack.push(node);
+  }
+}
+---
+<ol class={!nested ? 'toc-list' : undefined}>{tree.map(node => <li><a href={'#' + encodeURIComponent(node.slug)}>{node.text}</a>{node.children.length > 0 && <Astro.self nodes={node.children} nested />}</li>)}</ol>

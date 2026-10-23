@@ -1,0 +1,5 @@
+---
+interface Props { name: string; slot?: string; id?: string }
+const { name, slot, id } = Astro.props;
+---
+<mdui-icon name={name} slot={slot} id={id} aria-hidden="true"></mdui-icon>
