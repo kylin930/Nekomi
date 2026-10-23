@@ -1,4 +1,4 @@
-"""P0/P0.5/P1 browser regression checks against the pinned MDUI 2.1.5 runtime.
+"""P0/P0.5/P0.6/P1 browser regression checks against the pinned MDUI 2.1.5 runtime.
 
 Requires Python Playwright and Chromium. See tests/README.md.
 """
@@ -43,9 +43,9 @@ def article(page, url, post=TECH, fragment=''):
 def selected(page, name):
     value(page, "document.querySelector('#content-tabs').value", name)
     expect(page.locator(f'#panel-{name}')).to_be_visible()
-    expect(page.locator('mdui-tab-panel:visible')).to_have_count(1)
-    expect(page.locator('mdui-tab[aria-selected=true]')).to_have_attribute('value', name)
-    expect(page.locator('mdui-tab[tabindex="0"]')).to_have_count(1)
+    expect(page.locator('#content-tabs mdui-tab-panel:visible')).to_have_count(1)
+    expect(page.locator('#content-tabs mdui-tab[aria-selected=true]')).to_have_attribute('value', name)
+    expect(page.locator('#content-tabs mdui-tab[tabindex="0"]')).to_have_count(1)
 
 
 def themes(page, context, url, trigger):
@@ -424,12 +424,14 @@ def appearance_checks(page, context, url):
     # Selected tabs still use MDUI's indicator and expose a nontransparent tonal surface.
     assert page.locator('#tab-recent').evaluate('e => getComputedStyle(e.shadowRoot.querySelector("[part=container]")).backgroundColor') != 'rgba(0, 0, 0, 0)'
     page.set_viewport_size({'width': 1440, 'height': 600})
-    settings = page.locator('.sidebar-settings [data-theme-cycle]').bounding_box()
-    assert settings['y'] >= 0 and settings['y'] + settings['height'] <= 600
-    scroll_area = page.locator('.sidebar > [data-sidebar=desktop]')
-    assert scroll_area.evaluate('e => e.scrollHeight > e.clientHeight')
-    scroll_area.evaluate('e => e.scrollTop = e.scrollHeight')
-    expect(scroll_area.locator('.friend-empty')).to_be_in_viewport(ratio=1)
+    page.locator('#side-desktop-friends').click()
+    expect(page.locator('.sidebar .friend-empty')).to_be_in_viewport(ratio=1)
+    assert page.locator('.sidebar').evaluate('e => e.scrollTop === 0')
+    expect(page.locator('.sidebar [data-friends-all]')).to_have_attribute('disabled', '')
+    page.locator('#side-desktop-updates').click()
+    page.locator('.sidebar').evaluate('e => e.scrollTop = e.scrollHeight')
+    expect(page.locator('.sidebar-settings [data-theme-cycle]')).to_be_in_viewport(ratio=1)
+    assert page.locator('.sidebar > [data-sidebar=desktop]').evaluate('e => getComputedStyle(e).overflowY === "visible"')
     page.set_viewport_size({'width': 1440, 'height': 900})
     original = (ROOT / 'assets/js/data.js').read_text()
 
@@ -514,6 +516,110 @@ def appearance_checks(page, context, url):
     print('PASS appearance: native tab surface, light/dark/system wallpapers, contrast, global use, missing/unsafe images and stale loads')
 
 
+def sidebar_checks(page, context, url):
+    import json
+    expect(page.locator('.sidebar .sidebar-tabs')).to_have_attribute('value', 'updates')
+    sidebar = page.locator('.sidebar')
+    assert sidebar.bounding_box()['width'] == 320
+    assert page.locator('main').bounding_box()['width'] >= 880
+    assert sidebar.evaluate('e => e.scrollHeight <= e.clientHeight + 1')
+    page.locator('#side-desktop-updates').focus()
+    page.keyboard.press('ArrowRight')
+    expect(page.locator('#side-desktop-friends')).to_be_focused()
+    expect(page.locator('#side-desktop-friends-panel')).to_be_visible()
+    expect(page.locator('#side-desktop-updates-panel')).to_be_hidden()
+    expect(page.locator('#side-desktop-friends')).to_have_attribute('aria-selected', 'true')
+    assert page.url.endswith('#recent')
+    assert sidebar.evaluate('e => e.scrollTop === 0')
+    page.keyboard.press('Home')
+    expect(page.locator('#side-desktop-updates')).to_be_focused()
+    expect(page.locator('#side-desktop-updates-panel')).to_be_visible()
+    expect(page.locator('#content-tabs')).to_have_attribute('value', 'recent')
+    # Keep fictional friend data in test fixtures; the shipped configuration stays empty.
+    friends = [{'name': f'示例友邻 {i}', 'url': f'https://example.com/#{i}', 'description': '演示简介，用于验证头像、排版与完整友链列表。'} for i in range(1, 9)]
+    fixture = (ROOT / 'assets/js/data.js').read_text() + '\nNekomiData.friends=' + json.dumps(friends, ensure_ascii=False) + ';'
+    context.route('**/assets/js/data.js', lambda r: r.fulfill(body=fixture, content_type='text/javascript'))
+    page.reload(wait_until='networkidle')
+    page.locator('#side-desktop-friends').click()
+    expect(page.locator('.sidebar .friend-list mdui-list-item')).to_have_count(5)
+    expect(page.locator('.sidebar .friend-avatar')).to_have_count(5)
+    expect(page.locator('.sidebar [data-friends-all]')).to_be_in_viewport(ratio=1)
+    assert sidebar.evaluate('e => e.scrollTop === 0 && e.scrollHeight <= e.clientHeight + 1')
+    assert page.locator('.sidebar .friend-list mdui-list-item').first.get_attribute('description')
+    page.locator('.sidebar [data-friends-all]').click()
+    expect(page.locator('#friends-dialog')).to_be_visible()
+    expect(page.locator('#friends-dialog mdui-list-item')).to_have_count(8)
+    page.keyboard.press('Escape')
+    expect(page.locator('#friends-dialog')).to_be_hidden()
+    expect(page.locator('.sidebar [data-friends-all] button')).to_be_focused()
+    page.locator('[data-sidebar=desktop] [data-search] input').fill('CSS')
+    expect(page.locator('.post-card')).to_have_count(2)
+    expect(page.locator('#side-desktop-friends-panel')).to_be_visible()
+    page.set_viewport_size({'width': 390, 'height': 844})
+    page.locator('#menu-button').click()
+    expect(page.locator('#drawer-close button')).to_be_focused()
+    expect(page.locator('[data-sidebar=mobile] .sidebar-tabs')).to_have_attribute('value', 'updates')
+    page.locator('#side-mobile-updates').focus()
+    page.keyboard.press('End')
+    expect(page.locator('#side-mobile-friends')).to_be_focused()
+    expect(page.locator('#side-mobile-friends-panel')).to_be_visible()
+    expect(page.locator('[data-sidebar=mobile] [data-friends-all]')).to_be_in_viewport(ratio=1)
+    assert page.locator('#mobile-drawer [part=panel]').evaluate('e => e.scrollTop === 0')
+    page.locator('[data-sidebar=mobile] [data-friends-all]').click()
+    expect(page.locator('#mobile-drawer')).to_be_hidden()
+    expect(page.locator('#friends-dialog')).to_be_visible()
+    for _ in range(10):
+        page.keyboard.press('Tab')
+        page.wait_for_function('document.querySelector("#friends-dialog").contains(document.activeElement)')
+    page.locator('#friends-close').click()
+    expect(page.locator('#friends-dialog')).to_be_hidden()
+    expect(page.locator('#menu-button button')).to_be_focused()
+    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    print('PASS sidebar: 320px layout, separate tablists, keyboard, empty/populated friends, no nested scrolling, all-friends dialog and focus return')
+
+
+def native_motion_checks(page, context, url):
+    page.emulate_media(reduced_motion='no-preference')
+    page.reload(wait_until='networkidle')
+    # Observe real running transitions after their browser animation frame, not only CSS tokens.
+    page.evaluate('''() => {
+        window.nativeMotion = {};
+        const sample = (key, element) => {
+            const start = performance.now();
+            const frame = () => {
+                const observations = element.getAnimations().map(a => ({
+                    duration: a.effect.getTiming().duration, progress: a.effect.getComputedTiming().progress
+                }));
+                const samples = window.nativeMotion[key] = (window.nativeMotion[key] || []).concat(observations);
+                if (!samples.some(a => a.progress > 0 && a.progress < 1) && performance.now() - start < 1200) requestAnimationFrame(frame);
+            };
+            requestAnimationFrame(frame);
+        };
+        document.querySelector('#content-tabs').addEventListener('change', () => sample('tabs', document.querySelector('#content-tabs').shadowRoot.querySelector('[part=indicator]')));
+        document.querySelector('.sidebar .sidebar-tabs').addEventListener('change', () => sample('sidebar', document.querySelector('.sidebar .sidebar-tabs').shadowRoot.querySelector('[part=indicator]')));
+        document.querySelector('#mobile-drawer').addEventListener('open', () => sample('drawer', document.querySelector('#mobile-drawer').shadowRoot.querySelector('[part=panel]')));
+    }''')
+    page.locator('#tab-categories').click()
+    page.wait_for_function('nativeMotion.tabs?.some(a => a.duration >= 200 && a.progress > 0 && a.progress < 1)')
+    page.locator('#side-desktop-friends').click()
+    page.wait_for_function('nativeMotion.sidebar?.some(a => a.duration >= 200 && a.progress > 0 && a.progress < 1)')
+    page.wait_for_function('document.querySelector("#side-desktop-friends-panel .side-panel-content").nekomiEntrance?.effect.getTiming().duration > 0')
+    page.set_viewport_size({'width': 390, 'height': 844})
+    page.locator('#menu-button').click()
+    page.wait_for_function('nativeMotion.drawer?.some(a => a.duration >= 400 && a.progress > 0 && a.progress < 1)')
+    page.keyboard.press('Escape')
+    expect(page.locator('#mobile-drawer')).to_be_hidden()
+    page.emulate_media(reduced_motion='reduce')
+    page.reload(wait_until='networkidle')
+    page.locator('#menu-button').click()
+    expect(page.locator('#drawer-close button')).to_be_focused()
+    page.locator('#side-mobile-friends').click()
+    expect(page.locator('#side-mobile-friends-panel')).to_be_visible()
+    assert page.locator('#side-mobile-friends-panel .side-panel-content').evaluate('e => !e.nekomiEntrance')
+    value(page, 'getComputedStyle(document.documentElement).getPropertyValue("--mdui-motion-duration-long2").trim()', '1ms')
+    print('PASS native motion: live main/sidebar indicators, live Drawer animation, panel entrance and reduced-motion behavior')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--chromium", default=shutil.which("chromium"))
@@ -574,6 +680,8 @@ def main():
             ('layouts', {'width': 1440, 'height': 900}, lambda p, c, u: layout_checks(p, u, args.artifacts)),
             ('motion', {'width': 1440, 'height': 900}, lambda p, c, u: motion_checks(p, u)),
             ('appearance', {'width': 1440, 'height': 900}, appearance_checks),
+            ('sidebar', {'width': 1440, 'height': 900}, sidebar_checks),
+            ('native-motion', {'width': 1440, 'height': 900}, native_motion_checks),
         ]
         for name, viewport, check in cases:
             context, page, errors = new_page(viewport=viewport,

@@ -46,7 +46,7 @@
     feedTitle.textContent = needle ? '搜索结果' : '最近发布';
     document.getElementById('feed-summary').textContent = needle
       ? '“' + query.trim() + '” · 找到 ' + found.length + ' 篇文章'
-      : '共 ' + posts.length + ' 篇记录，按时间慢慢展开。';
+      : posts.length + ' 篇演示记录 · 按时间收录';
     document.getElementById('search-toolbar').hidden = !needle;
     document.getElementById('search-chip').textContent = query.trim();
     document.getElementById('search-empty').hidden = found.length > 0;

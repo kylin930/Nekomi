@@ -46,8 +46,15 @@
       (isHome ? '' : ' href="' + html(filterLink(tag)) + '"') + '>' + html(tag) +
       (count ? '<span class="tag-count">' + count + '</span>' : '') + '</mdui-chip>';
   }
-  function sidebarMarkup() {
-    var friends = data.friends.filter(function (friend) { return safeUrl(friend.url); }).slice(0, 5);
+  var friends = data.friends.filter(function (friend) { return safeUrl(friend.url); });
+  function friendItem(friend) {
+    var name = String(friend.name || '友邻');
+    return '<mdui-list-item rounded href="' + html(safeUrl(friend.url)) + '" target="_blank" rel="noopener noreferrer" headline="' +
+      html(name) + '" description="' + html(friend.description || '') + '" description-line="2">' +
+      avatar(friend.avatar, Array.from(name)[0], name).replace('class="site-avatar"', 'class="friend-avatar" slot="icon"') + '</mdui-list-item>';
+  }
+  function sidebarMarkup(context) {
+    var prefix = 'side-' + context;
     return '<div class="profile"><div class="profile-brand">' +
       avatar(site.avatar, site.avatarFallback || '林', site.avatarAlt || site.name) +
       '<div><p class="site-name">' + html(site.name) + '</p><p class="site-tagline">' + html(site.tagline) +
@@ -55,15 +62,17 @@
       '<div class="side-search"><mdui-text-field variant="outlined" type="search" placeholder="搜索文章…" clearable data-search>' +
       icon('search', 'icon') + '<mdui-button-icon slot="clear-button" tabindex="-1">' + icon('cancel--outlined') +
       '<span class="visually-hidden">清除搜索</span></mdui-button-icon></mdui-text-field></div>' +
-      '<section class="side-section"><div class="side-section-heading"><h2>最近更新</h2><span>最新 ' + Math.min(posts.length, 5) + ' 篇</span></div>' +
-      '<mdui-list>' + posts.slice(0, 5).map(function (post) { return listItem(post, dateLabel(post.date)); }).join('') + '</mdui-list></section>' +
-      '<section class="side-section"><div class="side-section-heading"><h2>友情链接</h2>' + icon('link') + '</div>' +
-      (friends.length ? '<mdui-list>' + friends.map(function (friend) {
-        var name = String(friend.name || '友邻');
-        return '<mdui-list-item rounded href="' + html(safeUrl(friend.url)) + '" target="_blank" rel="noopener noreferrer" headline="' +
-          html(name) + '" description="' + html(friend.description || '') + '">' +
-          avatar(friend.avatar, name.slice(0, 1), name).replace('class="site-avatar"', 'class="friend-avatar" slot="icon"') + '</mdui-list-item>';
-      }).join('') + '</mdui-list>' : '<p class="friend-empty">这里，留给有趣的邻居。<small>暂时还没有添加友链</small></p>') + '</section>';
+      '<mdui-tabs class="sidebar-tabs" value="updates" variant="secondary" full-width aria-label="侧栏内容">' +
+      '<mdui-tab value="updates" id="' + prefix + '-updates" role="tab" aria-controls="' + prefix + '-updates-panel">最近更新</mdui-tab>' +
+      '<mdui-tab value="friends" id="' + prefix + '-friends" role="tab" aria-controls="' + prefix + '-friends-panel">友情链接</mdui-tab>' +
+      '<mdui-tab-panel slot="panel" value="updates" id="' + prefix + '-updates-panel" role="tabpanel" aria-labelledby="' + prefix + '-updates">' +
+      '<div class="side-panel-content"><div class="side-panel-heading"><span>最近的 ' + Math.min(posts.length, 5) + ' 篇记录</span></div>' +
+      '<mdui-list>' + posts.slice(0, 5).map(function (post) { return listItem(post, dateLabel(post.date)); }).join('') + '</mdui-list></div></mdui-tab-panel>' +
+      '<mdui-tab-panel slot="panel" value="friends" id="' + prefix + '-friends-panel" role="tabpanel" aria-labelledby="' + prefix + '-friends">' +
+      '<div class="side-panel-content"><div class="side-panel-heading"><span>' + friends.length + ' 个友邻</span>' +
+      '<mdui-button variant="text" data-friends-all' + (friends.length ? '' : ' disabled') + '>查看全部' + icon('arrow_forward', 'end-icon') + '</mdui-button></div>' +
+      (friends.length ? '<mdui-list class="friend-list">' + friends.slice(0, 5).map(friendItem).join('') + '</mdui-list>' :
+        '<p class="friend-empty">这里，留给有趣的邻居。<small>暂时还没有添加友链</small></p>') + '</div></mdui-tab-panel></mdui-tabs>';
   }
 
   document.querySelector('[data-site-appbar]').innerHTML = '<mdui-top-app-bar class="site-appbar" variant="small">' +
@@ -72,15 +81,18 @@
     avatar(site.avatar, site.avatarFallback || '林', site.avatarAlt || site.name).replace('class="site-avatar"', 'class="brand-avatar" aria-hidden="true"') +
     '<span>' + html(site.name) + '</span></a></mdui-top-app-bar-title>' +
     '<div data-theme-control></div></mdui-top-app-bar>';
-  document.querySelector('[data-site-sidebar]').innerHTML = '<div data-sidebar="desktop">' + sidebarMarkup() + '</div>' +
+  document.querySelector('[data-site-sidebar]').innerHTML = '<div data-sidebar="desktop">' + sidebarMarkup('desktop') + '</div>' +
     '<div class="sidebar-settings"><span>外观</span><div data-theme-control></div></div>';
   document.querySelector('[data-site-footer]').innerHTML = '<p>© 2026 ' + html(site.name) + '<span class="footer-dot">·</span>分享技术，也记录生活。</p>' +
     '<p>本站文章、日期与叙事均为演示内容。</p>';
   document.body.insertAdjacentHTML('beforeend', '<mdui-navigation-drawer id="mobile-drawer" modal close-on-esc close-on-overlay-click role="dialog" aria-modal="true" aria-label="站点侧栏">' +
     '<div class="drawer-toolbar"><span>我的小窝</span><mdui-button-icon id="drawer-close" autofocus>' + icon('close') +
     '<span class="visually-hidden">关闭侧栏</span></mdui-button-icon></div><div class="drawer-content" data-sidebar="mobile">' +
-    sidebarMarkup() + '</div></mdui-navigation-drawer><mdui-snackbar id="site-feedback" role="status" aria-live="polite" auto-close-delay="3000"></mdui-snackbar>');
+    sidebarMarkup('mobile') + '</div></mdui-navigation-drawer><mdui-snackbar id="site-feedback" role="status" aria-live="polite" auto-close-delay="3000"></mdui-snackbar>');
 
+  document.body.insertAdjacentHTML('beforeend', '<mdui-dialog id="friends-dialog" headline="友情链接" close-on-esc close-on-overlay-click>' +
+    '<span slot="description">共 ' + friends.length + ' 个站点，按配置顺序展示。</span><mdui-list class="friend-list">' +
+    friends.map(friendItem).join('') + '</mdui-list><mdui-button slot="action" variant="text" id="friends-close">关闭</mdui-button></mdui-dialog>');
   var drawer = document.getElementById('mobile-drawer');
   var menuButton = document.getElementById('menu-button');
   var drawerClose = document.getElementById('drawer-close');
@@ -102,11 +114,11 @@
     drawer.querySelector('[data-search]').autofocus = Boolean(search);
     drawer.open = true;
   }
-  function enter(element) {
+  function enter(element, distance) {
     if (!element || reduced.matches) return;
     if (element.nekomiEntrance) element.nekomiEntrance.cancel();
     element.nekomiEntrance = element.animate([
-      { opacity: 0, transform: 'translateX(12px)' }, { opacity: 1, transform: 'translateX(0)' }
+      { opacity: 0, transform: 'translateX(' + (distance === undefined ? 12 : distance) + 'px)' }, { opacity: 1, transform: 'translateX(0)' }
     ], { duration: 360, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
   }
   function ready() {
@@ -119,6 +131,23 @@
     feedback.textContent = message;
     feedback.open = true;
   }
+  document.querySelectorAll('.sidebar-tabs').forEach(function (tabs) {
+    NekomiA11y.tabs(tabs);
+    tabs.addEventListener('change', function (event) {
+      if (event.target !== tabs) return;
+      var panel = Array.from(tabs.querySelectorAll('mdui-tab-panel')).find(function (item) { return item.value === tabs.value; });
+      if (!panel) return;
+      requestAnimationFrame(function () { enter(panel.querySelector('.side-panel-content'), 6); });
+    });
+  });
+  var friendsDialog = document.getElementById('friends-dialog');
+  document.querySelectorAll('[data-friends-all]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      if (drawer.open) afterClose(drawer, function () { friendsDialog.open = true; });
+      else friendsDialog.open = true;
+    });
+  });
+  document.getElementById('friends-close').addEventListener('click', function () { friendsDialog.open = false; });
   menuButton.addEventListener('click', function () { openDrawer(false); });
   drawerClose.addEventListener('click', function () { drawer.open = false; });
   NekomiA11y.buttonState(menuButton, { 'aria-controls': 'mobile-drawer', 'aria-expanded': 'false', 'aria-haspopup': 'dialog' });

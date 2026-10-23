@@ -2,7 +2,7 @@
 
 基于 **MDUI 2.1.5 / Material Design 3** 的原创静态博客主题。参考 Stellar 的融入式侧栏、内容导航与辅助目录，以及 G 的文章信息层次和阅读节奏；所有页面代码独立实现。
 
-P0.5 首页视觉增强与 P1 阅读页已打通。继续使用 HTML、CSS、原生 JavaScript，不绑定博客框架，没有构建步骤。全部文章、日期与叙事均为演示，不代表站长的真实经历。
+P0.6 首页布局与视觉精修已完成，保留既有 P1 阅读演示。继续使用 HTML、CSS、原生 JavaScript，不绑定博客框架，没有构建步骤。全部文章、日期与叙事均为演示，不代表站长的真实经历。
 
 ![首页桌面浅色](screenshots/desktop-light-1440x900.png)
 
@@ -33,8 +33,9 @@ python3 -m http.server 8080 --bind 127.0.0.1
 
 ## 页面与原生组件
 
-- **公共外壳**：`site.js` 为两个入口生成同一套侧栏、移动 App Bar、Navigation Drawer、页尾和反馈 Snackbar；侧栏无整体背景、边框、圆角与阴影，超高时独立滚动。
-- **首页**：保留 Tabs / Tab Panel、Card、Chip、List / List Item；浅紫色页面搭配樱粉、清蓝分类色，首篇使用原生 filled Card，其余文章保留轻轮廓。个人资料使用更醒目的文字头像与衬线名字，有图与无图布局均完整。分类、标签、归档和最近更新由同一份元数据推导；标题、封面、按钮和原生列表项均使用真实文章链接。
+- **公共外壳**：`site.js` 复用侧栏、移动 App Bar、Navigation Drawer、页尾和 Snackbar。桌面首页侧栏为 320px、页面最大宽度 1360px；保持透明、无整体边框 / 圆角 / 阴影。只有短屏需要侧栏自身的一层滚动，面板内部没有额外滚动区。
+- **首页**：保留 Tabs / Tab Panel、Card、Chip、List / List Item；浅紫色页面搭配樱粉、清蓝分类色，首篇使用原生 filled Card，其余文章保留轻轮廓。卡片减少过量留白，标题、元信息、两行摘要与操作分级；个人区使用横向头像、衬线站名和简洁简介，有图与无图布局均完整。分类、标签、归档和最近更新由同一份元数据推导；标题、封面、按钮和原生列表项均使用真实文章链接。
+- **侧栏 Tabs**：桌面与 Drawer 共用原生 Tabs / Tab Panel，默认最近更新，原位切换友链；预览最多五个站点，显示头像 / 名称 / 简介。“查看全部”在原生 Dialog 中展示全部配置，移动端先关闭 Drawer，保持原生焦点返回。无友链时保留空状态并禁用该入口，不增加独立友链页。
 - **阅读页**：标题、日期、分类、标签、可选头图；正文提供多级标题、段落、引用、列表、图片、分割线、表格与代码排版。桌面正文上限 760px，手机保持单列。
 - **目录**：按 h2–h6 自动生成嵌套列表，支持当前章节、标题永久链接与焦点定位。1360px 起放在右侧，较窄屏幕使用原生 Collapse；不挤占正文空间。
 - **技术内容**：代码块显示语言，原生 Button 复制原始文本，Snackbar 反馈；长代码和宽表格在自身区域横向滚动，支持键盘访问。
@@ -44,6 +45,16 @@ python3 -m http.server 8080 --bind 127.0.0.1
 - **过渡**：页面内容与首页 Tab 面板使用短暂的非线性滑入，正常文档链接保留分享、新标签页和浏览器历史；减少动态效果偏好下禁用自定义过渡。
 
 CSS 主要负责布局与文章排版，组件调整使用官方公开 CSS Parts / 变量。没有复制 G 的 PHP、CSS、JavaScript 或素材，也没有添加其他 UI 框架或美术资源。许可与参考范围见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+
+## 本轮精修与动效
+
+[桌面友链空状态](screenshots/desktop-friends-empty-1440x900.png) · [友链布局样例](screenshots/desktop-friends-demo-1440x900.png) · [手机友链样例](screenshots/mobile-friends-demo-390x844.png) · [查看全部](screenshots/desktop-friends-dialog-1440x900.png) · [实际操作动图](screenshots/p06-interactions-390x844.gif)
+
+友链样例截图与动图临时注入标为“演示”的数据，默认 `friends` 仍为空；没有生成或引入美术资源。
+
+MDUI 2.1.5 的原生动效没有被全局关闭：浏览器实测 Tabs 指示器约 300ms、Drawer 滑入约 500ms，涟漪与 Dialog 也由组件管理。本轮补充选中背景的颜色过渡，并复用非线性面板滑入。回归测试采样动画的实际运行进度；静态截图会暂时冻结动画以获得清晰画面，动图则保留真实播放。
+
+系统设置 `prefers-reduced-motion: reduce` 时，MDUI 动效缩至 1ms，自定义滑入关闭。这是保留的无障碍行为。
 
 ## 配色与全站壁纸
 
@@ -88,7 +99,7 @@ appearance: {
 
 - 没有封面时不创建空图片位；首页宽卡片右图、窄卡片上图，阅读页头图独立显示。
 - 坏封面收起，坏正文图保留替代文字提示，头像失败回退文字。
-- 默认不添加封面或虚构友链。友链格式为 `name`、`url`、`avatar`、`description`，显示最多 5 个。
+- 默认不添加封面或虚构友链。友链格式为 `name`、`url`、`avatar`、`description`，侧栏预览最多 5 个，完整列表使用同一份配置。头像缺失或失败均回退为名称首字。
 - 搜索标题、摘要、分类与标签，不搜索正文；首页 `?q=关键词#recent` 可独立分享。文章页搜索输入后按 Enter 返回首页结果。
 - 无效文章 ID 显示友好提示与返回入口；正文载入失败可重试。静态演示错误界面仍是 HTTP 200，正式发布时应由生成器或服务器提供真正的 404。
 
@@ -110,7 +121,7 @@ MDUI 2.1.5 尚未提供完整的 Tabs 键盘 / ARIA 与图标按钮 ARIA 转发�
 python3 tests/browser_audit.py --chromium /usr/bin/chromium --artifacts /tmp/nekomi-browser
 ```
 
-覆盖 P0 / P0.5 / P1 的浏览器回归，详见 [tests/README.md](tests/README.md)。截图由实际 Chromium 页面生成，包含桌面与手机明暗模式。
+覆盖 P0 / P0.5 / P0.6 / P1 的浏览器回归，详见 [tests/README.md](tests/README.md)。截图由实际 Chromium 页面生成，包含桌面与手机明暗模式。
 
 当前云环境使用 `--verified-cdn`：curl 保持代理与 TLS 校验，取得原始 CDN 响应后在 Chromium 中回放。它不更改应用的 CDN 地址、资源或浏览器信任库，不关闭证书验证；测试验证页面行为，不代表 Chromium 原生 CDN 证书链已配置。Firefox / Safari 尚未实测。
 
@@ -123,7 +134,7 @@ index.html                首页 Tabs 与索引容器
 article.html              阅读页语义结构
 assets/css/tokens.css     共用布局尺度与减少动效令牌
 assets/css/main.css       公共布局、首页和公开 CSS Parts
-assets/css/home.css       首页身份区、文章节奏与 Tabs 表面
+assets/css/home.css       首页比例、阅读密度与 Tabs 状态表面
 assets/css/article.css    阅读排版与目录响应式布局
 assets/js/data.js         文章元数据索引
 assets/js/site.js         公共外壳、真实路由与搜索入口

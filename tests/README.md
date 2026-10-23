@@ -1,4 +1,4 @@
-# P0 / P0.5 / P1 浏览器回归
+# P0 / P0.5 / P0.6 / P1 浏览器回归
 
 开发依赖为 Python 3、Python Playwright 和 Chromium，应用无需构建。脚本自动启动并关闭本地 HTTP 服务。
 
@@ -17,6 +17,7 @@ python3 tests/browser_audit.py --chromium /usr/bin/chromium --verified-cdn --art
 检查范围：
 
 - P0 原生 Tabs 显隐、选中、ARIA、键盘、Hash 与历史；搜索准确数量、清空、空结果、标签 / 分类筛选、搜索 URL 刷新恢复。
+- 320px 侧栏与充足正文；侧栏原生 Tabs 的默认值、键盘、面板语义、与主导航独立；空友链 / 五项预览 / 全部配置 Dialog、头像回退、单层滚动和 Drawer 到 Dialog 的焦点返回。
 - 所有文章入口（标题、按钮、封面、原生 List Item）进入真实阅读页；旧摘要 Hash 兼容跳转；返回列表、文章标签筛选、相邻文章。
 - 三态主题按钮、键盘激活、刷新记忆、系统主题、跨页面存储同步与存储被拒绝。
 - 移动 Top App Bar 的文档流占位；Drawer 滚动锁定、焦点约束、自动聚焦、全部关闭方式及跨断点关闭。
@@ -26,10 +27,10 @@ python3 tests/browser_audit.py --chromium /usr/bin/chromium --verified-cdn --art
 - 临时用本项目截图验证横竖封面、自适应图文位置、封面键盘导航及文章头图；默认数据无新增美术资源。
 - 首页与阅读页在 1440 / 1024 / 861 / 860 / 390 / 320px 下分别检查浅色 / 深色、无页面水平溢出、正文宽度、目录位置与透明侧栏；极长标题和 URL 换行。
 - 壁纸的浅色 / 深色 / 系统切换、明暗共用、全站生效、无效路径 / 协议回退和过期请求；检查真实计算遮罩、极端明暗图片下正文及链接的 AA 对比度、分类配色对比度。
-- 非线性内容滑入和减少动态效果偏好。正常页面不得产生意外 JavaScript 或资源失败。
+- 采样主导航 / 侧栏原生指示器与 Drawer 的动画运行进度，验证默认动效真实播放；非线性面板滑入与减少动态效果偏好。正常页面不得产生意外 JavaScript 或资源失败。
 
 HTTP 错误与图片失败仅由专门的测试 fixture 注入；不会修改默认演示数据。`--artifacts` 保存全部宽度 / 主题的首页和阅读页截图，以及失败截图。仓库中精选交付截图来自相同 Chromium 页面。
 
-测试依赖固定演示内容（例如 CSS 匹配两篇），内容更新后应调整预期。仅实测 Chromium，不代表 Firefox / Safari 验证完成。
+测试依赖固定演示内容（例如 CSS 匹配两篇），内容更新后应调整预期。仅实测 Chromium，不代表 Firefox / Safari 验证完成。操作动图来自实际 Chromium 录屏，包含临时演示友链；生成静态截图时才冻结动画。
 
 参考：[MDUI 2 文档](https://www.mdui.org/zh-cn/docs/2/)与 [2.1.5 元数据](https://unpkg.com/mdui@2.1.5/custom-elements.json)。适配仅补齐该版本缺失能力，组件视觉、模态焦点与面板显隐仍由 MDUI 提供。

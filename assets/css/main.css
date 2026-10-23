@@ -49,6 +49,7 @@ main { min-width: 0; }
   top: 36px;
   max-height: calc(100dvh - 60px);
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgb(var(--mdui-color-outline-variant)) transparent;
   padding: 8px 0 12px;
@@ -66,16 +67,20 @@ main { min-width: 0; }
   --mdui-shape-corner-extra-small: var(--mdui-shape-corner-large);
   --mdui-typescale-body-large-size: .875rem;
 }
-.side-section { margin-top: 24px; }
-.side-section-heading { display: flex; align-items: center; justify-content: space-between; padding: 0 12px; gap: 12px; }
-.side-section-heading h2 { margin: 0; font-size: 12px; font-weight: 600; color: rgb(var(--mdui-color-on-surface-variant)); }
-.side-section-heading span { font-size: 11px; color: rgb(var(--mdui-color-outline)); }
-.side-section mdui-list { padding-top: 8px; }
-.side-section mdui-list-item {
-  --mdui-typescale-body-large-size: .8125rem;
-  --mdui-typescale-body-large-line-height: 1.35rem;
-  --mdui-typescale-body-medium-size: .6875rem;
-}
+/* 同一原生 Tabs 区域切换更新与友链，不增加面板内滚动。 */
+.sidebar-tabs { display: flex; min-width: 0; margin: 0 4px; }
+.sidebar-tabs::part(container) { background: transparent; }
+.sidebar-tabs mdui-tab { flex: 1; }
+.sidebar-tabs mdui-tab::part(container) { min-height: 44px; padding-inline: 8px; }
+.sidebar-tabs mdui-tab-panel { min-width: 0; overflow: visible; }
+.side-panel-content { padding: 6px 0 0; }
+.side-panel-heading { display: flex; align-items: center; justify-content: space-between; min-height: 40px; padding-inline: 12px; color: rgb(var(--mdui-color-on-surface-variant)); font-size: 11px; }
+.side-panel-heading mdui-button { --mdui-typescale-label-large-size: .75rem; margin-right: -8px; }
+.sidebar-tabs mdui-list { padding: 0; }
+.sidebar-tabs mdui-list-item { --mdui-typescale-body-large-size: .8125rem; --mdui-typescale-body-large-line-height: 1.4rem; --mdui-typescale-body-medium-size: .6875rem; }
+.friend-avatar { width: 36px; height: 36px; font-size: 16px; --shape-corner: 12px; }
+.friend-list mdui-list-item { --mdui-typescale-body-large-size: .875rem; --mdui-typescale-body-medium-size: .75rem; }
+#friends-dialog::part(panel) { width: min(520px, calc(100vw - 32px)); }
 .friend-empty { margin: 14px 12px 0; font-size: 13px; line-height: 1.8; color: rgb(var(--mdui-color-on-surface-variant)); }
 .friend-empty small { display: block; color: rgb(var(--mdui-color-outline)); }
 .sidebar-settings { display: flex; align-items: center; justify-content: space-between; margin: 28px 12px 0; padding-top: 12px; border-top: 1px solid rgb(var(--mdui-color-outline-variant)); font-size: 12px; color: rgb(var(--mdui-color-on-surface-variant)); }
@@ -163,7 +168,7 @@ mark { background: rgb(var(--mdui-color-primary-container)); color: rgb(var(--md
 .site-appbar .theme-mode-label { display: none; }
 #mobile-drawer::part(panel) { width: min(328px, calc(100vw - 40px)); max-width: calc(100vw - 40px); }
 .drawer-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 12px 8px 24px; font-size: 12px; color: rgb(var(--mdui-color-on-surface-variant)); }
-.drawer-content { padding: 16px 16px 32px; }
+.drawer-content { padding: 12px 16px 24px; }
 .loading-note { font-size: 14px; padding: 24px; }
 
 @media (max-width: 860px) {

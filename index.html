@@ -37,10 +37,10 @@
     <main id="main-content" tabindex="-1" aria-busy="true">
       <p id="loading-note" class="loading-note" role="status">正在载入文章…</p>
       <mdui-tabs id="content-tabs" value="recent" variant="secondary" aria-label="博客内容">
-        <mdui-tab id="tab-recent" value="recent" role="tab" aria-controls="panel-recent">最近发布</mdui-tab>
-        <mdui-tab id="tab-categories" value="categories" role="tab" aria-controls="panel-categories">分类</mdui-tab>
-        <mdui-tab id="tab-tags" value="tags" role="tab" aria-controls="panel-tags">标签</mdui-tab>
-        <mdui-tab id="tab-archive" value="archive" role="tab" aria-controls="panel-archive">归档</mdui-tab>
+        <mdui-tab id="tab-recent" value="recent" role="tab" aria-controls="panel-recent" inline><mdui-icon slot="icon" name="view_agenda--outlined" aria-hidden="true"></mdui-icon>最近发布</mdui-tab>
+        <mdui-tab id="tab-categories" value="categories" role="tab" aria-controls="panel-categories" inline><mdui-icon slot="icon" name="category--outlined" aria-hidden="true"></mdui-icon>分类</mdui-tab>
+        <mdui-tab id="tab-tags" value="tags" role="tab" aria-controls="panel-tags" inline><mdui-icon slot="icon" name="sell--outlined" aria-hidden="true"></mdui-icon>标签</mdui-tab>
+        <mdui-tab id="tab-archive" value="archive" role="tab" aria-controls="panel-archive" inline><mdui-icon slot="icon" name="inventory_2--outlined" aria-hidden="true"></mdui-icon>归档</mdui-tab>
 
         <mdui-tab-panel slot="panel" value="recent" id="panel-recent" role="tabpanel" aria-labelledby="tab-recent" tabindex="0">
           <div class="view-heading">
@@ -49,7 +49,6 @@
               <h1 id="feed-title">最近发布</h1>
               <p id="feed-summary" class="view-description" role="status" aria-live="polite"></p>
             </div>
-            <span class="demo-note"><mdui-icon name="science--outlined" aria-hidden="true"></mdui-icon>首页演示</span>
           </div>
           <div id="search-toolbar" class="search-toolbar" hidden>
             <mdui-chip id="search-chip" variant="input" deletable></mdui-chip>

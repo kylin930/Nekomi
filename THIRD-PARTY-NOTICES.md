@@ -6,7 +6,7 @@
 
 ### MDUI 2.1.5
 
-- 用途：Material Design 3 Web Components（Tabs / Tab Panel、Avatar、Card、List / List Item、Chip、Button、Text Field、Top App Bar、Collapse、Snackbar、Navigation Drawer 等）与 MD3 Design Tokens。
+- 用途：Material Design 3 Web Components（Tabs / Tab Panel、Avatar、Card、List / List Item、Chip、Button、Text Field、Top App Bar、Collapse、Dialog、Snackbar、Navigation Drawer 等）与 MD3 Design Tokens。
 - 引入方式：unpkg CDN，固定版本，不使用 `latest`。
   - `https://unpkg.com/mdui@2.1.5/mdui.css`
   - `https://unpkg.com/mdui@2.1.5/mdui.global.js`

@@ -31,7 +31,7 @@
     tabs.updateComplete.then(function () {
       var container = tabs.shadowRoot.querySelector('[part="container"]');
       container.setAttribute('role', 'tablist');
-      container.setAttribute('aria-label', '博客内容');
+      container.setAttribute('aria-label', tabs.getAttribute('aria-label') || '内容导航');
       sync();
     });
     tabs.addEventListener('change', function (event) {
