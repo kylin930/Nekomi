@@ -13,3 +13,5 @@ Frontmatter 必需 `title`、`excerpt`、ISO 日期字符串 `date`、`category`
 - 头图由 `cover` 指定，无图不渲染空框，坏图回退由共享运行时处理。
 
 原 HTML 正文已迁移并删除。测试基线 `tests/fixtures/content-baseline.json` 保存迁移前各篇可见文本摘要、标题 ID 和完整代码，避免迁移丢失内容；新文章无需添加这份历史迁移基线。
+
+P2.3 不再把 `demo` 渲染成页面阶段提示，但该字段与站点 `demo` / `demoNotice` 继续保留。默认技术说明与日常建议仍是可替换样例，不能作为站长实际经历或项目成果。发布自己的站点时，应替换内容及日期，移除不需要的样例。P2 原始迁移摘要保留；当前文案的回归摘要与明确的标题 / 代码变更放在 `tests/fixtures/editorial-p23.json`，标题 ID 和 Markdown 排版能力仍逐项校验。

@@ -24,7 +24,7 @@ const friends = config.friends.filter(f => externalUrl(f.url));
   <div class="drawer-content"><Sidebar context="mobile" posts={posts} currentId={currentId} /></div>
 </mdui-navigation-drawer>
 <mdui-dialog id="friends-dialog" headline="友情链接" close-on-esc close-on-overlay-click transition:persist="friends-dialog" transition:animate="none">
-  <span slot="description">共 {friends.length} 个站点，按配置顺序展示。</span><mdui-list class="friend-list">{friends.map(friend => <FriendItem friend={friend} />)}</mdui-list>
+  <span slot="description">共 {friends.length} 个站点。</span><mdui-list class="friend-list">{friends.map(friend => <FriendItem friend={friend} />)}</mdui-list>
   <mdui-button slot="action" variant="text" id="friends-close">关闭</mdui-button>
 </mdui-dialog>
 <mdui-snackbar id="site-feedback" role="status" aria-live="polite" auto-close-delay="3000" transition:persist="site-feedback" transition:animate="none"></mdui-snackbar>

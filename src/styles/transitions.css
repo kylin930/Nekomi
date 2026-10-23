@@ -1,11 +1,36 @@
 /* Only the changing page content moves; the persisted background never crossfades again. */
-@keyframes nekomi-in { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes nekomi-out { to { opacity: 0; transform: translateX(-6px); } }
-@keyframes nekomi-in-back { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes nekomi-out-back { to { opacity: 0; transform: translateX(6px); } }
+@keyframes nekomi-in { from { transform: translateX(24px) scale(.994); } to { transform: translateX(0); } }
+@keyframes nekomi-out { to { transform: translateX(-12px) scale(.996); } }
+@keyframes nekomi-in-back { from { transform: translateX(-24px) scale(.994); } to { transform: translateX(0); } }
+@keyframes nekomi-out-back { to { transform: translateX(12px) scale(.996); } }
+@keyframes nekomi-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nekomi-fade-out { from { opacity: 1; } to { opacity: 0; } }
+::view-transition-group(page-content) {
+  animation-duration: var(--nekomi-spatial-default-duration);
+  animation-timing-function: var(--nekomi-spatial-default-easing);
+}
+::view-transition-old(page-content), ::view-transition-new(page-content) { object-fit: none; object-position: left top; }
+/* Shared snapshots only morph their bounds; text and image layers crossfade
+   without overshoot. Names are assigned to one matching post at navigation. */
+::view-transition-group(post-title), ::view-transition-group(post-cover) {
+  animation-duration: var(--nekomi-spatial-default-duration);
+  animation-timing-function: var(--nekomi-spatial-default-easing);
+}
+::view-transition-group(post-title) { z-index: 3; }
+::view-transition-group(post-cover) { z-index: 2; overflow: clip; border-radius: var(--mdui-shape-corner-medium); }
+::view-transition-old(post-title), ::view-transition-new(post-title),
+::view-transition-old(post-cover), ::view-transition-new(post-cover) {
+  width: 100%; height: 100%; mix-blend-mode: normal;
+  animation-duration: var(--nekomi-effects-default-duration);
+  animation-timing-function: var(--nekomi-effects-easing);
+}
+/* Identical title text needs one snapshot, not two overlapping font sizes.
+   Fit the destination lettering to the moving bounds to preserve legibility. */
+::view-transition-old(post-title) { display: none; }
+::view-transition-new(post-title) { animation: none; object-fit: contain; object-position: left top; }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: 1ms !important; animation-delay: 0ms !important; }
 }
-/* Server-rendered content stays readable while the fixed CDN runtime loads. */
+/* Server-rendered content stays readable while the bundled runtime loads. */
 mdui-navigation-drawer:not(:defined), mdui-dialog:not(:defined), mdui-snackbar:not(:defined) { display: none; }
 .sidebar-tabs:not(:defined) > mdui-tab-panel:not([value="updates"]), #content-tabs:not(:defined) > mdui-tab-panel:not([value="recent"]) { display: none; }

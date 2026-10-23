@@ -1,7 +1,7 @@
 ---
 {
   "title": "用 CSS Grid 搭一个稳定的两栏博客布局",
-  "excerpt": "从 280px 侧栏和自适应正文开始，把间距、断点与内容密度一次理清。写布局时先把结构定下来，再处理视觉细节。",
+  "excerpt": "先确定侧栏与正文的边界，再处理间距、断点与内容密度。让长标题、图片和代码各有合适的位置。",
   "date": "2026-10-20",
   "category": "前端",
   "tags": [
@@ -13,7 +13,7 @@
 }
 ---
 
-这是一篇用于验证 Nekomi 阅读体验的技术演示文章。我们从一个普通的两栏博客出发，讨论侧栏、正文和目录如何共享空间。文中的数值只是起点，最终仍要拿真实内容和不同宽度的屏幕来检查。
+两栏博客需要为侧栏、正文和目录分配合适的空间。首页重在浏览，文章页重在阅读，两者可以共用一套布局约定。文中的数值只是起点，最终仍要拿真实内容和不同宽度的屏幕来检查。
 
 一个布局是否稳定，往往要等标题变长、代码溢出、图片缺席时才看得出来。先把这些情况放进页面，比在空白卡片上调阴影更有帮助。
 
@@ -63,15 +63,15 @@ pre {
 
 ### 拿实际页面做检查 {#check-real-page}
 
-下图使用本项目自己的首页截图，作为正文图片的排版样本。它不是新的视觉素材，也不代表文章必须配置头图。正文插图和首页封面是两个独立的内容决策。
+首页截图可以帮助观察侧栏与文章列表的比例。正文插图用于补充说明，首页封面则帮助浏览，两者可以分别配置。
 
-<figure><img src="/images/demo-home.png" alt="Nekomi 首页：融入式侧栏与右侧文章列表" width="1440" height="900"><figcaption>排版样本：Nekomi P0 首页截图。图片随正文宽度缩放。</figcaption></figure>
+<figure><img src="/images/demo-home.png" alt="Nekomi 首页：融入式侧栏与右侧文章列表" width="1440" height="900"><figcaption>Nekomi 早期首页：融入式侧栏与文章列表。</figcaption></figure>
 
 除了正常尺寸的图片，还应验证图片无法加载的情况。替代文本应该描述图中与上下文有关的信息。装饰图片可以使用空的替代文本，但承载内容的图片应保留说明。
 
 ## 让导航状态可以分享 {#state}
 
-目前还没有选定静态生成器，用 `article.html?post=css-grid-two-column-blog` 作为演示路由已经足够。页面刷新后，应从 URL 找到文章；目录锚点则继续使用浏览器熟悉的 `#section`。
+每篇文章都应有可以独立打开、刷新和分享的地址，例如 `/posts/css-grid-two-column-blog/`。目录锚点继续使用浏览器熟悉的 `#section`；旧的查询参数入口可以保留为兼容跳转。
 
 ```javascript
 const params = new URLSearchParams(location.search);
@@ -84,8 +84,8 @@ if (!post) {
   renderArticle(post);
 }
 
-// 故意保留的长代码行：用于检查横向滚动，复制时应保持完整内容。
-const example = 'https://example.com/articles/a-very-long-readable-identifier?layout=sidebar-and-reading-area&theme=follow-system&source=nekomi-reading-demo&check=horizontal-overflow';
+// 长链接保留原始内容，代码块可以横向滚动。
+const example = 'https://example.com/articles/a-very-long-readable-identifier?layout=sidebar-and-reading-area&theme=follow-system&source=nekomi&view=reading';
 ```
 
 页面切换可以加上短促的非线性滑入过渡，让方向感更自然。对于设置了减少动态效果的读者，直接显示内容会更合适。动画不应阻止链接正常打开，也不应改变浏览器前进后退的语义。
@@ -98,6 +98,6 @@ const example = 'https://example.com/articles/a-very-long-readable-identifier?la
 
 ## 收尾：把简单的约定留下来 {#finish}
 
-元数据负责标题、日期和索引；正文负责内容；页面组件负责交互；CSS 负责布局与排版。四者的边界不需要复杂的框架才能建立。未来换成静态生成器时，可以让模板直接输出这些语义元素，把今天验证过的阅读样式保留下来。
+元数据负责标题、日期和索引；正文负责内容；页面组件负责交互；CSS 负责布局与排版。四者的边界不需要复杂的框架才能建立。静态生成器负责输出这些语义元素，页面脚本只增强必要的交互，排版便能独立维护。
 
-进一步阅读：[MDN 的 Grid 布局文档](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_grid_layout)与[MDUI 2 官方文档](https://www.mdui.org/zh-cn/docs/2/)。长链接也应该能够正常断行，例如：[https://example.com/documentation/layout/very-long-resource-name-for-testing-responsive-chinese-article-typography](https://example.com/documentation/layout/very-long-resource-name-for-testing-responsive-chinese-article-typography)。
+进一步阅读：[MDN 的 Grid 布局文档](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_grid_layout)与[MDUI 2 官方文档](https://www.mdui.org/zh-cn/docs/2/)。长链接也应该能够正常断行，例如：[https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_grid_layout/Basic_concepts_of_grid_layout](https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_grid_layout/Basic_concepts_of_grid_layout)。

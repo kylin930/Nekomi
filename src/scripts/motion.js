@@ -6,13 +6,38 @@
   function token(name, fallback) {
     return getComputedStyle(document.documentElement).getPropertyValue('--nekomi-' + name).trim() || fallback;
   }
-  function enter(element, distance) {
-    if (!element || reduced.matches) return;
-    if (element.nekomiEntrance) element.nekomiEntrance.cancel();
-    element.nekomiEntrance = element.animate([
-      { opacity: 0, transform: 'translateX(' + (distance === undefined ? 12 : distance) + 'px)' },
-      { opacity: 1, transform: 'translateX(0)' }
-    ], { duration: parseFloat(token('duration-enter', '360ms')), easing: token('easing-enter', 'cubic-bezier(0.16, 1, 0.3, 1)') });
+  function duration(name, fallback) {
+    const value = token(name, fallback).trim();
+    // Vite minifies 350ms to .35s. WAAPI takes milliseconds, unlike CSS.
+    return parseFloat(value) * (value.endsWith('ms') ? 1 : 1000);
+  }
+  const running = new Set();
+  function cancelWithin(root) {
+    for (const animation of running) if (root.contains(animation.effect?.target)) animation.cancel();
+  }
+  function enter(element, distance = 8) {
+    if (!element || reduced.matches || !element.getClientRects().length) return;
+    for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+      if (parent.nekomiEntrance?.some(animation => animation.playState === 'running')) return;
+    }
+    const previous = element.nekomiEntrance?.some(animation => animation.playState === 'running');
+    const style = previous ? getComputedStyle(element) : null;
+    const from = style ? { transform: style.transform, opacity: style.opacity } : { transform: `translateX(${distance}px)`, opacity: 0 };
+    element.nekomiEntrance?.forEach(animation => animation.cancel());
+    // Separate spatial movement and opacity so effects never inherit bounce.
+    const animations = [
+      element.animate([{ transform: from.transform }, { transform: 'translateX(0)' }], {
+        duration: duration('spatial-fast-duration', '350ms'), easing: token('spatial-fast-easing', 'cubic-bezier(.42,1.67,.21,.9)'),
+      }),
+      element.animate([{ opacity: from.opacity }, { opacity: 1 }], {
+        duration: duration('effects-default-duration', '200ms'), easing: token('effects-easing', 'cubic-bezier(.34,.8,.34,1)'),
+      }),
+    ];
+    element.nekomiEntrance = animations;
+    animations.forEach(animation => {
+      running.add(animation);
+      animation.finished.then(() => running.delete(animation), () => running.delete(animation));
+    });
   }
   function cancelScroll() {
     if (!scrolling) return;
@@ -65,9 +90,7 @@
   reduced.addEventListener('change', function () {
     if (!reduced.matches) return;
     cancelScroll();
-    document.getAnimations().forEach(function (animation) {
-      if (animation.effect && animation.effect.target && animation.effect.target.nekomiEntrance === animation) animation.cancel();
-    });
+    for (const animation of running) animation.cancel();
   });
-export const motion = { enter, scrollTo: scrollToElement, cancelScroll, isScrolling: () => Boolean(scrolling) };
+export const motion = { enter, cancelWithin, scrollTo: scrollToElement, cancelScroll, isScrolling: () => Boolean(scrolling) };
 window.NekomiMotion = motion;

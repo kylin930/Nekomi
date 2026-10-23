@@ -6,6 +6,7 @@ import { motion } from './motion';
 import { createTheme } from './theme';
 import { initHome } from './home';
 import { initArticle } from './article';
+import { prepareShared, prepareSharedImage, swapShared } from './navigation-motion';
 
 // This bundled module executes once. Only page-local enhancements are renewed by page-load.
 const data = JSON.parse(document.getElementById('site-data').textContent);
@@ -61,10 +62,14 @@ function createSite() {
   function notify(text) { const feedback = document.getElementById('site-feedback'); feedback.textContent = text; feedback.open = true; }
   document.querySelectorAll('.sidebar-tabs').forEach(tabs => {
     a11y.tabs(tabs);
+    let previous = tabs.value;
     tabs.addEventListener('change', event => {
       if (event.target !== tabs) return;
       const panel = [...tabs.querySelectorAll('mdui-tab-panel')].find(panel => panel.value === tabs.value);
-      if (panel) requestAnimationFrame(() => motion.enter(panel.querySelector('.side-panel-content'), 6));
+      const values = [...tabs.querySelectorAll('mdui-tab')].map(tab => tab.value);
+      const direction = values.indexOf(tabs.value) >= values.indexOf(previous) ? 1 : -1;
+      previous = tabs.value;
+      if (panel) requestAnimationFrame(() => motion.enter(panel.querySelector('.side-panel-content'), direction * 6));
     });
   });
   menu.addEventListener('click', () => openDrawer());
@@ -147,6 +152,7 @@ async function initialize() {
   theme.syncDocument();
   // Static images may finish before the bundled runtime on a direct visit.
   recoverImages(document);
+  motion.cancelWithin(document.getElementById('main-content'));
   pageController?.abort();
   disposePage?.();
   pageController = new AbortController();
@@ -163,16 +169,24 @@ async function initialize() {
 document.addEventListener('astro:before-preparation', event => {
   navigationType = event.navigationType;
   motion.cancelScroll();
+  const shared = prepareShared(event, data.base);
   // Complete native modal closure before ClientRouter replaces the main content.
   const loader = event.loader;
-  event.loader = async () => { await closeModal(site?.drawer); await closeModal(document.getElementById('friends-dialog')); return loader(); };
+  event.loader = async () => {
+    await closeModal(site?.drawer);
+    await closeModal(document.getElementById('friends-dialog'));
+    await loader();
+    await prepareSharedImage(shared, event.newDocument);
+  };
 });
 document.addEventListener('astro:before-swap', event => {
   ++generation;
+  motion.cancelWithin(document.getElementById('main-content'));
   pageController?.abort();
   disposePage?.();
   disposePage = undefined;
   theme?.prepareSwap(event.newDocument);
+  swapShared(event);
   const incoming = event.newDocument;
   const nextLayout = incoming.querySelector('.site-layout');
   const nextMain = incoming.getElementById('main-content');

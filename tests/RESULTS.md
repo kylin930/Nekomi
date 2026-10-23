@@ -1,3 +1,39 @@
+# P2.3 实际验证结果 · 2026-10-23
+
+基于 `work` 分支的 P2.2 `b682539`（与本轮开始时最新 main 合并结果的文件内容一致）。Node.js 24.19.0、npm 11.9.0、Playwright 1.62.0、Chromium 154.0.8037.57。浏览器访问生产静态构建，由 Python 静态服务器托管。
+
+- `astro check`：**0 errors / 0 warnings / 1 hint**；hint 是保留的旧式剪贴板降级。根路径 `/` 与子路径 `/Nekomi/` 构建成功，各 **18 组完整回归通过**。
+- 不只读取 CSS：浏览器探针记录真实 `::view-transition-group(post-title)` / `post-cover` 动画，断言唯一配对、500ms 时长、官方 spatial 曲线以及实际几何变化。覆盖桌面 / 手机、浅色 / 深色、标题键盘导航、有封面点击、返回、浏览器前进后退。标题改为单份文字快照，避免不同字号双层淡入造成重影。
+- 封面临时配置构建检查真实 Astro WebP / srcset；拦截并持续扣留目标大图，180ms 预算后正常进入文章，仅衔接标题，503 后保留头图缺失回退。另在预热解码尚未完成时切换减少动效，等待会及时解除，名称清理，导航继续完成。
+- 生产 WAAPI 实际时长为 **350 / 200ms**。修复 Vite 将 `350ms` 压成 `.35s` 后旧解析造成的千倍缩短；Tabs 原生指示器仍有独立非零过渡，面板扩展不重写原生指示器。卡片 Hover 无 3px 上浮，只做轻微缩放 / 形状 / 原生 Elevation 反馈。
+- 目录原生 List Item 的 active / 实际链接 aria-current 与章节同步；真实 `transitionrun` 检查标记连续移动及最终几何位置。原弹簧的轮滚 / 触摸中断、重复定位、精确偏移、Hash / 历史 / 焦点、先关闭原生折叠再定位均通过。
+- 减少动效：无共享命名、不运行自定义进入，组件 / 标记 / View Transition 缩至 1ms，滚动立即完成。页面加载中连续导航、动画进行中立即反向导航，均不会留下名称、丢失配对或拒绝的 View Transition。禁用原生 API 的新文档仍可使用 Astro fallback 无刷新导航。
+- 禁用 Worker 的跨页回归保持同一个壁纸容器、图像、公共外壳、组件构造器及色板对象；一次 document 请求、一次 API 请求、一次显式解码。另覆盖待加载背景导航、真实 Worker 缓存 / 作用域 / 刷新复用和加载失败回退。
+- P0 / P1 / P2.1 / P2.2 回归覆盖搜索与高亮 / 空结果、分类 / 标签 / 归档、侧栏三个 Tabs、Drawer / Dialog 焦点与关闭、三态主题、选择性 Prefetch、Shiki、优化图片 / 失败回退、代码复制、直接访问 / 刷新 / 静态 404 / 旧链接。没有发现重复组件注册、重复响应或页面 JS 异常。
+- 1440×900、1360×900、1359×900、1280×800、1024×768、960×720、390×844、320×700，以及 1119 / 1120 / 1439px 边界，明暗 / 无壁纸表面及独立长标题 / 六标签 / 封面 fixture 通过。保留 P2.1 的正文行宽、1.85 行高、1.25em 块间距、1120 / 1440px 断点和 P2.2 的手机 App Bar 16px 间距，无横向溢出或目录重叠。原极端黑白壁纸指定文字区域对比度抽测仍不低于 4.5:1；不是全组件 WCAG 认证。
+- 首页及十篇公开文章检查不再出现阶段 / 原型提示，保留“小林的小窝”“分享技术、日常”。所有文章仍保留可替换 demo 字段；不增加友链 / 评论或冒充站长实际经历。原历史正文基线没有覆盖，新文案摘要和明确的标题 / 代码调整单独存放，所有稳定章节 ID 与层级仍逐项比对。
+
+[24 张实际截图与 4 段正常速度录屏](../screenshots/P23.md)包含默认无封面及临时配置封面的首页 / 阅读页 / 目录，桌面与手机各两种主题。背景回放此前实际 HTTP 获取并审核的 API 原始响应，素材未生成；封面使用本项目截图。公开配置和文章不因测试 fixture 增加图片或示例社交关系。
+
+[设计依据与原生 / 扩展分工](../docs/MOTION.md)：采用官方 Spatial / Effects 分离、适量空间超调、语义色与对应 on 色、单层状态反馈及原生 Elevation。Ripple、控件状态层、Tabs 指示器、Drawer / Dialog / Collapse 继续由 MDUI 2.1.5 处理；Nekomi 只扩展共享元素、页面 / 面板内容、目录标记和轻量卡片反馈。不引入依赖，不改变壁纸呈现或布局。
+
+主要命令：
+
+```sh
+ASTRO_TELEMETRY_DISABLED=1 npm run check
+ASTRO_TELEMETRY_DISABLED=1 npm run build
+python3 -u tests/browser_audit.py --verified-cdn --cdn-cache /tmp/nekomi-p11/cdn --artifacts /tmp/nekomi-p23/root
+ASTRO_TELEMETRY_DISABLED=1 SITE_BASE=/Nekomi/ ASTRO_OUT_DIR=.astro/p23-subpath ASTRO_CACHE_DIR=.astro/p23-subpath-cache npm run build
+python3 -u tests/browser_audit.py --dist .astro/p23-subpath --base /Nekomi/ --verified-cdn --cdn-cache /tmp/nekomi-p11/cdn --artifacts /tmp/nekomi-p23/subpath
+# 最终标题单快照与预热取消修复后，另复测两个部署路径的 motion / covers 用例
+python3 -u tests/browser_audit.py --only motion --verified-cdn --cdn-cache /tmp/nekomi-p11/cdn
+python3 -u tests/browser_audit.py --only covers --verified-cdn --cdn-cache /tmp/nekomi-p11/cdn
+```
+
+仅实测 Chromium，Firefox / Safari 尚未实测。Google Fonts 通过保留代理与 TLS 校验的 curl 获取原始响应后回放，MDUI 使用真实本地构建产物。封面共享只在目标图片及时可用时启用，文章之间 / 不可见标题走普通页面过渡；这是有意的渐进增强。保留旧式剪贴板 hint；未进入 P2.4。
+
+---
+
 # P2.2 实际验证结果 · 2026-10-23
 
 基于 P2.1 `22ca40e`。Node.js 24.19.0、npm 11.9.0、Playwright 1.62.0、Chromium 154.0.8037.57。浏览器访问生产构建，只有 Python 静态服务器，没有运行 Astro / Node 服务。

@@ -1,5 +1,15 @@
 # 变更记录
 
+## 2026-10-23 · P2.3 Material 3 Expressive 与公开文案完善
+
+- 对照官方 Motion physics / Web 转换表、Shape、States、Elevation、Typography 和 Color Roles，将空间运动与颜色 / 透明度分离，统一 350 / 500ms spatial、200ms effects；不引入动画框架，不冒充 MDUI 未提供的 Expressive API。
+- 当前文章标题与可用封面通过原生 View Transitions 衔接，单次只命名一对；兼容反向 / 历史导航，180ms 图片预热预算内不可用时只衔接标题，完成或取消清理名称。保留原位公共外壳、壁纸 DOM 与缓存、Astro Prefetch 及 MDUI 2.1.5 兼容 Swap。
+- 修复 Vite 将 ms 压成 s 后，WAAPI 直接 parseFloat 导致进入动效快一千倍的问题；生产浏览器检查真实动画时长。面板按切换方向进入，搜索即时响应并合并过渡，取消时清理，避免父子内容动画叠加。
+- 原生文章目录保留 active / aria-current 与弹簧滚动，选中背景 / 文字做颜色过渡，3px 装饰标记连续移动；尺寸变化重新测量，离页断开观察器。卡片改为小幅缩放与形状反馈，使用 MDUI 原生 Elevation，取消整张明显上浮。
+- 保留原生 Ripple、Tabs 指示器、Button / Chip / List 状态层、Drawer / Dialog / Collapse 开闭和焦点行为；减少动效时关闭共享 / 自定义进入，组件和 CSS 缩至 1ms，阅读立即定位。
+- 移除公开页面的原型 / 演示提示，整理计数、信息、页脚与空状态；技术文章更新为普通说明，日常文章改为一般性建议，不捏造站长经历、唱片或社交关系。保留 demo 字段、十篇内容结构与所有稳定锚点。
+- 补充真实 View Transition 伪元素 / 几何、双主题 / 响应式、无封面 / 封面、历史 / 快速导航 / API fallback、减少动效、文案和图片预热降级回归；历史迁移基线另存不覆盖，新增截图、录屏和设计分工说明。
+
 ## 2026-10-23 · P2.2 Astro 与 MDUI 工程优化
 
 - MDUI 固定 2.1.5 从 unpkg 迁至 npm / Vite：逐项导入 20 种实际组件，主题函数使用 ES Module，删除全局 mdui 依赖；官方 CSS 合并构建，不升级版本或引入 UI 框架。
