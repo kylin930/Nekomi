@@ -2,9 +2,9 @@
 
 一个基于 **Astro 静态生成、MDUI 2.1.5 与 Material Design 3** 的原创个人博客主题。融入页面的 Stellar 式侧栏、日系个人站气质、舒适的中文排版；配置和 Markdown 就是日常使用入口，不需要 React、Vue 或常驻 Node.js 服务。
 
-![Nekomi 默认首页](screenshots/p25-default-home-light-1440.png)
+![Nekomi 默认首页](screenshots/p30-default-home-light-1440.png)
 
-[手机阅读](screenshots/p25-default-reader-light-390.png) · [深色模式](screenshots/p25-default-home-dark-1440.png) · [Fresh 预设](screenshots/p25-fresh-home-light-1440.png) · [Minimal 预设](screenshots/p25-minimal-home-light-1440.png) · [截图与配置测试](screenshots/P25.md)
+[手机阅读](screenshots/p30-default-reader-light-390.png) · [深色模式](screenshots/p30-default-home-dark-1440.png) · [Fresh 预设](screenshots/p30-fresh-home-light-1440.png) · [Minimal 预设](screenshots/p30-minimal-home-light-1440.png) · [P3 实际截图](screenshots/P30.md)
 
 - 可复用 Astro 组件与 Content Collections；Markdown、Shiki 双主题高亮、本地响应式图片、原生 MDUI 目录与代码复制。
 - ClientRouter 无刷新导航、标题 / 封面共享过渡、轻量弹簧目录；尊重减少动态效果。
@@ -46,19 +46,50 @@ public/                  按原路径发布的文件，例如壁纸
   "site": {
     "name": "我的小窝",
     "tagline": "分享技术、日常",
-    "intro": "一些笔记，和生活的小片段。",
+    "intro": "技术笔记与日常文章。",
     "avatarFallback": "我",
-    "social": [{ "name": "GitHub", "url": "https://github.com/你的用户名", "icon": "code" }]
+    "social": [{ "name": "GitHub", "url": "https://github.com/你的用户名", "icon": "github" }]
   },
   "appearance": { "preset": "fresh", "color": "#427f79" }
 }
 ```
 
-**Default** 保留 Nekomi 紫色与原有形状；**Fresh** 使用柔和青绿与辅助色；**Minimal** 降低首篇染色、收敛形状并采用简洁标题字体。三者共享同一套 Token 与页面结构。显式 `color`、`secondary`、`font`、`headingFont`、`radius` 优先于预设。字体不自动从外部下载，使用你设备上的字体栈。
+**Default** 保留 Nekomi 紫色与原有形状；**Fresh** 使用柔和青绿与辅助色；**Minimal** 降低首篇染色、收敛形状并采用简洁标题字体。三者共享同一套 Token 与页面结构。显式 `color`、`secondary`、`font`、`headingFont`、`brandFont`、`radius` 优先于预设。字体不自动从外部下载，使用你设备上的字体栈。
 
 [完整配置参考：类型、默认值、范围与依赖](docs/CONFIGURATION.md) · [完整配置示例](examples/full.config.json) · [Fresh](examples/fresh.config.json) · [最小配置](examples/minimal.config.json)
 
 数组按给出的顺序整体替换。`layout.modules` 可选 profile/social/search/tabs；`layout.sidebarTabs` 可选 updates/friends/comments。评论关闭或内置服务不支持最新查询时隐藏评论 Tab；可查询但尚无留言时显示空状态。普通用户不用设置每个间距；栏宽与页面宽度有安全范围，保留既有响应式结构。
+
+品牌字体使用独立的 `appearance.brandFont`，默认是本地无衬线字体栈，不下载新字体；文章标题仍由 `headingFont` 控制。首页标题区只显示标题；旧 `home.eyebrow` 继续接受但不显示，`home.description` 用作全部文章页的 SEO 描述。
+
+升级时，已有的 `site.intro`、`footer.text` 等显式配置仍会保留；想采用新的简洁默认值，可清空或删除这些字段。
+
+`site.social[].icon` 可省略或设为 `auto`，会识别 GitHub、Bilibili 与邮箱，其他链接显示网站图标；也可显式选择 `github`、`bilibili` 或 MDUI 图标名。品牌图标来自本地 CC0 Simple Icons。RSS 由 `features.rss` 控制，在侧栏 `social` 模块及手机 Drawer 显示，默认页脚只保留动态版权文字；`footer.text`、`footer.copyright`、`footer.links` 仍可自定义。
+
+例如添加自己的平台链接（地址需替换）：
+
+```json
+{
+  "site": {
+    "social": [
+      {
+        "name": "GitHub",
+        "url": "https://github.com/your-name",
+        "icon": "github"
+      },
+      {
+        "name": "Bilibili",
+        "url": "https://space.bilibili.com/你的UID",
+        "icon": "bilibili"
+      }
+    ],
+    "email": "hello@example.com"
+  },
+  "appearance": {
+    "brandFont": "system-ui, \"PingFang SC\", sans-serif"
+  }
+}
+```
 
 ## 写第一篇文章
 

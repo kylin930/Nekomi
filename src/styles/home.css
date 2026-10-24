@@ -1,12 +1,11 @@
 /* 首页卡片与索引排版；公共身份区、Tabs 与背景在 main.css。 */
 /* 给内容导航和辅助导航各自的尺度；公共 part 不改写组件内部结构。 */
-#content-tabs::part(container) { gap: 8px; border-radius: var(--mdui-shape-corner-large); background: rgba(var(--mdui-color-surface-container), .94); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+#content-tabs::part(container) { gap: 8px; border-radius: 12px 12px 0 0; background: rgba(var(--mdui-color-surface-container), .94); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
 #content-tabs::part(indicator) { height: 3px; border-radius: var(--mdui-shape-corner-full); }
 #content-tabs mdui-tab::part(container) { min-height: 46px; padding-inline: 16px; border-radius: 12px 12px 0 0; }
 #content-tabs mdui-tab::part(icon) { font-size: 18px; margin-right: 6px; }
-.view-heading { padding: 24px 0 22px; align-items: flex-end; }
+.view-heading { padding: 24px 0 20px; align-items: flex-end; }
 .view-heading h1 { font-family: var(--identity-font); font-size: 27px; font-weight: 700; }
-.eyebrow { margin-bottom: 8px; font-size: 11px; font-weight: 500; letter-spacing: .08em; }
 .view-description { margin-top: 8px; font-size: 12px; }
 .post-list { gap: 14px; }
 .feed-loading { display: grid; justify-items: center; gap: 12px; padding: 24px 0 8px; min-height: 48px; }
@@ -59,12 +58,11 @@
 @media (max-width: 1119px) {
   #content-tabs::part(container) { gap: 4px; }
   #content-tabs mdui-tab::part(container) { padding-inline: 15px; }
-  .view-heading { padding: 22px 2px 20px; }
+  .view-heading { padding: 20px 2px 16px; }
 }
 @media (max-width: 480px) {
   #content-tabs mdui-tab::part(icon) { display: none; }
   .view-heading h1 { font-size: 25px; }
-  .eyebrow { font-size: 10px; }
   .post-content { padding: var(--space-2) 20px 12px; }
   .post-title, .post-latest .post-title { font-size: 20px; line-height: 1.5; }
   .post-list { gap: 12px; }
@@ -84,3 +82,6 @@
 
 .post-cover-top .post-main { display: flex; flex-direction: column-reverse; }
 .post-cover-top .post-cover { width: 100%; aspect-ratio: 16 / 7; max-height: 280px; }
+
+.search-summary { margin: -4px 0 16px; }
+.feed-loading p:empty { display: none; }

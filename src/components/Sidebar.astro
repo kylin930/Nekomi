@@ -8,6 +8,7 @@ import SearchField from './SearchField.astro';
 import PostListItem from './PostListItem.astro';
 import FriendItem from './FriendItem.astro';
 import Icon from './Icon.astro';
+import SocialLinks from './SocialLinks.astro';
 interface Props { posts: Post[]; context: 'desktop' | 'mobile'; currentId?: string }
 const { posts, context, currentId } = Astro.props;
 const prefix = 'side-' + context;
@@ -28,25 +29,25 @@ const commentTime = (date: string) => new Intl.DateTimeFormat('zh-CN', { month: 
   {module === 'profile' && <>  <div class="profile">
     <div class="profile-brand">
       <Avatar src={site.avatar} fallback={site.avatarFallback} label={site.avatarAlt} />
-      <div><p class="site-name">{site.name}</p><p class="site-tagline">{site.tagline}</p></div>
+      <div><p class="site-name">{site.name}</p>{site.tagline.trim() && <p class="site-tagline">{site.tagline}</p>}</div>
     </div>
-    <p class="site-intro">{site.intro}</p>
+    {site.intro.trim() && <p class="site-intro">{site.intro}</p>}
   </div>
 </>}
-  {module === 'social' && (site.social.length > 0 || site.email) && <nav class="social-links" aria-label="联系与社交">{site.social.map(link => <mdui-button-icon href={navigationUrl(link.url)} title={link.name} aria-label={link.name}><Icon name={link.icon} /><span class="visually-hidden">{link.name}</span></mdui-button-icon>)}{site.email && <mdui-button-icon href={'mailto:' + site.email} title="电子邮件" aria-label="电子邮件"><Icon name="mail--outlined" /><span class="visually-hidden">电子邮件</span></mdui-button-icon>}</nav>}
+  {module === 'social' && <SocialLinks />}
   {module === 'search' && <SearchField />}
   {module === 'tabs' && tabs.length > 0 &&
   <mdui-tabs class="sidebar-tabs" value={tabs[0]} variant="secondary" full-width aria-label="侧栏内容">
     {tabs.map(id => <mdui-tab value={id} id={prefix + '-' + id} role="tab" aria-controls={prefix + '-' + id + '-panel'}>{labels[id]}</mdui-tab>)}
     {tabs.map(id => <>
     {id === 'updates' && <mdui-tab-panel data-initial-active={id === tabs[0] || undefined} slot="panel" value="updates" id={prefix + '-updates-panel'} role="tabpanel" aria-labelledby={prefix + '-updates'}>
-      <div class="side-panel-content"><div class="side-panel-heading"><span>最近的 {Math.min(posts.length, 5)} 篇记录</span></div>
+      <div class="side-panel-content">{!updates.length && <p class="friend-empty">暂无文章</p>}
         <mdui-list>{updates.slice(0, 5).map(post => <PostListItem post={post} description={dateLabel(post.data.date)} active={post.id === currentId} />)}</mdui-list>
       </div>
     </mdui-tab-panel>}
     {id === 'friends' && <mdui-tab-panel data-initial-active={id === tabs[0] || undefined} slot="panel" value="friends" id={prefix + '-friends-panel'} role="tabpanel" aria-labelledby={prefix + '-friends'}>
-      <div class="side-panel-content"><div class="side-panel-heading"><span>{friends.length} 个友邻</span><mdui-button variant="text" data-friends-all disabled={!friends.length}>查看全部<Icon name="arrow_forward" slot="end-icon" /></mdui-button></div>
-        {friends.length ? <mdui-list class="friend-list">{friends.slice(0, 5).map(friend => <FriendItem friend={friend} />)}</mdui-list> : <p class="friend-empty">这里，留给有趣的邻居。<small>暂时还没有添加友链</small></p>}
+      <div class="side-panel-content">{friends.length > 0 && <div class="side-panel-heading"><span>{friends.length} 个站点</span><mdui-button variant="text" data-friends-all>查看全部<Icon name="arrow_forward" slot="end-icon" /></mdui-button></div>}
+        {friends.length ? <mdui-list class="friend-list">{friends.slice(0, 5).map(friend => <FriendItem friend={friend} />)}</mdui-list> : <p class="friend-empty">暂无友链</p>}
       </div>
     </mdui-tab-panel>}
     {id === 'comments' && <mdui-tab-panel data-initial-active={id === tabs[0] || undefined} slot="panel" value="comments" id={prefix + '-comments-panel'} role="tabpanel" aria-labelledby={prefix + '-comments'}>
@@ -62,7 +63,7 @@ const commentTime = (date: string) => new Intl.DateTimeFormat('zh-CN', { month: 
               <div class="comment-copy"><div class="comment-byline"><strong>{comment.author}</strong><time datetime={comment.createdAt}>{commentTime(comment.createdAt)}</time></div><p class="comment-excerpt">{comment.excerpt}</p><p class="comment-post">{post.data.title}</p></div>
             </mdui-list-item>;
           })}</mdui-list>
-        </> : <p class="friend-empty">还没有留言。<small>有新留言时会显示在这里</small></p>}
+        </> : <p class="friend-empty">暂无评论</p>}
       </div>
       </>}
     </mdui-tab-panel>}

@@ -56,6 +56,7 @@ function applySnapshot(doc, snapshot) {
   }
   doc.getElementById('feed-title').textContent = snapshot.feed.title;
   doc.getElementById('feed-summary').textContent = snapshot.feed.summary;
+  doc.getElementById('feed-summary').classList.toggle('visually-hidden', !snapshot.query.trim());
   doc.getElementById('search-toolbar').hidden = !snapshot.query.trim();
   doc.getElementById('search-empty').hidden = !snapshot.feed.empty;
   doc.getElementById('search-chip').textContent = snapshot.query;

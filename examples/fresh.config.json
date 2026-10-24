@@ -1,9 +1,67 @@
 {
-  "site": { "name": "青苔手记", "tagline": "慢慢收集灵感", "intro": "一些技术笔记，和生活的小片段。", "avatarFallback": "青", "social": [{ "name": "GitHub", "url": "https://github.com/", "icon": "code" }] },
-  "appearance": { "preset": "fresh", "font": "system-ui, sans-serif", "radius": 24 },
-  "layout": { "width": 1520, "sidebarWidth": 300, "modules": ["profile", "search", "social", "tabs"], "sidebarTabs": ["friends", "updates"] },
-  "navigation": { "tabs": [{ "id": "recent", "label": "手记", "enabled": true }, { "id": "tags", "label": "话题", "enabled": true }], "links": [{ "label": "Astro", "url": "https://astro.build/" }] },
-  "cards": { "cover": "top" },
-  "friends": [{ "name": "Astro", "url": "https://astro.build/", "description": "内容站点框架" }],
-  "footer": { "text": "记录，整理，再出发。" }
+  "site": {
+    "name": "青苔手记",
+    "tagline": "技术与日常",
+    "intro": "",
+    "avatarFallback": "青",
+    "social": [
+      {
+        "name": "GitHub",
+        "url": "https://github.com/",
+        "icon": "github"
+      }
+    ]
+  },
+  "appearance": {
+    "preset": "fresh",
+    "font": "system-ui, sans-serif",
+    "radius": 24
+  },
+  "layout": {
+    "width": 1520,
+    "sidebarWidth": 300,
+    "modules": [
+      "profile",
+      "search",
+      "social",
+      "tabs"
+    ],
+    "sidebarTabs": [
+      "friends",
+      "updates"
+    ]
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "id": "recent",
+        "label": "手记",
+        "enabled": true
+      },
+      {
+        "id": "tags",
+        "label": "话题",
+        "enabled": true
+      }
+    ],
+    "links": [
+      {
+        "label": "Astro",
+        "url": "https://astro.build/"
+      }
+    ]
+  },
+  "cards": {
+    "cover": "top"
+  },
+  "friends": [
+    {
+      "name": "Astro",
+      "url": "https://astro.build/",
+      "description": "内容站点框架"
+    }
+  ],
+  "footer": {
+    "text": ""
+  }
 }

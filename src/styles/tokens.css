@@ -39,6 +39,7 @@
   --nekomi-easing-expressive: var(--nekomi-spatial-fast-easing);
   --nekomi-spring-stiffness: 220;
   --nekomi-spring-damping: 28;
+  --brand-font: "Avenir Next", "Hiragino Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   --identity-font: "Noto Serif CJK SC", "Songti SC", "STSong", ui-serif, serif;
   --reading-font: "Segoe UI", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 }

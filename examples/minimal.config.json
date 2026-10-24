@@ -2,7 +2,7 @@
   "site": {
     "name": "纸页",
     "tagline": "读与写",
-    "intro": "文字与留白。",
+    "intro": "",
     "avatarFallback": "纸"
   },
   "appearance": {
@@ -48,6 +48,6 @@
     "latest": false
   },
   "footer": {
-    "text": "一页一页，慢慢写。"
+    "text": ""
   }
 }

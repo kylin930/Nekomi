@@ -25,6 +25,7 @@ for (const [name, { pkg, directory }] of packages) {
   if (!content) throw new Error(`Missing license text for ${name}; review before distribution.`);
   output += `\n\n${'='.repeat(72)}\n${name} ${pkg.version} (${pkg.license})\n${pkg.homepage || pkg.repository?.url || ''}\n\n${content}`;
 }
+output += '\n\nSimple Icons 15.1.0 — GitHub and Bilibili SVG icons (CC0-1.0)\nhttps://github.com/simple-icons/simple-icons/tree/15.1.0\n\n' + readFileSync('src/assets/icons/LICENSE.md', 'utf8');
 writeFileSync('public/THIRD-PARTY-LICENSES.txt', output.replace(/\r\n?/g, '\n').split('\n').map(line => line.trimEnd()).join('\n').trimEnd() + '\n');
 const manifest = read('package.json');
 const rows = Object.keys(manifest.dependencies).map(name => {
@@ -34,4 +35,4 @@ const rows = Object.keys(manifest.dependencies).map(name => {
 const lock = read('package-lock.json');
 const buildSpecial = [...new Set(Object.entries(lock.packages).filter(([path, pkg]) => path && /LGPL|MPL/.test(pkg.license || '')).map(([path, pkg]) => `${path.split('node_modules/').at(-1)} (${pkg.license})`))].sort();
 writeFileSync('docs/DEPENDENCIES.md', '# 依赖与发布许可检查\n\n由 `npm run licenses` 根据已安装锁定版本生成。主题代码 MIT 不改变第三方许可。浏览器 MDUI / Astro 及 MDUI 依赖的完整许可文本随静态产物一起发布在 `/THIRD-PARTY-LICENSES.txt`；目录为保守范围，可能包含本次按需组件未使用的依赖。图标字体由 Google Fonts 提供，另见 THIRD-PARTY-NOTICES.md。\n\n| 直接依赖 | 锁定版本 | 许可 | 分工 |\n| --- | --- | --- | --- |\n' + rows.join('\n') + '\n\n## 构建工具的特殊许可\n\nAstro 图片 / 构建依赖树含下列 LGPL / MPL 包（含可选平台二进制）。它们通过原 npm 包安装并保留各自许可，不复制进浏览器 JS；产物只含优化后的图片。不要把“主题 MIT”表述为整个 npm 依赖树全部 MIT。若重新分发构建工具或二进制，应遵守对应包的许可要求。\n\n' + buildSpecial.map(name => '- ' + name).join('\n') + '\n');
-console.log(`Wrote browser notices for ${packages.size} packages and build dependency inventory.`);
+console.log(`Wrote browser notices for ${packages.size} packages, 2 CC0 brand icons and build dependency inventory.`);

@@ -10,7 +10,7 @@ export function createFeed(site, signal, saved) {
   const pagination = document.getElementById('feed-pagination');
   const sentinel = document.getElementById('feed-sentinel');
   const metadata = new Map(site.data.posts.map(post => [post.id, post]));
-  const initialTitle = root.dataset.title, initialSummary = root.dataset.description;
+  const initialTitle = root.dataset.title;
   let cache = new Map([...list.children].map(card => [card.dataset.postId, card.outerHTML]));
   let normal = [...cache.keys()], next = root.dataset.next, pages = [location.pathname];
   let query = '', shown = 0, matches = [], busy = false, failed = false;
@@ -42,19 +42,19 @@ export function createFeed(site, signal, saved) {
   function controls() {
     const searching = Boolean(query.trim());
     title.textContent = searching ? '搜索结果' : initialTitle;
-    summary.textContent = searching ? `“${query.trim()}” · 找到 ${matches.length} 篇文章` : initialSummary;
+    summary.textContent = searching ? `“${query.trim()}” · 找到 ${matches.length} 篇文章` : '';
+    summary.classList.toggle('visually-hidden', !searching);
     document.getElementById('search-toolbar').hidden = !searching;
     document.getElementById('search-chip').textContent = query;
     document.getElementById('search-empty').hidden = !searching || matches.length > 0;
-    pagination.hidden = searching;
-    const first = Number(root.dataset.page), last = first + pages.length - 1;
-    pagination.querySelector('[data-page-label]').textContent = `第 ${first === last ? first : first + '–' + last} / ${root.dataset.pages} 页`;
     const link = pagination.querySelector('[data-page-next]');
     if (link) { link.hidden = !next; if (next) link.href = next; }
+    pagination.hidden = searching || ![...pagination.querySelectorAll('a')].some(link => !link.hidden);
     more.hidden = !hasMore() && !failed;
     more.disabled = busy || deferred; more.loading = busy || deferred;
     more.textContent = failed ? '重试加载' : '加载更多';
-    status.textContent = failed ? '暂时没能加载，点击重试。' : busy || deferred ? '正在加载文章…' : hasMore() ? `已显示 ${list.children.length} / ${searching ? matches.length : root.dataset.total} 篇` : (site.data.posts.length ? '已经读到最后了' : '');
+    status.textContent = failed ? '文章加载失败，请重试。' : busy || deferred ? '正在加载文章…' : '';
+    sentinel.hidden = !hasMore() && !failed && !busy && !deferred;
     root.setAttribute('aria-busy', String(busy || deferred));
     if (focusPending && !busy && !deferred) queueMicrotask(focusResult);
   }

@@ -50,3 +50,13 @@ python3 tests/comments_edges.py
 ```
 
 所有 Astro 构建顺序执行，不要与其他构建并发。扩展契约位于 src/integrations/comments/index.ts，内置能力在 capabilities.ts；新实现须声明能力、遵从 AbortSignal 并清理资源。最近 HTML 只做 inert 文本转换，不采用第三方 DOM。SDK iframe 是资源 / 样式隔离，不是安全沙箱；不要添加包含凭据的配置或没有公开依据的 API。
+
+
+## P3 默认主题回归
+
+```sh
+npm run test:social
+python3 tests/p30_audit.py --screenshots
+```
+
+覆盖 Default / Fresh / Minimal、自定义中英文品牌及无社交配置；检查真实 Tabs CSS Parts、品牌 SVG、RSS 普通文档导航与去重、搜索 live region、简洁页脚和持久化外壳。分页套件同步检查可访问的上一页 / 下一页链接和没有冗余页码；生产浏览仍保留原来的无脚本及 42 篇临时数据回归。Astro 构建顺序执行。

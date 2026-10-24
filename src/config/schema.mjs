@@ -109,7 +109,7 @@ export const configSchema = section({
   site: section({
     name: z.string().min(1).max(80).default("Nekomi"),
     tagline: text("分享技术、日常"),
-    intro: text("在这里，记录想分享的事。"),
+    intro: text(),
     avatar: image,
     avatarAlt: text("站点头像"),
     avatarFallback: z.string().max(2).default("N"),
@@ -122,7 +122,7 @@ export const configSchema = section({
           icon: z
             .string()
             .regex(/^[\w-]+$/)
-            .default("link"),
+            .default("auto"),
         }),
       )
       .default([]),
@@ -144,6 +144,9 @@ export const configSchema = section({
     mode: z.enum(["auto", "light", "dark"]).default("auto"),
     font: font.default(
       '"Segoe UI", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif',
+    ),
+    brandFont: font.default(
+      '"Avenir Next", "Hiragino Sans", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif',
     ),
     headingFont: font.default(
       '"Noto Serif CJK SC", "Songti SC", "STSong", ui-serif, serif',
@@ -198,10 +201,10 @@ export const configSchema = section({
       .default([]),
   }),
   home: section({
-    eyebrow: text("技术、灵感，还有日常"),
+    eyebrow: text(),
     description: text(),
-    emptyTitle: text("这里还很安静"),
-    emptyDescription: text("第一篇文章，正在路上。"),
+    emptyTitle: text("暂无文章"),
+    emptyDescription: text(),
   }),
   cards: section({
     cover: z.enum(["auto", "top", "none"]).default("auto"),
@@ -230,7 +233,7 @@ export const configSchema = section({
   footer: section({
     enabled: flag(),
     since: z.number().int().min(1970).max(2100).default(2026),
-    text: text("分享技术，也记录生活。"),
+    text: text(),
     copyright: text(),
     links: z
       .array(z.strictObject({ label: z.string().min(1).max(40), url: link }))

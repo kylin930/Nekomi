@@ -5,7 +5,7 @@
   "site": {
     "name": "Nekomi",
     "tagline": "分享技术、日常",
-    "intro": "在这里，记录想分享的事。",
+    "intro": "",
     "avatar": "",
     "avatarAlt": "站点头像",
     "avatarFallback": "N",
@@ -28,6 +28,7 @@
     "secondary": "",
     "mode": "auto",
     "font": "\"Segoe UI\", system-ui, -apple-system, \"PingFang SC\", \"Microsoft YaHei\", sans-serif",
+    "brandFont": "\"Avenir Next\", \"Hiragino Sans\", \"PingFang SC\", \"Microsoft YaHei\", system-ui, sans-serif",
     "headingFont": "\"Noto Serif CJK SC\", \"Songti SC\", \"STSong\", ui-serif, serif",
     "radius": 20,
     "wallpaper": {
@@ -87,10 +88,10 @@
     "links": []
   },
   "home": {
-    "eyebrow": "技术、灵感，还有日常",
+    "eyebrow": "",
     "description": "",
-    "emptyTitle": "这里还很安静",
-    "emptyDescription": "第一篇文章，正在路上。"
+    "emptyTitle": "暂无文章",
+    "emptyDescription": ""
   },
   "cards": {
     "cover": "auto",
@@ -123,7 +124,7 @@
   "footer": {
     "enabled": true,
     "since": 2026,
-    "text": "分享技术，也记录生活。",
+    "text": "",
     "copyright": "",
     "links": []
   },

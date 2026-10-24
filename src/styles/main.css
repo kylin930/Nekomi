@@ -72,11 +72,11 @@ main { min-width: 0; }
 .sidebar > [data-sidebar="desktop"] { overflow: visible; }
 .profile { padding: 6px 12px 0; margin-bottom: 20px; }
 .profile-brand { display: flex; gap: 16px; align-items: center; }
-.site-avatar { position: relative; flex: 0 0 auto; width: 72px; height: 72px; font-size: 30px; font-family: var(--identity-font); }
+.site-avatar { position: relative; flex: 0 0 auto; width: 72px; height: 72px; font-size: 30px; font-family: var(--brand-font); }
 /* Avatar 的公开形状变量同时约束内部图片，不加边框和外框。 */
 .site-avatar, .brand-avatar, .friend-avatar, .comment-avatar { --shape-corner: 50%; border-radius: 50%; border: 0; outline: 0; }
 .site-avatar img, .brand-avatar img, .friend-avatar img, .comment-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.site-name { margin: 0; font-family: var(--identity-font); font-size: 26px; font-weight: 700; letter-spacing: -.035em; line-height: 1.4; overflow-wrap: anywhere; }
+.site-name { margin: 0; font-family: var(--brand-font); font-size: 26px; font-weight: 650; letter-spacing: .015em; line-height: 1.4; overflow-wrap: anywhere; }
 .site-tagline { margin: 6px 0 0; line-height: 1.7; font-size: 12px; letter-spacing: .04em; color: rgb(var(--mdui-color-primary)); }
 .site-intro { margin: 16px 0 0; font-size: 13px; line-height: 1.8; color: rgb(var(--mdui-color-on-surface-variant)); }
 .side-search { margin: 0 8px 22px; }
@@ -110,7 +110,6 @@ main { min-width: 0; }
 #content-tabs mdui-tab-panel { overflow: visible; min-width: 0; }
 mdui-tab { flex: 0 0 auto; }
 .view-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 30px 0 26px; }
-.eyebrow { margin: 0 0 8px; color: rgb(var(--mdui-color-primary)); font-size: 11px; font-weight: 600; letter-spacing: .1em; }
 h1 { margin: 0; font-size: var(--mdui-typescale-headline-medium-size); line-height: 1.4; font-weight: 600; letter-spacing: -.03em; }
 .view-description { margin: 9px 0 0; font-size: 13px; line-height: 1.6; color: rgb(var(--mdui-color-on-surface-variant)); }
 .demo-note { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; font-size: 11px; color: rgb(var(--mdui-color-outline)); }
@@ -246,3 +245,6 @@ mdui-tab[active]::part(container) { background: rgba(var(--mdui-color-primary-co
 
 .profile-brand > div { min-width: 0; }
 .site-tagline, .site-intro, .site-footer { overflow-wrap: anywhere; }
+
+.site-appbar mdui-top-app-bar-title, .drawer-toolbar > span { font-family: var(--brand-font); font-weight: 650; letter-spacing: .015em; }
+.social-icon { width: 24px; height: 24px; display: block; fill: currentColor; }

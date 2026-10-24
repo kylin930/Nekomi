@@ -26,7 +26,7 @@ const { title, description = config.site.tagline, page = 'home', currentId, post
 const posts = await getPosts();
 const noindex = Astro.props.noindex ?? (page === 'error' || !canIndex(post ? [post] : posts));
 const a = config.appearance;
-const themeTokens = `--nekomi-latest-tint:${a.preset === 'minimal' ? '0%' : '18%'};--reader-width:${config.layout.readerWidth}px;--site-width:${config.layout.width}px;--sidebar-width:${config.layout.sidebarWidth}px;--reading-font:${a.font};--identity-font:${a.headingFont};--nekomi-shape-card:${a.radius}px;--nekomi-shape-pressed:${Math.max(8, a.radius - 4)}px`;
+const themeTokens = `--nekomi-latest-tint:${a.preset === 'minimal' ? '0%' : '18%'};--reader-width:${config.layout.readerWidth}px;--site-width:${config.layout.width}px;--sidebar-width:${config.layout.sidebarWidth}px;--reading-font:${a.font};--identity-font:${a.headingFont};--brand-font:${a.brandFont};--nekomi-shape-card:${a.radius}px;--nekomi-shape-pressed:${Math.max(8, a.radius - 4)}px`;
 const data = { ...config, posts: posts.map(postMetadata), base, pageSize: publishing.pageSize };
 const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest('hex').slice(0, 16);
 ---
