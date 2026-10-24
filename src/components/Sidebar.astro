@@ -2,7 +2,7 @@
 import { builtinCapabilities } from '../integrations/comments/capabilities';
 import { config } from '../config/site';
 import type { Post } from '../lib/posts';
-import { dateLabel, externalUrl, postUrl, navigationUrl } from '../lib/urls';
+import { dateLabel, externalUrl, postUrl, navigationUrl, withBase } from '../lib/urls';
 import Avatar from './Avatar.astro';
 import SearchField from './SearchField.astro';
 import PostListItem from './PostListItem.astro';
@@ -46,7 +46,7 @@ const commentTime = (date: string) => new Intl.DateTimeFormat('zh-CN', { month: 
       </div>
     </mdui-tab-panel>}
     {id === 'friends' && <mdui-tab-panel data-initial-active={id === tabs[0] || undefined} slot="panel" value="friends" id={prefix + '-friends-panel'} role="tabpanel" aria-labelledby={prefix + '-friends'}>
-      <div class="side-panel-content">{friends.length > 0 && <div class="side-panel-heading"><span>{friends.length} 个站点</span><mdui-button variant="text" data-friends-all>查看全部<Icon name="arrow_forward" slot="end-icon" /></mdui-button></div>}
+      <div class="side-panel-content">{friends.length > 0 && <div class="side-panel-heading"><span>{friends.length} 个站点</span><mdui-button variant="text" href={config.friendsPage.enabled ? withBase('friends/') : undefined} data-friends-all={!config.friendsPage.enabled || undefined}>查看全部<Icon name="arrow_forward" slot="end-icon" /></mdui-button></div>}
         {friends.length ? <mdui-list class="friend-list">{friends.slice(0, 5).map(friend => <FriendItem friend={friend} />)}</mdui-list> : <p class="friend-empty">暂无友链</p>}
       </div>
     </mdui-tab-panel>}
@@ -70,5 +70,5 @@ const commentTime = (date: string) => new Intl.DateTimeFormat('zh-CN', { month: 
     </>)}
   </mdui-tabs>}
   </>)}
-  {config.navigation.links.length > 0 && <nav class="custom-links" aria-label="更多链接">{config.navigation.links.map(link => <mdui-button variant="text" href={navigationUrl(link.url)}>{link.label}<Icon name="north_east" slot="end-icon" /></mdui-button>)}<noscript>{config.navigation.links.map(link => <p><a href={navigationUrl(link.url)}>{link.label}</a></p>)}</noscript></nav>}
+  {(config.navigation.links.length > 0 || config.friendsPage.enabled && config.friendsPage.navigation) && <nav class="custom-links" aria-label="更多链接">{config.friendsPage.enabled && config.friendsPage.navigation && !config.navigation.links.some(link => navigationUrl(link.url) === withBase('friends/')) && <mdui-button variant="text" href={withBase('friends/')}>友情链接<Icon name="group--outlined" slot="end-icon" /></mdui-button>}{config.navigation.links.map(link => <mdui-button variant="text" href={navigationUrl(link.url)}>{link.label}<Icon name="north_east" slot="end-icon" /></mdui-button>)}<noscript>{config.friendsPage.enabled && config.friendsPage.navigation && <p><a href={withBase('friends/')}>友情链接</a></p>}{config.navigation.links.map(link => <p><a href={navigationUrl(link.url)}>{link.label}</a></p>)}</noscript></nav>}
 </div>

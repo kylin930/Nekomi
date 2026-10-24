@@ -1,4 +1,8 @@
 ---
+import contentCSS from '../../styles/markdown.css?inline';
+import katexCSS from 'katex/dist/katex.min.css?inline';
+import { relatedPosts } from '../../lib/reading.mjs';
+import PostListItem from '../../components/PostListItem.astro';
 import { render } from 'astro:content';
 import Comments from '../../integrations/comments/Comments.astro';
 import SiteLayout from '../../layouts/SiteLayout.astro';
@@ -11,29 +15,34 @@ import SiteImage from '../../components/SiteImage.astro';
 export async function getStaticPaths() { return (await getPosts()).map(post => ({ params: { id: post.id }, props: { post } })); }
 interface Props { post: Post }
 const { post } = Astro.props;
-const { Content, headings } = await render(post);
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
 const posts = (await getPosts()).sort((a, b) => b.data.date.localeCompare(a.data.date) || a.id.localeCompare(b.id));
 const index = posts.findIndex(p => p.id === post.id);
 const neighbors = [{ item: posts[index - 1], label: '上一篇', direction: 'previous' }, { item: posts[index + 1], label: '下一篇', direction: 'next' }];
 const { title, excerpt, category, date, tags, cover, coverAlt } = post.data;
 const options = readingOptions(post.data.reading);
+const features = remarkPluginFrontmatter.nekomiFeatures as { math?: boolean; mermaid?: boolean; components?: boolean } || {};
+const recommendations: Post[] = options.related ? relatedPosts(post, posts, options.relatedLimit) : [];
+const showReadingTime = post.data.readingTime !== undefined ? post.data.readingTime !== false : options.readingTime;
 const categoryUrl = facetUrl('categories', facets(posts, 'categories').find(group => group.name === category)!.slug);
 const tagGroups = facets(posts, 'tags');
 ---
 <SiteLayout title={title + ' · ' + config.site.name} description={post.data.description || excerpt} page="article" currentId={post.id} post={post}>
-  <article id="reader" class="reader" data-reader-motion={String(options.motion)} data-copy-code={String(options.copyCode)}>
+  {(features.math || features.mermaid || features.components) && <style slot="head" is:inline set:html={contentCSS} data-nekomi-content />}
+  {features.math && <style slot="head" is:inline set:html={katexCSS} data-nekomi-math />}
+  <article id="reader" class="reader" data-reader-motion={String(options.motion)} data-copy-code={String(options.copyCode)} data-lightbox={String(options.lightbox)}>
     <nav class="reader-breadcrumb" aria-label="返回导航"><mdui-button variant="text" data-return-list href={withBase('') + '#recent'}><Icon name="arrow_back" slot="icon" />返回文章列表</mdui-button></nav>
     <header class="reader-header">
       {post.data.demo && <p class="example-label">示例文章 · 可替换的主题内容</p>}
       {options.metadata && config.content.categories && <div class="reader-kicker"><a id="article-category" href={categoryUrl}>{category}</a></div>}
       <h1 id="article-title" data-shared-title={post.id}>{title}</h1>
-      {options.metadata && <p class="reader-meta"><time id="article-date" datetime={date}>{dateLabel(date)}</time><span aria-hidden="true">·</span><span id="article-source">{post.data.author || config.publishing.author || config.site.name}</span>{post.data.updated && <><span>· 更新于</span><time datetime={post.data.updated}>{dateLabel(post.data.updated)}</time></>}</p>}
+      {options.metadata && <p class="reader-meta"><time id="article-date" datetime={date}>{dateLabel(date)}</time><span aria-hidden="true">·</span><span id="article-source">{post.data.author || config.publishing.author || config.site.name}</span>{showReadingTime && <><span aria-hidden="true">·</span><span id="article-reading-time">约 {post.data.readingMinutes} 分钟</span></>}{post.data.updated && <><span>· 更新于</span><time datetime={post.data.updated}>{dateLabel(post.data.updated)}</time></>}</p>}
       {options.metadata && config.content.tags && tags.length > 0 && <div id="article-tags" class="post-tags">{tags.map(tag => <mdui-chip variant="suggestion" href={facetUrl('tags', tagGroups.find(group => group.name === tag)!.slug)}>{tag}</mdui-chip>)}</div>}
     </header>
     <div id="article-hero">{options.cover && assetUrl(cover) && <figure class="article-hero" data-shared-cover={post.id}><SiteImage src={cover} alt={coverAlt} kind="hero" /></figure>}</div>
     {options.toc && headings.length > 0 && <mdui-card variant="outlined" class="toc-inline"><mdui-collapse id="inline-toc" accordion><mdui-collapse-item value="contents" id="inline-toc-item"><mdui-button slot="header" variant="text" class="toc-toggle" id="toc-toggle"><span id="toc-toggle-label">文章目录 · {headings.length} 个章节</span><Icon slot="end-icon" id="toc-toggle-icon" name="expand_more" /></mdui-button><nav id="toc-inline-list" class="toc-content" aria-label="折叠文章目录"><TocTree headings={headings} /></nav></mdui-collapse-item></mdui-collapse></mdui-card>}
     <div id="article-body" class="prose"><Content /></div>
-    <footer class="reader-footer"><mdui-divider></mdui-divider>{options.neighbors && <nav id="article-neighbors" class="article-neighbors" aria-label="相邻文章">{neighbors.map(({ item, label, direction }) => item ? <mdui-card variant="outlined" clickable class="article-neighbor" data-direction={direction} href={postUrl(item.id)} data-astro-prefetch="hover"><span class="neighbor-label">{label}</span><strong>{item.data.title}</strong></mdui-card> : <div class="neighbor-boundary"><span>{label}</span><p>{direction === 'previous' ? '没有上一篇' : '没有下一篇'}</p></div>)}</nav>}{config.comments.provider === 'link' && post.data.comments !== false && post.data.commentsUrl && <mdui-button variant="text" href={post.data.commentsUrl}>参与讨论<Icon name="open_in_new" slot="end-icon" /></mdui-button>}<mdui-button variant="tonal" data-return-list href={withBase('') + '#recent'}>返回文章列表</mdui-button></footer>
+    <footer class="reader-footer">{recommendations.length > 0 && <section class="related-posts" aria-labelledby="related-title"><h2 id="related-title">相关文章</h2><mdui-list>{recommendations.map(item => <PostListItem post={item} description={item.data.category + ' · ' + dateLabel(item.data.date)} />)}</mdui-list></section>}<mdui-divider></mdui-divider>{options.neighbors && <nav id="article-neighbors" class="article-neighbors" aria-label="相邻文章">{neighbors.map(({ item, label, direction }) => item ? <mdui-card variant="outlined" clickable class="article-neighbor" data-direction={direction} href={postUrl(item.id)} data-astro-prefetch="hover"><span class="neighbor-label">{label}</span><strong>{item.data.title}</strong></mdui-card> : <div class="neighbor-boundary"><span>{label}</span><p>{direction === 'previous' ? '没有上一篇' : '没有下一篇'}</p></div>)}</nav>}{config.comments.provider === 'link' && post.data.comments !== false && post.data.commentsUrl && <mdui-button variant="text" href={post.data.commentsUrl}>参与讨论<Icon name="open_in_new" slot="end-icon" /></mdui-button>}<mdui-button variant="tonal" data-return-list href={withBase('') + '#recent'}>返回文章列表</mdui-button></footer>
     <Comments post={post} />
   </article>
   {options.toc && <aside slot="toc" class="reading-toc" id="reading-toc" aria-label="阅读辅助" hidden={!headings.length}><p class="toc-label">本文目录</p><nav id="toc-desktop-list" aria-label="文章目录"><TocTree headings={headings} /></nav></aside>}

@@ -7,6 +7,7 @@
 [手机阅读](screenshots/p30-default-reader-light-390.png) · [深色模式](screenshots/p30-default-home-dark-1440.png) · [Fresh 预设](screenshots/p30-fresh-home-light-1440.png) · [Minimal 预设](screenshots/p30-minimal-home-light-1440.png) · [P3 实际截图](screenshots/P30.md)
 
 - 可复用 Astro 组件与 Content Collections；Markdown、Shiki 双主题高亮、本地响应式图片、原生 MDUI 目录与代码复制。
+- 构建时 KaTeX 与阅读时间、按需 Mermaid / 图片灯箱、原生 MDUI 内容 Tabs；提示、折叠、图片组、链接卡片和点击加载视频，直接写在 `.md` 中。
 - ClientRouter 无刷新导航、标题 / 封面共享过渡、轻量弹簧目录；尊重减少动态效果。
 - 壁纸可选、默认关闭。启用后跨页面保留相同 DOM 与已解码图片，Service Worker 缓存仅辅助刷新。
 - 静态分页 + 可选无限滚动，全量文章搜索，分类 / 标签 / 月份独立 URL；返回列表恢复条件、批次和位置。
@@ -114,14 +115,30 @@ console.log('Hello, Nekomi');
 ```
 ````
 
-文章地址为 `/posts/hello/`，请尽量保持文件名稳定。日期按 `YYYY-MM-DD` 填写；`updated` 只在确实更新时填写。摘要不填时从正文生成，默认最多 140 字。可选字段还包括 `author`、`description`（SEO）、`pinned`、`draft`、`cover`、`coverAlt`、`comments`、`commentId`、`commentPath`、`commentsUrl` 和单篇 `reading` 开关。
+文章地址为 `/posts/hello/`，请尽量保持文件名稳定。日期按 `YYYY-MM-DD` 填写；`updated` 只在确实更新时填写。摘要不填时从正文生成，默认最多 140 字。可选字段还包括 `author`、`description`（SEO）、`pinned`、`draft`、`cover`、`coverAlt`、`comments`、`commentId`、`commentPath`、`commentsUrl` 、`readingTime`、`markdown` 和单篇 `reading` 开关。
 
-[Frontmatter 参考](src/content/README.md)。`draft: true` 不生成文章页，也不进入搜索 / 订阅。`pinned: true` 在列表中优先展示；RSS 始终按日期。默认两篇入门文章明确标识为示例，设有 `demo: true`，可以全部删除，空站仍可构建。
+[Frontmatter 参考](src/content/README.md)。`draft: true` 不生成文章页，也不进入搜索 / 订阅。`pinned: true` 在列表中优先展示；RSS 始终按日期。默认三篇入门 / 扩展示例文章明确标识为示例，设有 `demo: true`，可以全部删除，空站仍可构建。
+
+## Markdown 扩展与阅读
+
+[完整写作语法](docs/MARKDOWN.md)提供可复制的提示块、折叠、图片组、链接卡片、视频、内容 Tabs、数学公式与 Mermaid 示例。[完整示例文章](src/content/posts/markdown-extensions.md)可直接在本地打开 `/posts/markdown-extensions/`；[实际桌面 / 手机截图](screenshots/P31.md)。
+
+正文未链接图片支持灯箱、键盘与触控；带链接图片仍打开原链接。KaTeX 在构建时渲染，Mermaid 只在实际需要时加载并跟随主题。外部视频初始不创建播放器，需要读者点击。相关文章按分类 / 共同标签在构建时计算，不依赖外部推荐服务。
+
+```json
+{
+  "reading": { "lightbox": true, "readingTime": true, "related": true, "relatedLimit": 3 },
+  "markdown": { "math": true, "mermaid": true, "components": true },
+  "friendsPage": { "enabled": true, "navigation": false }
+}
+```
+
+以上均有默认值，无需整段复制。单篇 `readingTime: false` 隐藏时长，`readingTime: 5` 指定分钟数；`reading` 和 `markdown` 对象可覆盖单篇功能。友链复用 `friends` 配置，默认 `/friends/` 已生成，侧栏“查看全部”进入该页；开启 `friendsPage.navigation` 可额外在公共侧栏显示入口。关闭页面开关仍兼容旧 Dialog。
 
 ## 头像、封面和壁纸
 
 - 头像 / 封面放入 `src/assets/images/`，配置 `site.avatar: "images/avatar.webp"`，文章写 `cover: images/cover.webp` 和 `coverAlt`。Astro 生成响应式 WebP 和固有尺寸；无头像使用文字回退，失效封面收起。
-- Markdown 使用 `![描述](../../assets/images/photo.webp)`，也兼容 `/images/photo.webp` 本地资源写法。图片必须自行提供并确认授权。
+- Markdown 可使用 `![描述](images/photo.webp)` 对应 src/assets/images/photo.webp，也支持相对文件路径；public 图片使用 `/images/photo.webp`。图片必须自行提供并确认授权。
 - `cards.cover` 可选 `auto`（宽屏右图、窄屏上图）、`top`、`none`；`reading.cover` 控制阅读页头图。
 - **壁纸默认关闭**。将有权使用的图片放在 `public/images/wallpaper.webp` 后配置：
 
@@ -229,6 +246,6 @@ NEKOMI_CONFIG=/path/to/my-site.json NEKOMI_CONTENT_DIR=/path/to/posts npm run bu
 
 统计默认关闭。目前可选 Umami，需显式提供脚本地址和公开 website ID；不接受私钥。默认没有评论 SDK 或统计请求；显式启用后才连接所选服务。图标字体仍由 Google Fonts 提供，属于字体资源请求；需完全离线时可按第三方许可自行托管字体。
 
-主题代码为 [MIT](LICENSE)；[第三方依赖与素材说明](THIRD-PARTY-NOTICES.md)。Stellar 与 G 仅用于设计参考，没有复制 GPL 源码或受保护的主题素材。历史阶段截图可能包含原站自行提供的背景，不属于主题许可或默认资产。P2.5 新截图使用无背景默认值，或项目自身界面截图作为测试图片。
+主题代码为 [MIT](LICENSE)；[第三方依赖与素材说明](THIRD-PARTY-NOTICES.md)。Stellar、G 与 Cuckoo 仅用于设计参考，没有复制 GPL 源码或受保护的主题素材。历史阶段截图可能包含原站自行提供的背景，不属于主题许可或默认资产。P2.5 新截图使用无背景默认值，或项目自身界面截图作为测试图片。
 
 [测试结果](tests/RESULTS.md) · [动效与 MDUI 分工](docs/MOTION.md) · [配置参考](docs/CONFIGURATION.md) · [CHANGELOG](CHANGELOG.md)

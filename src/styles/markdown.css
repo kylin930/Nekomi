@@ -1,0 +1,227 @@
+/* Markdown components share the existing MD3 roles and reading scale. */
+.md-callout {
+  --callout-color: var(--mdui-color-primary);
+  --callout-paper: var(--mdui-color-primary-container);
+  margin: 0 0 var(--prose-block-gap);
+  padding: 16px 20px;
+  border-inline-start: 3px solid rgb(var(--callout-color));
+  border-radius: 4px 16px 16px 4px;
+  background: color-mix(
+    in srgb,
+    rgb(var(--callout-paper)) 35%,
+    var(--site-reader-paper)
+  );
+}
+.md-callout[data-kind='info'] {
+  --callout-color: var(--mdui-color-secondary);
+  --callout-paper: var(--mdui-color-secondary-container);
+}
+.md-callout[data-kind='success'] {
+  --callout-color: var(--mdui-color-success);
+  --callout-paper: var(--mdui-color-success-container);
+}
+.md-callout[data-kind='warning'] {
+  --callout-color: var(--mdui-color-warning);
+  --callout-paper: var(--mdui-color-warning-container);
+}
+.md-callout[data-kind='danger'] {
+  --callout-color: var(--mdui-color-error);
+  --callout-paper: var(--mdui-color-error-container);
+}
+.prose .md-callout-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 15px;
+  color: rgb(var(--mdui-color-on-surface));
+}
+.md-callout-title mdui-icon {
+  color: rgb(var(--callout-color, var(--mdui-color-primary)));
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.md-callout > :last-child,
+.md-details-body > :last-child {
+  margin-bottom: 0;
+}
+.md-details {
+  margin-bottom: var(--prose-block-gap);
+  border: 1px solid rgb(var(--mdui-color-outline-variant));
+  border-radius: var(--mdui-shape-corner-medium);
+  overflow: clip;
+}
+.md-details > summary,
+.mermaid-source > summary {
+  cursor: pointer;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(var(--mdui-color-on-surface));
+}
+.md-details > summary {
+  background: rgb(var(--mdui-color-surface-container-low));
+}
+.md-details-body {
+  padding: 16px;
+}
+.md-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: var(--prose-block-gap);
+}
+.prose .md-gallery figure {
+  margin: 0;
+  align-self: start;
+}
+.md-gallery img {
+  width: 100%;
+}
+.md-link-card {
+  display: block;
+  margin-bottom: var(--prose-block-gap);
+  --shape-corner: var(--mdui-shape-corner-medium);
+  background: rgb(var(--mdui-color-surface-container-low));
+}
+.prose .md-link-card-body {
+  display: grid;
+  gap: 6px;
+  padding: 16px 20px;
+  text-decoration: none;
+  font-size: 14px;
+  color: rgb(var(--mdui-color-on-surface));
+}
+.md-link-card-body strong {
+  color: rgb(var(--mdui-color-primary));
+  font-size: 16px;
+}
+.md-link-address {
+  color: rgb(var(--mdui-color-on-surface-variant));
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.md-video {
+  border: 1px solid rgb(var(--mdui-color-outline-variant));
+  border-radius: var(--mdui-shape-corner-medium);
+  padding: 16px;
+}
+.prose .md-video figcaption {
+  text-align: start;
+  margin: 0 0 12px;
+  color: rgb(var(--mdui-color-on-surface));
+  font-size: 15px;
+  font-weight: 600;
+}
+.prose .md-video p {
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: rgb(var(--mdui-color-on-surface-variant));
+}
+.md-video > a {
+  display: inline-block;
+  margin-inline-start: 16px;
+  font-size: 13px;
+}
+.md-video-frame {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border: 0;
+  display: block;
+  margin-bottom: 16px;
+  border-radius: var(--mdui-shape-corner-small);
+}
+.md-tabs {
+  display: block;
+  margin-bottom: var(--prose-block-gap);
+  min-width: 0;
+}
+.md-tabs::part(container) {
+  border-radius: 12px 12px 0 0;
+  background: rgb(var(--mdui-color-surface-container-low));
+}
+.md-tabs mdui-tab-panel {
+  min-width: 0;
+  padding: 16px 0 0;
+  overflow: visible;
+}
+[data-md-tabs] > mdui-tab-panel > .md-tab-fallback {
+  display: none;
+}
+.md-tabs mdui-tab-panel > :last-child {
+  margin-bottom: 0;
+}
+.lightbox-image {
+  cursor: zoom-in;
+}
+.prose .katex {
+  font-size: 1.05em;
+}
+/* Keep a long inline formula inside the reading column as well. */
+.prose :not(.katex-display) > .katex {
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  vertical-align: middle;
+  padding-block: 2px;
+}
+.prose .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  padding: 8px 0;
+  margin: 0 0 var(--prose-block-gap);
+}
+.md-mermaid {
+  min-width: 0;
+  border: 1px solid rgb(var(--mdui-color-outline-variant));
+  border-radius: var(--mdui-shape-corner-medium);
+  padding: 12px;
+}
+.mermaid-render {
+  max-width: 100%;
+  max-height: 640px;
+  overflow: auto;
+  padding: 8px;
+}
+.mermaid-render svg {
+  display: block;
+  height: auto;
+}
+.mermaid-source {
+  margin-top: 8px;
+}
+.mermaid-source .code-block {
+  margin-bottom: 0;
+}
+[data-mermaid-status] {
+  font-size: 13px;
+  color: rgb(var(--mdui-color-on-surface-variant));
+}
+[data-mermaid-status]:empty {
+  display: none;
+}
+.mermaid-scratch {
+  position: fixed;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+@media (max-width: 600px) {
+  .md-gallery {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .md-callout {
+    padding: 14px 16px;
+  }
+  .md-link-card-body {
+    padding: 14px 16px;
+  }
+}
+
+.prose .katex-error {
+  color: rgb(var(--mdui-color-error));
+}

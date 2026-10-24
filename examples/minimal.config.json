@@ -34,7 +34,10 @@
     "neighbors": false,
     "motion": false,
     "metadata": false,
-    "cover": false
+    "cover": false,
+    "lightbox": false,
+    "readingTime": false,
+    "related": false
   },
   "content": {
     "infiniteScroll": false,
@@ -49,5 +52,14 @@
   },
   "footer": {
     "text": ""
+  },
+  "markdown": {
+    "math": false,
+    "mermaid": false,
+    "components": false
+  },
+  "friendsPage": {
+    "enabled": false,
+    "navigation": false
   }
 }

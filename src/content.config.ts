@@ -18,6 +18,8 @@ const posts = defineCollection({
     commentPath: z.union([z.string().regex(/^\/(?!\/)[^?#\s]*$/), z.url({ protocol: /^https?$/ })]).optional(),
     commentsUrl: z.url({ protocol: /^https?$/ }).optional(),
     reading: readingSchema.optional(),
+    readingTime: z.union([z.boolean(), z.number().int().min(1).max(10000)]).optional(),
+    markdown: z.strictObject({ math: z.boolean().optional(), mermaid: z.boolean().optional(), components: z.boolean().optional() }).optional(),
     date: z.iso.date(),
     updated: z.iso.date().optional(),
     category: z.string().default('未分类'),

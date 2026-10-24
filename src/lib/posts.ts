@@ -1,3 +1,4 @@
+import { readingMinutes } from './reading.mjs';
 import { getCollection } from 'astro:content';
 import { assetUrl, postUrl, pageUrl } from './urls';
 import { publishing } from '../config/publishing.mjs';
@@ -10,7 +11,7 @@ function summarize(body: string) {
   return chars.slice(0, config.content.excerptLength).join('') + (chars.length > config.content.excerptLength ? '…' : '');
 }
 export async function getPosts() {
-  const posts = (await getCollection('posts')).filter(post => !post.data.draft).map(post => ({ ...post, data: { ...post.data, excerpt: post.data.excerpt ?? summarize(post.body || '') } })).sort((a, b) => Number(b.data.pinned) - Number(a.data.pinned) || b.data.date.localeCompare(a.data.date) || a.id.localeCompare(b.id));
+  const posts = (await getCollection('posts')).filter(post => !post.data.draft).map(post => ({ ...post, data: { ...post.data, excerpt: post.data.excerpt ?? summarize(post.body || ''), readingMinutes: typeof post.data.readingTime === 'number' ? post.data.readingTime : readingMinutes(post.body || '') } })).sort((a, b) => Number(b.data.pinned) - Number(a.data.pinned) || b.data.date.localeCompare(a.data.date) || a.id.localeCompare(b.id));
   const keys = new Map<string, string>();
   for (const post of posts) {
     const key = commentKey(post, config.comments.keyPrefix);

@@ -508,6 +508,24 @@
       "default": {},
       "type": "object",
       "properties": {
+        "lightbox": {
+          "default": true,
+          "type": "boolean"
+        },
+        "readingTime": {
+          "default": true,
+          "type": "boolean"
+        },
+        "related": {
+          "default": true,
+          "type": "boolean"
+        },
+        "relatedLimit": {
+          "default": 3,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6
+        },
         "toc": {
           "default": true,
           "type": "boolean"
@@ -530,6 +548,40 @@
         },
         "motion": {
           "default": true,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "markdown": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "math": {
+          "default": true,
+          "type": "boolean"
+        },
+        "mermaid": {
+          "default": true,
+          "type": "boolean"
+        },
+        "components": {
+          "default": true,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "friendsPage": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "default": true,
+          "type": "boolean"
+        },
+        "navigation": {
+          "default": false,
           "type": "boolean"
         }
       },

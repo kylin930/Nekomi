@@ -18,7 +18,8 @@ export function createTheme(data) {
   var source = /^#(?:[a-f0-9]{3}|[a-f0-9]{6})$/i.test(appearance.color || '') ? appearance.color : '#8064b1';
   setColorScheme(source, { customColors: [
     ...(appearance.secondary ? [{ name: 'accent', value: appearance.secondary }] : []),
-    { name: 'blossom', value: '#b65e82' }, { name: 'sky', value: '#427f9d' }
+    { name: 'blossom', value: '#b65e82' }, { name: 'sky', value: '#427f9d' },
+    { name: 'success', value: '#357b54' }, { name: 'warning', value: '#946b00' }
   ] });
   var wallpaper = appearance.wallpaper || {};
   var systemDark = matchMedia('(prefers-color-scheme: dark)');

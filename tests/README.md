@@ -98,3 +98,26 @@ python3 tests/p30_audit.py --screenshots
 五套配置（Default、Fresh、Minimal、自定义中文 / 英文品牌、无社交与 RSS）分别检查 1440×900 桌面与 390×844 触控手机、浅色与深色。检查真实 MDUI Tabs CSS Part 四角与吸顶，标题区域仅有标题，独立 brandFont 不修改文章字体，正确品牌 SVG / 网站 / 邮箱图标，RSS 同地址去重与一次普通文档导航，功能关闭后无空社交容器，默认及自定义页脚，搜索持久 live region 和跨页状态。截图位于 screenshots/P30.md。
 
 分页套件不再依赖可见页码：检查实际下一页 URL 在追加后更新、末尾没有冗余提示及空分页容器；慢网 / 重试 / 稳定滚动 / 无脚本七页遍历全部保留。对比度回归检查实际保留的首页标题，不再检测已删除的说明文字。品牌资源及 CC0 许可见 src/assets/icons/README.md。
+
+## P3.1 Markdown 与阅读能力
+
+```sh
+npm run test:reading
+python3 tests/reading_audit.py --screenshots
+python3 tests/reading_audit.py --base /Nekomi/
+```
+
+临时文章覆盖错误图表 / 内嵌配置、损坏图片、嵌套 Tabs / 折叠锚点、宽公式、草稿与正式内容排除；正式仓库只有三篇明确标识的示例。验证生产静态产物、桌面 / 手机浅深、无 JS 的公式 / 全部 Tab 正文 / 原链接、外部视频点击前零连接、主题重绘、原图 URL 在缓存重建后仍为 200、功能全关时不下载对应引擎 / 样式 / 字体，及独立友链页和原公共 DOM 持久化。
+
+视频跨域响应使用明确的本地测试回放，检查平台地址、点击后加载和关闭，不把回放当作真实平台播放成功。Google Fonts 仍通过保留证书验证的 curl 缓存回放。实际图片 / KaTeX / Mermaid / PhotoSwipe 均使用生产 npm 构建代码，不替换 SDK。
+
+定向边界在 P3.1 fixture 构建后运行：
+
+```sh
+python3 tests/reading_edges.py
+python3 tests/reading_edges.py --dist .astro/p25-tests/p31-core-base/dist --base /Nekomi/
+```
+
+使用实际 Chromium 触摸输入检查滑动 / 双指缩放 / 拖动，另测灯箱期间搜索快捷键、单图 / 原图失败、带灯箱离页、减少动态、引擎加载中变色、隐藏图表展开、长行内公式、闭合 Details 的目录状态及嵌套 Tabs 键盘作用域。
+
+`python3 tests/reading_assets.py` 另外验证 src/ 之外的独立 Markdown 目录：与项目资产内容相同但路径不同的图片，在连续两次构建后仍有可访问的全尺寸图片。检查内部构建路径不会写入 HTML，避免资产去重导致原图失效或文件路径泄露。

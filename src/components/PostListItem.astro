@@ -4,4 +4,8 @@ import { postUrl } from '../lib/urls';
 interface Props { post: Post; description: string; active?: boolean }
 const { post, description, active } = Astro.props;
 ---
-<mdui-list-item rounded href={postUrl(post.id)} data-post={post.id} headline={post.data.title} headline-line="2" description={description} active={active || undefined}></mdui-list-item>
+<mdui-list-item rounded href={postUrl(post.id)} data-post={post.id} headline={post.data.title} headline-line="2" description={description} active={active || undefined}>
+  <span>{post.data.title}</span>
+  <span slot="description">{description}</span>
+  <noscript><a href={postUrl(post.id)}>阅读文章</a></noscript>
+</mdui-list-item>

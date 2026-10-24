@@ -103,12 +103,25 @@
     "latest": true
   },
   "reading": {
+    "lightbox": true,
+    "readingTime": true,
+    "related": true,
+    "relatedLimit": 3,
     "toc": true,
     "copyCode": true,
     "cover": true,
     "metadata": true,
     "neighbors": true,
     "motion": true
+  },
+  "markdown": {
+    "math": true,
+    "mermaid": true,
+    "components": true
+  },
+  "friendsPage": {
+    "enabled": true,
+    "navigation": false
   },
   "content": {
     "infiniteScroll": true,

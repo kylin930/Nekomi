@@ -785,6 +785,7 @@ def main():
             if not args.skip_fixtures and (not args.only or args.only in ('fixtures', 'covers')):
                 fixture = json.loads((ROOT / 'examples/personal/site.config.json').read_text())
                 fixture.update(json.loads((ROOT / 'tests/fixtures/sidebar.json').read_text()))
+                fixture['friendsPage'] = {'enabled': False}  # Explicitly cover the legacy Dialog fallback.
                 fixture['site']['avatar'] = 'images/demo-home.png'
                 fixture['friends'][0]['avatar'] = 'images/missing-fixture-avatar.png'
                 fixture['friends'][1]['avatar'] = 'images/demo-home.png'

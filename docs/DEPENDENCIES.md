@@ -1,6 +1,6 @@
 # 依赖与发布许可检查
 
-由 `npm run licenses` 根据已安装锁定版本生成。主题代码 MIT 不改变第三方许可。浏览器 MDUI / Astro 及 MDUI 依赖的完整许可文本随静态产物一起发布在 `/THIRD-PARTY-LICENSES.txt`；目录为保守范围，可能包含本次按需组件未使用的依赖。图标字体由 Google Fonts 提供，另见 THIRD-PARTY-NOTICES.md。
+由 `npm run licenses` 根据已安装锁定版本生成。主题代码 MIT 不改变第三方许可。浏览器 MDUI / Astro / Markdown 扩展及传递依赖的完整许可文本随静态产物一起发布在 `/THIRD-PARTY-LICENSES.txt`；目录为保守范围，可能包含本次按需组件未使用的依赖。图标字体由 Google Fonts 提供，另见 THIRD-PARTY-NOTICES.md。
 
 | 直接依赖 | 锁定版本 | 许可 | 分工 |
 | --- | --- | --- | --- |
@@ -8,8 +8,20 @@
 | @astrojs/rss | 4.0.19 | MIT | 构建期，不加入浏览器依赖 |
 | @astrojs/sitemap | 3.7.4 | MIT | 构建期，不加入浏览器依赖 |
 | astro | 7.4.2 | MIT | 静态构建与浏览器导航运行时 |
+| katex | 0.16.47 | MIT | 构建期公式渲染及浏览器 CSS / 字体 |
 | mdui | 2.1.5 | MIT | 浏览器组件与主题功能 |
+| mermaid | 12.2.0 | MIT | 按文章 / 交互加载的浏览器扩展 |
+| photoswipe | 5.4.4 | MIT | 按文章 / 交互加载的浏览器扩展 |
+| rehype-katex | 7.0.1 | MIT | 构建期，不加入浏览器依赖 |
 | rehype-raw | 7.0.0 | MIT | 构建期，不加入浏览器依赖 |
+| remark-directive | 4.0.0 | MIT | 构建期，不加入浏览器依赖 |
+| remark-math | 6.0.0 | MIT | 构建期，不加入浏览器依赖 |
+| remark-parse | 11.0.0 | MIT | 构建期，不加入浏览器依赖 |
+| unified | 11.0.5 | MIT | 构建期，不加入浏览器依赖 |
+
+## 浏览器扩展的特殊许可
+
+Mermaid 包含 DOMPurify（MPL-2.0 OR Apache-2.0）与 elkjs 0.9.3（EPL-2.0），均为未修改的上游依赖；完整许可随上述 notices 分发。ELK 的对应源代码和构建说明可从 https://github.com/kieler/elkjs/tree/0.9.3 及 https://github.com/eclipse/elk 获取。Nekomi 的独立主题代码仍为 MIT，不将整棵依赖树称为 MIT。
 
 ## 构建工具的特殊许可
 
