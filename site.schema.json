@@ -31,7 +31,7 @@
           "maxLength": 1000
         },
         "intro": {
-          "default": "在这里，记录想分享的事。",
+          "default": "",
           "type": "string",
           "maxLength": 1000
         },
@@ -80,7 +80,7 @@
                 "maxLength": 2048
               },
               "icon": {
-                "default": "link",
+                "default": "auto",
                 "type": "string",
                 "pattern": "^[\\w-]+$"
               }
@@ -190,6 +190,13 @@
         },
         "font": {
           "default": "\"Segoe UI\", system-ui, -apple-system, \"PingFang SC\", \"Microsoft YaHei\", sans-serif",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[^;{}<>@\\n\\r\\\\]+$"
+        },
+        "brandFont": {
+          "default": "\"Avenir Next\", \"Hiragino Sans\", \"PingFang SC\", \"Microsoft YaHei\", system-ui, sans-serif",
           "type": "string",
           "minLength": 1,
           "maxLength": 256,
@@ -435,7 +442,7 @@
       "type": "object",
       "properties": {
         "eyebrow": {
-          "default": "技术、灵感，还有日常",
+          "default": "",
           "type": "string",
           "maxLength": 1000
         },
@@ -445,12 +452,12 @@
           "maxLength": 1000
         },
         "emptyTitle": {
-          "default": "这里还很安静",
+          "default": "暂无文章",
           "type": "string",
           "maxLength": 1000
         },
         "emptyDescription": {
-          "default": "第一篇文章，正在路上。",
+          "default": "",
           "type": "string",
           "maxLength": 1000
         }
@@ -587,7 +594,7 @@
           "maximum": 2100
         },
         "text": {
-          "default": "分享技术，也记录生活。",
+          "default": "",
           "type": "string",
           "maxLength": 1000
         },

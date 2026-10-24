@@ -14,7 +14,7 @@
 
 ## site
 
-站点身份。纯文本，不接受任意 HTML。social 支持 MDUI 图标名及 HTTP(S)/mailto/站内链接。email 为空时不显示。
+站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。
 
 ## publishing
 
@@ -22,7 +22,7 @@
 
 ## appearance
 
-预设 default / fresh / minimal 提供 Token 默认值；显式字段优先。color 为六位主色，secondary 为空由 MDUI 推导，填写后使用 MDUI customColors 的完整语义色组。mode 仅决定首次默认，用户保存的偏好优先。字体为本地 CSS font-family，不自动下载字体。radius 控制卡片和阅读表面，按钮等 MDUI 控件保留原生形状角色。
+预设 default / fresh / minimal 提供 Token 默认值；显式字段优先。color 为六位主色，secondary 为空由 MDUI 推导，填写后使用 MDUI customColors 的完整语义色组。mode 仅决定首次默认，用户保存的偏好优先。字体为本地 CSS font-family，不自动下载字体。brandFont 独立控制站名、手机 App Bar 与身份文字，headingFont 只控制内容标题；更改正文 font 不会覆盖 brandFont。radius 控制卡片和阅读表面，按钮等 MDUI 控件保留原生形状角色。
 
 ## appearance.wallpaper
 
@@ -38,7 +38,7 @@ tabs 的 id 为 recent/categories/tags/archive；recent 必须启用，可改名
 
 ## home
 
-首页眉题、描述和空文章状态。description 留空自动显示篇数。
+emptyTitle / emptyDescription 自定义无文章状态，空描述不输出段落。P3 标题区不再显示装饰文字或统计：eyebrow 仅保留旧配置输入兼容；description 改用于全部文章页的 SEO Description，留空沿用站点副标题。搜索计数由独立 live region 按需显示。
 
 ## cards
 
@@ -54,11 +54,11 @@ infiniteScroll=false 禁用观察器自动加载，保留普通分页与手动�
 
 ## features
 
-search 关闭同时移除搜索框、快捷键与 URL 查询搜索。rss 关闭时隐藏入口及自动发现、端点返回空频道；sitemap 关闭不加载集成，robots 不引用站点地图。
+RSS 入口位于 social 侧栏模块（含 Drawer），features.rss=false 时不自动显示；不会在默认页脚重复。移除 social 模块也会隐藏该入口，自动发现仍由 rss 开关控制。search 关闭同时移除搜索框、快捷键与 URL 查询搜索。rss 关闭时隐藏入口及自动发现、端点返回空频道；sitemap 关闭不加载集成，robots 不引用站点地图。
 
 ## footer
 
-页脚开关、起始年份、纯文字说明、自定义版权（留空自动 © 年份 站名）、附加链接。
+页脚开关、起始年份、纯文字说明、自定义版权（留空自动 © 年份 站名）、附加链接。默认 text 为空；自定义内容照常保留。RSS 自动入口不再放在页脚。
 
 ## friends
 
@@ -80,7 +80,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `demoNotice` | string | `"示例内容，请替换为自己的文章。"` | 长度 ≤ 1000 |
 | `site.name` | string | `"Nekomi"` | 长度 ≥ 1，长度 ≤ 80 |
 | `site.tagline` | string | `"分享技术、日常"` | 长度 ≤ 1000 |
-| `site.intro` | string | `"在这里，记录想分享的事。"` | 长度 ≤ 1000 |
+| `site.intro` | string | `""` | 长度 ≤ 1000 |
 | `site.avatar` | string | `""` | 长度 ≤ 2048 |
 | `site.avatarAlt` | string | `"站点头像"` | 长度 ≤ 1000 |
 | `site.avatarFallback` | string | `"N"` | 长度 ≤ 2 |
@@ -99,6 +99,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `appearance.secondary` | string / string | `""` | — |
 | `appearance.mode` | `auto` / `light` / `dark` | `"auto"` | — |
 | `appearance.font` | string | `"\"Segoe UI\", system-ui, -apple-system, \"PingFang SC\", \"Microsoft YaHei\", sans-serif"` | 长度 ≥ 1，长度 ≤ 256 |
+| `appearance.brandFont` | string | `"\"Avenir Next\", \"Hiragino Sans\", \"PingFang SC\", \"Microsoft YaHei\", system-ui, sans-serif"` | 长度 ≥ 1，长度 ≤ 256 |
 | `appearance.headingFont` | string | `"\"Noto Serif CJK SC\", \"Songti SC\", \"STSong\", ui-serif, serif"` | 长度 ≥ 1，长度 ≤ 256 |
 | `appearance.radius` | integer | `20` | ≥ 8，≤ 28 |
 | `appearance.wallpaper.enabled` | boolean | `false` | — |
@@ -120,10 +121,10 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `layout.sidebarTabs` | array | `["updates","friends","comments"]` | — |
 | `navigation.tabs` | array | `[{"id":"recent","label":"全部文章","enabled":true},{"id":"categories","label":"分类","enabled":true},{"id":"tags","label":"标签","enabled":true},{"id":"archive","label":"归档","enabled":true}]` | — |
 | `navigation.links` | array | `[]` | — |
-| `home.eyebrow` | string | `"技术、灵感，还有日常"` | 长度 ≤ 1000 |
+| `home.eyebrow` | string | `""` | 长度 ≤ 1000 |
 | `home.description` | string | `""` | 长度 ≤ 1000 |
-| `home.emptyTitle` | string | `"这里还很安静"` | 长度 ≤ 1000 |
-| `home.emptyDescription` | string | `"第一篇文章，正在路上。"` | 长度 ≤ 1000 |
+| `home.emptyTitle` | string | `"暂无文章"` | 长度 ≤ 1000 |
+| `home.emptyDescription` | string | `""` | 长度 ≤ 1000 |
 | `cards.cover` | `auto` / `top` / `none` | `"auto"` | — |
 | `cards.excerpt` | boolean | `true` | — |
 | `cards.date` | boolean | `true` | — |
@@ -146,7 +147,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `features.sitemap` | boolean | `true` | — |
 | `footer.enabled` | boolean | `true` | — |
 | `footer.since` | integer | `2026` | ≥ 1970，≤ 2100 |
-| `footer.text` | string | `"分享技术，也记录生活。"` | 长度 ≤ 1000 |
+| `footer.text` | string | `""` | 长度 ≤ 1000 |
 | `footer.copyright` | string | `""` | 长度 ≤ 1000 |
 | `footer.links` | array | `[]` | — |
 | `friends` | array | `[]` | — |
@@ -187,7 +188,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 
 ## 接口与依赖
 
-- social: `{ name, url, icon? }`；icon 默认为 link，例如 code、mail--outlined。链接不接受 javascript: / data:。
+- social: `{ name, url, icon? }`；icon 默认 auto，自动识别 github.com、bilibili.com / b23.tv、mailto；其他链接使用 link。可显式填 github / bilibili / link / mail--outlined 或原有 MDUI 图标名。链接不接受 javascript: / data:。
 - friends: `{ name, url, avatar?, description? }`，没有头像仍保留文字回退。
 - navigation.tabs: `{ id, label, enabled? }`；links/footer.links: `{ label, url }`。
 - comments.items / anchorsEnabled 为旧预览兼容：仅 provider=none/link 且 demo:true 的行会显示“示例留言”，非 demo 行不再作为正常数据源。动态服务忽略该数组。

@@ -538,7 +538,7 @@ def contrast_checks(page, context, url, requests, artifacts):
                       check('sidebar date',item.shadowRoot.querySelector('[part~="description"]'),null,sidebar);
                     }
                     if(reader){for(const selector of ['.prose','.prose a:not(.heading-anchor)','.reader-meta'])check(selector,document.querySelector(selector),reader);if(innerWidth>=1440)check('right TOC',document.querySelector('#toc-desktop-list mdui-list-item:not([active])').shadowRoot.querySelector('[part=headline]'));}
-                    else {check('home description',document.querySelector('.view-description'));for(const selector of ['.post-meta','.post-excerpt','.post-title a']){const node=document.querySelector(selector);check(selector,node,node.closest('.post-card'));}}
+                    else {check('home title',document.getElementById('feed-title'));for(const selector of ['.post-meta','.post-excerpt','.post-title a']){const node=document.querySelector(selector);check(selector,node,node.closest('.post-card'));}}
                   }
                   return samples;
                 }''')

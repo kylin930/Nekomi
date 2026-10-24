@@ -20,5 +20,5 @@ const title = kind === 'archive' ? group.name.replace('-', ' 年 ') + ' 月' : g
 ---
 <SiteLayout title={title + (feed.number > 1 ? ' · 第 ' + feed.number + ' 页' : '') + ' · ' + config.site.name} description={title + '相关的文章'} page="home" noindex={!canIndex(feed.items)}>
   <nav class="listing-breadcrumb" aria-label="文章浏览"><mdui-button variant="text" href={facetUrl(kind)}>全部{labels[kind]}</mdui-button></nav>
-  <ArticleFeed feed={feed} title={title} description={labels[kind] + ' · ' + feed.total + ' 篇文章'} />
+  <ArticleFeed feed={feed} title={title} />
 </SiteLayout>

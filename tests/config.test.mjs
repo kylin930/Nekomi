@@ -21,6 +21,21 @@ test("partial nested values retain validated defaults", () => {
   assert.equal(c.appearance.wallpaper.darkSurface, 0.88);
   assert.equal(c.site.name, "新站点");
 });
+test("brand typography is independent of body and heading fonts", () => {
+  const c = resolveConfig({ appearance: { brandFont: 'Verdana, sans-serif', font: 'Arial, sans-serif', headingFont: 'Georgia, serif' } });
+  assert.equal(c.appearance.brandFont, 'Verdana, sans-serif');
+  assert.equal(c.appearance.headingFont, 'Georgia, serif');
+  assert.equal(c.appearance.font, 'Arial, sans-serif');
+  assert.throws(() => resolveConfig({ appearance: { brandFont: 'serif; color:red' } }), /appearance.brandFont/);
+});
+test("default public copy is minimal and legacy home settings remain valid", () => {
+  const c = resolveConfig({ home: { eyebrow: '旧配置', description: '自定义描述' } });
+  assert.equal(c.site.intro, '');
+  assert.equal(c.footer.text, '');
+  assert.equal(c.home.emptyTitle, '暂无文章');
+  assert.equal(c.home.eyebrow, '旧配置');
+  assert.equal(c.home.description, '自定义描述');
+});
 test("presets use one token model; explicit user overrides win without mutating input", () => {
   const input = { appearance: { preset: "fresh", radius: 18 } };
   const before = JSON.stringify(input);

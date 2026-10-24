@@ -5,5 +5,5 @@ import { withBase } from '../lib/urls';
 import Icon from '../components/Icon.astro';
 ---
 <SiteLayout title={'页面未找到 · ' + config.site.name} page="error">
-  <mdui-card id="article-error" variant="outlined" class="reader-error" data-kind="not-found"><Icon name="article--outlined" /><h1 id="article-error-title">没有找到这篇文章</h1><p id="article-error-message">链接可能有误，或者这篇文章还没有收录。可以回到列表，看看其他记录。</p><mdui-button variant="tonal" href={withBase('') + '#recent'}>返回文章列表</mdui-button></mdui-card>
+  <mdui-card id="article-error" variant="outlined" class="reader-error" data-kind="not-found"><Icon name="article--outlined" /><h1 id="article-error-title">页面未找到</h1><p id="article-error-message">链接可能已失效，请返回文章列表。</p><mdui-button variant="tonal" href={withBase('') + '#recent'}>返回文章列表</mdui-button></mdui-card>
 </SiteLayout>

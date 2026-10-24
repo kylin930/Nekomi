@@ -91,3 +91,9 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 | Giscus 托管 client.js | 官方滚动更新，不虚构版本 | MIT，Copyright (c) 2021 Sage M. Abdullah | https://github.com/giscus/giscus |
 
 前三者默认 jsDelivr 文件固定版本并配置 SRI，目录见 `src/integrations/comments/catalog.ts`；Giscus 使用官方托管服务。SDK 可能继续请求头像、验证码、登录或服务自身资源，不代表本仓库拥有这些资源的版权或将其作为默认素材分发。主题不提供服务端程序。隐私、跨域、嵌入与资源覆盖说明见 [动态评论服务](docs/COMMENTS.md)。
+
+## P3 品牌图标
+
+GitHub 与 Bilibili 图标为 **Simple Icons 15.1.0** 的原始独立 SVG，许可证 **CC0-1.0**，通过 Astro 静态内联，没有新增图标库或字体请求。文件、来源及许可见 [src/assets/icons](src/assets/icons/README.md)；完整 CC0 条款随静态产物的 THIRD-PARTY-LICENSES.txt 一同提供。普通网站、邮箱、RSS 继续使用既有 Material Icons。
+
+CC0 不授予平台商标权。品牌图标仅用于用户实际配置的链接，不代表平台背书，也没有默认添加个人账号。

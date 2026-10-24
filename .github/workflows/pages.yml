@@ -20,6 +20,7 @@ jobs:
       - run: npm ci
       - run: npm run test:config
       - run: npm run test:comments
+      - run: npm run test:social
       - run: npm run check
       - name: Build
         env:

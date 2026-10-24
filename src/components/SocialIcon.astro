@@ -1,0 +1,8 @@
+---
+import GitHub from '../assets/icons/github.svg';
+import Bilibili from '../assets/icons/bilibili.svg';
+import Icon from './Icon.astro';
+interface Props { name: string }
+const { name } = Astro.props;
+---
+{name === 'github' ? <GitHub class="social-icon" width="24" height="24" role="presentation" aria-hidden="true" focusable="false" /> : name === 'bilibili' ? <Bilibili class="social-icon" width="24" height="24" role="presentation" aria-hidden="true" focusable="false" /> : <Icon name={name} />}

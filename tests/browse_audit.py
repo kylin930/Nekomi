@@ -170,9 +170,11 @@ def search_and_facets(page,url):
     page.locator('.reader-breadcrumb mdui-button').click();page.wait_for_url(tab_url);ready(page)
     expect(page.locator('#panel-categories')).to_be_visible()
     category=page.locator('#categories-list h2 a').first
+    category_name=category.inner_text()
     follow(page,category)
     assert '/categories/' in page.url
-    expect(page.locator('#feed-summary')).to_contain_text('分类')
+    expect(page.locator('#feed-title')).to_have_text(category_name)
+    assert page.locator('#feed-summary').evaluate('e=>e.classList.contains("visually-hidden")')
     facet_url=page.url
     follow(page,page.locator('#post-list .post-title a').first)
     page.locator('.reader-breadcrumb mdui-button').click();page.wait_for_url(facet_url);ready(page)
@@ -219,7 +221,8 @@ def loading_checks(browser,url,cache):
     page.evaluate('window.beforeAppend=scrollY')
     page.locator('#load-more').click()
     expect(page.locator('.post-card')).to_have_count(12)
-    expect(page.locator('[data-page-label]')).to_have_text('第 1–2 / 7 页')
+    assert page.locator('[data-page-label]').count()==0
+    expect(page.locator('[data-page-next]')).to_have_attribute('href','/Nekomi/page/3/' if '/Nekomi/' in url else '/page/3/')
     expect(page.locator('#post-list .post-card').nth(6).locator('.post-title a')).to_be_focused()
     assert abs(page.evaluate('scrollY-beforeAppend'))<=2,'Appending below the viewport must not move it'
     assert not errors,errors;context.close()
@@ -263,8 +266,10 @@ def loading_checks(browser,url,cache):
         expect(page.locator('.post-card')).to_have_count(expected)
     ids=page.locator('.post-card').evaluate_all('es=>es.map(e=>e.dataset.postId)')
     assert len(ids)==len(set(ids))==42
-    expect(page.locator('#feed-status')).to_have_text('已经读到最后了')
-    expect(page.locator('[data-page-label]')).to_have_text('第 1–7 / 7 页')
+    expect(page.locator('#feed-status')).to_be_empty()
+    expect(page.locator('#feed-sentinel')).to_be_hidden()
+    expect(page.locator('#feed-pagination')).to_be_hidden()
+    assert page.locator('[data-page-label]').count()==0
     expect(page.locator('[data-page-next]')).to_be_hidden()
     for number in range(2,8):assert requests.count(url+f'page/{number}/')==1
     # Appended native MDUI buttons and ordinary title anchors share Astro's

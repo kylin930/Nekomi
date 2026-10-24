@@ -137,6 +137,9 @@ function createSite() {
     const url = new URL(link.href);
     if (url.origin !== location.origin || !url.pathname.startsWith(data.base) || url.pathname === location.pathname && url.search === location.search && url.hash) return;
     event.preventDefault();
+    // Astro cannot find data-astro-reload across a component's shadow boundary.
+    // Preserve ordinary document navigation for RSS and other explicit reload links.
+    if (path.some(node => node instanceof Element && node.hasAttribute('data-astro-reload'))) { location.assign(url.href); return; }
     navigate(url.href, { sourceElement: link });
   }, true);
   // Astro scans anchors on page-load. Delegation also covers appended cards
