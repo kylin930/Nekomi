@@ -41,9 +41,9 @@ SITE_URL=https://username.github.io SITE_BASE=/Nekomi/ npm run build
 
 - 配置 `cover` 的文章优先用封面分享；否则使用显式配置的 `socialImage`。本地资产通过 Astro 优化，公开目录中的文件检查存在后才输出。均为空时使用无图片的 `summary` Card，不拼接默认图片地址。
 - `updated: "2026-10-23"` 是可选的真实修改日期。不填写就不输出 `dateModified` / `article:modified_time` / Sitemap lastmod，也不用构建时间冒充文章修改时间。
-- 站点输出 `WebSite` / `Blog`。只有发布配置开启、且文章 `demo: false` 时才生成 `BlogPosting`；演示文章保留 `noindex, follow`，不作为站长的真实发表记录进入结构化数据。
+- 站点输出 `WebSite` / `Blog`。只有发布配置开启、且文章 `demo: false` 时才生成 `BlogPosting`；演示文章保留 `noindex, follow`，不作为站长的真实发表记录进入结构化数据。文章顶部不再显示示例标签；这仅是 UI 调整，不影响 demo 字段或上述规则。
 - 官方 `@astrojs/sitemap` 根据最终静态 HTML 的 robots 元数据筛选页面，避免另一套索引名单；某张分页全部为示例时也 noindex，不会因其他分页有真实文章而被收录。lastmod 仅来自明确填写的修改日期。
-- 官方 `@astrojs/rss` 只收录可索引的真实文章。站点预览 / 关闭索引 / 演示文章与 RSS、Sitemap 策略一致。页脚与 head 均提供订阅入口。
+- 官方 `@astrojs/rss` 只收录可索引的真实文章。站点预览 / 关闭索引 / 演示文章与 RSS、Sitemap 策略一致。侧栏 social 模块（含移动端 Drawer）与 head 提供订阅入口，默认页脚不重复显示。
 - robots 允许爬取以便读取 `noindex`，只在 Sitemap 实际可生成时引用它；不会通过 `Disallow: /` 阻止搜索引擎看到 noindex。
 
 **子路径托管注意**：产物中的 robots 位于 `/Nekomi/robots.txt`，而搜索引擎按域名根目录读取 `/robots.txt`。有根站点管理权限时，应合并规则并把正确的 Sitemap 地址放入域名根 robots；GitHub Pages 项目仓库不能替用户修改域名根站点。

@@ -143,6 +143,8 @@ def run(browser, dist, base, screenshots):
                 page.goto(url + "posts/welcome/", wait_until="networkidle")
                 ready(page)
                 expect(page.locator("#article-reading-time")).to_have_text("约 7 分钟")
+                expect(page.locator(".reader-header .example-label")).to_have_count(0)
+                expect(page.locator(".reader-header")).not_to_contain_text("示例文章 · 可替换的主题内容")
                 assert not any(
                     "mermaid.core" in item
                     or "diagrams." in item

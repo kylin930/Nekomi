@@ -1,5 +1,7 @@
 # Nekomi
 
+**代码版本：1.0.0** · [中文发布说明](docs/releases/v1.0.0.md)
+
 一个基于 **Astro 静态生成、MDUI 2.1.5 与 Material Design 3** 的原创个人博客主题。融入页面的 Stellar 式侧栏、日系个人站气质、舒适的中文排版；配置和 Markdown 就是日常使用入口，不需要 React、Vue 或常驻 Node.js 服务。
 
 ![Nekomi 默认首页](screenshots/p30-default-home-light-1440.png)
@@ -117,7 +119,7 @@ console.log('Hello, Nekomi');
 
 文章地址为 `/posts/hello/`，请尽量保持文件名稳定。日期按 `YYYY-MM-DD` 填写；`updated` 只在确实更新时填写。摘要不填时从正文生成，默认最多 140 字。可选字段还包括 `author`、`description`（SEO）、`pinned`、`draft`、`cover`、`coverAlt`、`comments`、`commentId`、`commentPath`、`commentsUrl` 、`readingTime`、`markdown` 和单篇 `reading` 开关。
 
-[Frontmatter 参考](src/content/README.md)。`draft: true` 不生成文章页，也不进入搜索 / 订阅。`pinned: true` 在列表中优先展示；RSS 始终按日期。默认三篇入门 / 扩展示例文章明确标识为示例，设有 `demo: true`，可以全部删除，空站仍可构建。
+[Frontmatter 参考](src/content/README.md)。`draft: true` 不生成文章页，也不进入搜索 / 订阅。`pinned: true` 在列表中优先展示；RSS 始终按日期。默认保留三篇入门 / 扩展示例文章，正文和 `demo: true` 字段说明其示例性质；文章顶部不再显示示例标签。`demo` 仍控制 SEO、RSS 和 Sitemap 排除，不要为了调整页面显示而改成 `false`。可以删除不需要的示例，空站仍可构建。
 
 ## Markdown 扩展与阅读
 
