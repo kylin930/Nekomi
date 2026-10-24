@@ -95,6 +95,9 @@ const languageSchema = z.string().refine((value) => {
   }
 }, "Use a valid BCP 47 language, e.g. zh-CN.");
 export const readingSchema = z.strictObject({
+  lightbox: z.boolean().optional(),
+  readingTime: z.boolean().optional(),
+  related: z.boolean().optional(),
   toc: z.boolean().optional(),
   copyCode: z.boolean().optional(),
   cover: z.boolean().optional(),
@@ -216,6 +219,10 @@ export const configSchema = section({
     latest: flag(),
   }),
   reading: section({
+    lightbox: flag(),
+    readingTime: flag(),
+    related: flag(),
+    relatedLimit: z.number().int().min(0).max(6).default(3),
     toc: flag(),
     copyCode: flag(),
     cover: flag(),
@@ -223,6 +230,8 @@ export const configSchema = section({
     neighbors: flag(),
     motion: flag(),
   }),
+  markdown: section({ math: flag(), mermaid: flag(), components: flag() }),
+  friendsPage: section({ enabled: flag(), navigation: flag(false) }),
   content: section({
     infiniteScroll: flag(),
     excerptLength: z.number().int().min(40).max(400).default(140),

@@ -1,3 +1,7 @@
+import remarkDirective from 'remark-directive';
+import remarkMath from 'remark-math';
+import { remarkComponents, rehypeFeatures } from './src/plugins/components.mjs';
+import { markdownPages } from './src/integrations/markdown/build.mjs';
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import rehypeRaw from 'rehype-raw';
@@ -23,7 +27,8 @@ export default defineConfig({
   // An unconfigured preview deliberately has no public canonical URL.
   site: publishing.url || 'http://localhost:4321',
   base,
-  integrations: [commentsIntegration(rawConfig.comments), ...(rawConfig.features.sitemap ? [sitemap({
+  image: { service: { entrypoint: './src/lib/image-service.ts' } },
+  integrations: [markdownPages(rawConfig.friendsPage), commentsIntegration(rawConfig.comments), ...(rawConfig.features.sitemap ? [sitemap({
     filter: url => publishing.indexing && Boolean(builtPage(url)) && !/name="robots" content="noindex/.test(builtPage(url)),
     serialize(item) {
       const updated = builtPage(item.url).match(/property="article:modified_time" content="([^"]+)"/);
@@ -43,6 +48,6 @@ export default defineConfig({
       defaultColor: false,
       transformers: [{ pre(node) { node.properties['data-language'] = this.options.lang; } }],
     },
-    processor: unified({ smartypants: false, remarkPlugins: [[remarkPost, { base }]], rehypePlugins: [rehypeRaw, [rehypeLocalImages, { base }], rehypeArticle] }),
+    processor: unified({ smartypants: false, remarkPlugins: [remarkDirective, remarkMath, [remarkComponents, { base }], [remarkPost, { base }]], rehypePlugins: [rehypeRaw, rehypeFeatures, [rehypeLocalImages, { base }], rehypeArticle] }),
   },
 });

@@ -299,7 +299,7 @@ def no_javascript(browser,url,cache):
         target=link.get_attribute('href') if link.count() else ''
         if target:target=urljoin(url,target)
     assert len(seen)==42 and len(set(seen))==42
-    page.goto(url+'tags/');expect(page.locator('noscript a').last).to_be_visible()
+    page.goto(url+'tags/');expect(page.locator('#panel-tags noscript a').last).to_be_visible()
     context.close();print('PASS no JavaScript: all 42 posts through seven static pages, standard next/previous links and taxonomy fallbacks',flush=True)
 
 

@@ -114,7 +114,7 @@ function createSite() {
       return;
     }
     const active = document.activeElement;
-    if (!data.features.search || event.key !== '/' || event.isComposing || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || active.isContentEditable || active.matches('input, textarea, select, mdui-text-field')) return;
+    if (!data.features.search || event.key !== '/' || document.querySelector('.nekomi-lightbox') || event.isComposing || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || active.isContentEditable || active.matches('input, textarea, select, mdui-text-field')) return;
     event.preventDefault();
     if (mobile.matches && !drawer.open) openDrawer(true); else document.querySelector(`[data-sidebar="${mobile.matches ? 'mobile' : 'desktop'}"] [data-search]`)?.focus();
   });

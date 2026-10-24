@@ -21,7 +21,7 @@ import '../styles/main.css';
 import '../styles/home.css';
 import '../styles/article.css';
 import '../styles/transitions.css';
-interface Props { title: string; description?: string; page?: 'home' | 'article' | 'error'; currentId?: string; post?: Post; noindex?: boolean }
+interface Props { title: string; description?: string; page?: 'home' | 'article' | 'error' | 'page'; currentId?: string; post?: Post; noindex?: boolean }
 const { title, description = config.site.tagline, page = 'home', currentId, post } = Astro.props;
 const posts = await getPosts();
 const noindex = Astro.props.noindex ?? (page === 'error' || !canIndex(post ? [post] : posts));
@@ -55,6 +55,7 @@ const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest(
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Icons&family=Material+Icons+Outlined&display=swap" />
     {config.analytics.enabled && <script is:inline async data-website-id={config.analytics.websiteId} src={config.analytics.scriptUrl} />}
+    <slot name="head" />
     <ClientRouter />
   </head>
   <body data-page={page} data-post-id={currentId}>

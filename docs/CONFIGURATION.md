@@ -46,7 +46,15 @@ cover:auto 为响应式图文，top 始终图在上，none 隐藏。其余开关
 
 ## reading
 
-全站阅读默认值，可被文章 reading 同名字段覆盖。toc 关闭不渲染目录、不绑定章节滚动跟踪；copyCode 关闭不输出复制按钮；motion 控制阅读页自定义进入和目录弹簧。原生 MDUI 交互仍遵从系统减少动态设置。
+全站阅读默认值，可被文章 reading 同名字段覆盖。lightbox 开启正文未链接图片的灯箱，首次打开才加载库和样式；readingTime 开启构建时估计时长，Frontmatter readingTime 可为布尔值或指定分钟数；related 控制构建时相关文章，relatedLimit 为 0–6，默认 3。toc 关闭不渲染目录、不绑定章节滚动跟踪；copyCode 关闭不输出复制按钮；motion 控制阅读页自定义进入和目录弹簧。原生 MDUI 交互仍遵从系统减少动态设置。
+
+## markdown
+
+math / mermaid / components 默认 true，可由文章 markdown 同名字段覆盖。KaTeX 构建时渲染；Mermaid 仅在含图表的文章、图表接近视口时加载；交互组件仅在需要时初始化。组件语法、安全限制与关闭后的回退见 MARKDOWN.md。
+
+## friendsPage
+
+enabled 默认 true，生成独立 /friends/ 并让侧栏查看全部进入该页；false 不生成并保留旧 Dialog。navigation 默认 false，可开启公共侧栏 / Drawer 入口。复用 friends 数组，无数据正常显示空状态。
 
 ## content
 
@@ -132,12 +140,21 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `cards.tags` | boolean | `true` | — |
 | `cards.readMore` | boolean | `true` | — |
 | `cards.latest` | boolean | `true` | — |
+| `reading.lightbox` | boolean | `true` | — |
+| `reading.readingTime` | boolean | `true` | — |
+| `reading.related` | boolean | `true` | — |
+| `reading.relatedLimit` | integer | `3` | ≥ 0，≤ 6 |
 | `reading.toc` | boolean | `true` | — |
 | `reading.copyCode` | boolean | `true` | — |
 | `reading.cover` | boolean | `true` | — |
 | `reading.metadata` | boolean | `true` | — |
 | `reading.neighbors` | boolean | `true` | — |
 | `reading.motion` | boolean | `true` | — |
+| `markdown.math` | boolean | `true` | — |
+| `markdown.mermaid` | boolean | `true` | — |
+| `markdown.components` | boolean | `true` | — |
+| `friendsPage.enabled` | boolean | `true` | — |
+| `friendsPage.navigation` | boolean | `false` | — |
 | `content.infiniteScroll` | boolean | `true` | — |
 | `content.excerptLength` | integer | `140` | ≥ 40，≤ 400 |
 | `content.categories` | boolean | `true` | — |

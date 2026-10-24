@@ -138,3 +138,14 @@ test("configuration must be an object", () =>
 
 test("null appearance does not silently become defaults", () =>
   assert.throws(() => resolveConfig({ appearance: null }), /appearance/));
+
+test('P3.1 reading and Markdown defaults remain separately configurable', () => {
+  const c = resolveConfig({ reading: { relatedLimit: 0 }, markdown: { mermaid: false }, friendsPage: { navigation: true } });
+  assert.equal(c.reading.lightbox, true);
+  assert.equal(c.reading.readingTime, true);
+  assert.equal(c.reading.relatedLimit, 0);
+  assert.deepEqual(c.markdown, { math: true, mermaid: false, components: true });
+  assert.deepEqual(c.friendsPage, { enabled: true, navigation: true });
+  for (const relatedLimit of [-1, 7, 1.5]) assert.throws(() => resolveConfig({ reading: { relatedLimit } }), /reading.relatedLimit/);
+  assert.throws(() => resolveConfig({ markdown: { math: 'yes' } }), /markdown.math/);
+});

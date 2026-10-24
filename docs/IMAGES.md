@@ -13,3 +13,9 @@
 `SiteImage.astro` 共用 Avatar / 封面 / 头图：Avatar 输出 1x / 2x 候选和固定尺寸，封面 / 头图输出 320 / 640 / 960 / 1440px 候选（不超出原图），结合 `sizes` 和既有 aspect-ratio 保持布局。正文图使用同级宽度候选，保留 width / height、caption 和懒加载。外部地址不在默认优化白名单，保留原地址且不在构建时抓取；头像尺寸与封面容器仍预留空间，外部正文应由作者给出自然尺寸。
 
 随机 `nekopara.uk/pic_api` 始终由现有运行时图片加载器 / Service Worker 处理，不能放进 Astro Image 或远程图片白名单。内部导航保留相同壁纸 DOM、图像与加载任务。所有图片保留失败回退：头像文字、封面 / 头图收起、正文说明。
+
+## 正文灯箱（P3.1）
+
+正文 `![替代文字](images/photo.webp "说明")` 中的 images/ 对应 src/assets/images/；Astro 保留响应式优化、srcset 与宽高，灯箱使用原始本地资产。src/ 之外的相对文章资源由公开 getImage API 额外输出同格式的全分辨率版本。public/ 与外部图片仍使用其原地址，不在构建时抓取随机资源。
+
+`reading.lightbox` 可全站或单篇关闭。普通链接中的图片不被接管，损坏图片保留回退；库和 CSS 仅首次打开图片时下载，离页清理。图片组及键盘 / 触控操作见 [Markdown 写作文档](MARKDOWN.md)。壁纸与头像不是正文图片，不加入灯箱。

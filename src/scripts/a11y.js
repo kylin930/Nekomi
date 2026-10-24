@@ -22,7 +22,7 @@ const initializedTabs = new WeakSet();
   function tabsAccessibility(tabs, signal) {
     if (initializedTabs.has(tabs)) return;
     initializedTabs.add(tabs);
-    var items = Array.from(tabs.querySelectorAll('mdui-tab'));
+    var items = Array.from(tabs.querySelectorAll(':scope > mdui-tab'));
     function sync() {
       items.forEach(function (tab) {
         var selected = tab.value === tabs.value;

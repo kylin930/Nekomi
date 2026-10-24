@@ -1,3 +1,4 @@
+import { initContentTabs, isContentVisible, revealContentTarget } from './content-target';
 import { a11y } from './a11y';
 import { motion } from './motion';
 import { pushArticleHash } from './list-state';
@@ -9,6 +10,12 @@ export function initArticle(site, signal, navigationType) {
   if (!copyEnabled) body.querySelectorAll('.copy-code').forEach(button => button.remove());
   const links = [...document.querySelectorAll('.toc-list mdui-list-item')];
   const lists = [...document.querySelectorAll('.toc-list')];
+  let hashTurn = 0;
+  let viewer, opening = false;
+  const lightboxEnabled = document.getElementById('reader').dataset.lightbox !== 'false';
+  initContentTabs(body, signal);
+  if (body.querySelector('[data-md-video]')) import('./markdown-content').then(module => { if (!signal.aborted) module.initMarkdownContent(body, signal); }).catch(() => {});
+  if (body.querySelector('[data-md-mermaid]')) import('./diagrams').then(module => { if (!signal.aborted) module.initDiagrams(body, signal); }).catch(() => { if (!signal.aborted) body.querySelectorAll('[data-mermaid-status]').forEach(node => { node.textContent = '图表模块无法加载，可查看源码。'; }); });
   let previousSection;
   let measureToc = true;
   const path = location.pathname;
@@ -22,9 +29,11 @@ export function initArticle(site, signal, navigationType) {
     frame = 0;
     if (signal.aborted || !links.length || !headings.length) return;
     const offset = document.querySelector('.site-appbar').getBoundingClientRect().height + 32;
-    let current = headings[0];
-    for (const heading of headings) { if (heading.getBoundingClientRect().top <= offset) current = heading; else break; }
-    if (Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight - 3) current = headings.at(-1);
+    const visible = headings.filter(isContentVisible);
+    if (!visible.length) return;
+    let current = visible[0];
+    for (const heading of visible) { if (heading.getBoundingClientRect().top <= offset) current = heading; else break; }
+    if (Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight - 3) current = visible.at(-1);
     if (previousSection === current.id && !measureToc) return;
     previousSection = current.id;
     measureToc = false;
@@ -52,16 +61,22 @@ export function initArticle(site, signal, navigationType) {
   }
   function update() { if (!frame) frame = requestAnimationFrame(currentSection); }
   function scrollHash(smooth) {
+    const turn = ++hashTurn;
     if (location.pathname !== path) return;
     if (tocMoving && document.querySelector('.toc-inline')?.getClientRects().length) { pending = smooth; return; }
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
     const target = document.getElementById(id);
     if (!target || !body.contains(target)) return;
-    target.tabIndex = -1;
-    target.focus({ preventScroll: true });
-    motion.scrollTo(target, smooth);
-    update();
+    const finish = () => {
+      if (signal.aborted || turn !== hashTurn || location.pathname !== path) return;
+      target.tabIndex = -1;
+      target.focus({ preventScroll: true });
+      motion.scrollTo(target, smooth);
+      update();
+    };
+    const revealed = revealContentTarget(target);
+    if (revealed) revealed.then(finish).catch(() => {}); else finish();
   }
   function settle() {
     tocMoving = false;
@@ -128,8 +143,10 @@ export function initArticle(site, signal, navigationType) {
   }, { capture: true });
   on(window, 'hashchange', () => scrollHash(false));
   on(window, 'popstate', () => scrollHash(false));
-  ['wheel', 'touchstart'].forEach(type => on(window, type, () => { pending = null; }, { passive: true }));
+  ['wheel', 'touchstart'].forEach(type => on(window, type, () => { pending = null; ++hashTurn; }, { passive: true }));
   on(site.drawer, 'open', () => { pending = null; motion.cancelScroll(); });
+  on(document, 'nekomi:content-change', () => { measureToc = true; update(); });
+  on(body, 'toggle', () => { measureToc = true; update(); }, { capture: true });
   if (links.length) on(window, 'scroll', update, { passive: true });
   if (links.length) on(window, 'resize', () => { motion.cancelScroll(); if (tocMoving && !document.querySelector('.toc-inline').getClientRects().length) settle(); update(); });
   // Let ClientRouter restore a traversed page's actual scroll position, rather than forcing its previous hash.
@@ -138,5 +155,19 @@ export function initArticle(site, signal, navigationType) {
   lists.forEach(list => observer?.observe(list));
   currentSection();
   Promise.all(links.map(link => link.updateComplete)).then(() => { if (!signal.aborted) { measureToc = true; update(); } });
-  return () => { observer?.disconnect(); cancelAnimationFrame(frame); timers.forEach(clearTimeout); motion.cancelScroll(); };
+  if (lightboxEnabled) {
+    for (const image of body.querySelectorAll('img')) if (!image.closest('a')) {
+      image.tabIndex = 0; image.setAttribute('role', 'button'); image.setAttribute('aria-label', '放大图片：' + (image.alt || image.title || '正文图片')); image.classList.add('lightbox-image');
+    }
+    const openImage = async image => {
+      if (opening || viewer || signal.aborted || !image.isConnected || !image.complete || !image.naturalWidth) return;
+      opening = true;
+      try { const module = await import('./lightbox'); if (!signal.aborted) viewer = module.openLightbox(body, image, signal, () => { viewer = undefined; }); }
+      catch { if (!signal.aborted) site.notify('图片查看器无法加载，请重试。'); }
+      finally { opening = false; }
+    };
+    on(body, 'click', event => { if (event.target.matches('img.lightbox-image') && !event.target.closest('a') && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.button) { event.preventDefault(); void openImage(event.target); } });
+    on(body, 'keydown', event => { if (event.target.matches('img.lightbox-image') && ['Enter', ' '].includes(event.key)) { event.preventDefault(); void openImage(event.target); } });
+  }
+  return () => { if (!signal.aborted) viewer?.destroy(); observer?.disconnect(); cancelAnimationFrame(frame); timers.forEach(clearTimeout); motion.cancelScroll(); };
 }

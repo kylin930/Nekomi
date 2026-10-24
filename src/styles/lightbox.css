@@ -1,0 +1,38 @@
+.pswp {
+  --pswp-bg: rgb(var(--mdui-color-surface));
+  --pswp-icon-color: rgb(var(--mdui-color-on-surface));
+  --pswp-icon-color-secondary: rgb(var(--mdui-color-surface-container-high));
+  --pswp-error-text-color: rgb(var(--mdui-color-on-surface));
+  font-family: var(--reading-font);
+}
+.pswp__counter {
+  color: rgb(var(--mdui-color-on-surface));
+  text-shadow: none;
+}
+.nekomi-lightbox-caption {
+  position: absolute;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92%, 800px);
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  padding: 8px 16px;
+  border-radius: var(--mdui-shape-corner-medium);
+  background: rgba(var(--mdui-color-surface-container-high), 0.96);
+  color: rgb(var(--mdui-color-on-surface));
+  font-size: 13px;
+  line-height: 1.7;
+}
+.nekomi-lightbox-caption a {
+  color: rgb(var(--mdui-color-primary));
+}
+
+.pswp .pswp__button:focus-visible,
+.nekomi-lightbox-caption a:focus-visible {
+  outline: 2px solid rgb(var(--mdui-color-primary));
+  outline-offset: -4px;
+  border-radius: var(--mdui-shape-corner-full);
+}

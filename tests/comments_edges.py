@@ -88,7 +88,7 @@ def runtime_failure(page,services,url):
     page.locator('[data-theme-cycle]:visible').first.click()
     expect(page.locator('html')).to_have_class(re.compile(r'\bmdui-theme-dark\b'))
     page.locator('[data-return-list]').first.click();page.wait_for_url(url+'#recent');page_ready(page)
-    page.locator('[data-sidebar=desktop] [data-search]').locator('input').fill('排版')
+    page.locator('[data-sidebar=desktop] [data-search]').locator('input').fill('Markdown 排版入门')
     expect(page.locator('.post-card:visible')).to_have_count(1)
     page.locator('.post-title a[data-post=markdown-guide]').click();page.wait_for_url(url+'posts/markdown-guide/');page_ready(page,'markdown-guide')
     page.context.unroute(pattern)

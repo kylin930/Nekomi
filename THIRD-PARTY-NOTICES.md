@@ -97,3 +97,16 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 GitHub 与 Bilibili 图标为 **Simple Icons 15.1.0** 的原始独立 SVG，许可证 **CC0-1.0**，通过 Astro 静态内联，没有新增图标库或字体请求。文件、来源及许可见 [src/assets/icons](src/assets/icons/README.md)；完整 CC0 条款随静态产物的 THIRD-PARTY-LICENSES.txt 一同提供。普通网站、邮箱、RSS 继续使用既有 Material Icons。
 
 CC0 不授予平台商标权。品牌图标仅用于用户实际配置的链接，不代表平台背书，也没有默认添加个人账号。
+
+## P3.1 Markdown 与图片阅读
+
+- **PhotoSwipe 5.4.4（MIT）**：本地打包，仅首次打开正文图片时下载 JS / 样式，负责手势、缩放、焦点圈定与图片切换。官方文档 https://photoswipe.com/getting-started/ ，项目 https://github.com/dimsemenov/PhotoSwipe 。
+- **Mermaid 12.2.0（MIT）**：含图表的文章按需载入，strict 安全模式、禁用 HTML labels 和内嵌配置；图表源码不发送到外部服务。官方 API https://mermaid.js.org/config/usage.html ，项目 https://github.com/mermaid-js/mermaid 。
+- **KaTeX 0.16.47 / rehype-katex 7.0.1（MIT）**：构建时公式与 MathML，含公式页面才引用 KaTeX CSS / 包内字体；不加载客户端公式解析器。Mermaid 的独立嵌套 KaTeX 版本也按真实依赖保留许可。文档 https://katex.org/docs/options.html ，项目 https://github.com/KaTeX/KaTeX 。
+- **remark-directive 4.0.0、remark-math 6.0.0、remark-parse 11.0.0、unified 11.0.5（MIT）**：构建时语法解析，Nekomi 的内容组件转换与阅读时间规则为原创实现，没有新增 UI 框架。
+
+这些直接与传递浏览器依赖的完整版权 / 许可由 `scripts/licenses.mjs` 收集到静态产物 THIRD-PARTY-LICENSES.txt；查找遵从 Node 的嵌套依赖解析，保留同包不同版本，不只记录根 node_modules。
+
+Cuckoo（https://github.com/bhaoo/Cuckoo ，GPL-3.0）仅参考 develop 分支 README 所描述的写作功能范围，没有复制源码、CSS、主题素材或图片。新增示例仅复用项目自身界面截图，YouTube / Bilibili 示例只是外部链接与主动加载的官方播放器，不打包视频、封面或平台素材。视频能否播放、其许可与平台隐私行为由引用者自行确认。
+
+Mermaid 的传递浏览器代码还包含 **DOMPurify（MPL-2.0 OR Apache-2.0）** 与 **elkjs 0.9.3（EPL-2.0）**，不能统称整棵依赖为 MIT。两者保留上游许可，ELK 未做源码修改；对应源代码 / 构建说明见 https://github.com/kieler/elkjs/tree/0.9.3 及 https://github.com/eclipse/elk ，这些源代码获取地址也随生产 notices 分发。
