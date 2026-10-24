@@ -1,0 +1,10 @@
+{
+  "$schema": "../../site.schema.json",
+  "comments": {
+    "provider": "waline",
+    "waline": {
+      "serverURL": "https://comments.example.com",
+      "login": "enable"
+    }
+  }
+}

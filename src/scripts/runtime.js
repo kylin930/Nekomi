@@ -12,6 +12,8 @@ import { beforeListNavigation, prepareListDocument, listWillSwap, listDidSwap, r
 // This bundled module executes once. Only page-local enhancements are renewed by page-load.
 const data = JSON.parse(document.getElementById('site-data').textContent);
 let theme;
+let comments;
+let commentRuntimeError = false;
 let site;
 let boot;
 let pageController;
@@ -87,7 +89,8 @@ function createSite() {
   mobile.addEventListener('change', () => { if (!mobile.matches) drawer.open = false; });
   document.addEventListener('click', returnToList, true);
   document.addEventListener('click', async event => {
-    const target = event.target.closest('[data-theme-cycle], [data-friends-all], #friends-close');
+    const target = event.target.closest('[data-theme-cycle], [data-friends-all], #friends-close, [data-comment-retry], [data-comments-recent-retry]');
+    if (commentRuntimeError && target?.matches('[data-comment-retry], [data-comments-recent-retry]')) { location.reload(); return; }
     if (target?.matches('[data-theme-cycle]')) { const modes = ['light', 'dark', 'auto']; theme.setMode(modes[(modes.indexOf(theme.getMode()) + 1) % 3]); }
     if (target?.matches('[data-friends-all]') && !target.disabled) { await closeModal(drawer); friendsDialog.open = true; }
     if (target?.id === 'friends-close') friendsDialog.open = false;
@@ -150,11 +153,25 @@ function createSite() {
   ['pointerout', 'focusout', 'astro:before-preparation'].forEach(type => document.addEventListener(type, cancelPrefetch, { passive: true }));
   return { data, drawer, setSearch, notify, postUrl, closeModal, go: navigate, recoverImages };
 }
+function showCommentRuntimeError() {
+  if (!commentRuntimeError) return;
+  const section = document.querySelector('[data-comments-section]');
+  if (section) section.dataset.state = 'error';
+  document.querySelectorAll('[data-comments-status], [data-comments-recent-status]').forEach(node => { node.textContent = '评论模块未能加载，请刷新后重试。'; });
+  document.querySelectorAll('[data-comment-retry], [data-comments-recent-retry]').forEach(button => { button.hidden = false; button.textContent = '刷新后重试'; });
+}
 async function initialize() {
   const current = ++generation;
   if (!boot) boot = customElements.whenDefined('mdui-tabs').then(() => {
     theme = createTheme(data);
     site = createSite();
+    if (!['none', 'link'].includes(data.comments.provider)) {
+      // Optional comments must not block the site's search, navigation or theme boot.
+      import('../integrations/comments/controller').then(({ createComments }) => {
+        comments = createComments(site);
+        if (pageController && !pageController.signal.aborted && document.getElementById('main-content').dataset.enhanced === 'true') comments.enterPage(pageController.signal, navigationType);
+      }).catch(() => { commentRuntimeError = true; showCommentRuntimeError(); });
+    }
   });
   await boot;
   if (current !== generation) return;
@@ -170,6 +187,8 @@ async function initialize() {
   if (document.body.dataset.page === 'home') disposePage = initHome(site, signal);
   else if (document.body.dataset.page === 'article') disposePage = initArticle(site, signal, navigationType);
   else disposePage = undefined;
+  comments?.enterPage(signal, navigationType);
+  showCommentRuntimeError();
   document.getElementById('main-content').dataset.enhanced = 'true';
   if (!visited) motion.enter(document.getElementById('main-content'));
   else if (!location.hash && navigationType !== 'traverse') document.getElementById('main-content').focus({ preventScroll: true });
@@ -191,6 +210,9 @@ document.addEventListener('astro:before-preparation', event => {
   };
 });
 document.addEventListener('astro:before-swap', event => {
+  // Native ready rejects with AbortError when rapid navigation skips a transition.
+  // Consume only that expected cancellation; keep invalid names/other failures visible.
+  event.viewTransition.ready?.catch(error => { if (error?.name !== 'AbortError') throw error; });
   ++generation;
   motion.cancelWithin(document.getElementById('main-content'));
   pageController?.abort();

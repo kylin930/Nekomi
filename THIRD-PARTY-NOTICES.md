@@ -1,6 +1,6 @@
 # 第三方依赖与许可说明
 
-本项目的 UI 运行时依赖为 MDUI 2 与 Google Material Icons 字体；默认背景来自站长提供的图片 API。项目自身代码、布局、样式与文档均为原创实现。
+本项目的 UI 运行时依赖为 MDUI 2 与 Google Material Icons 字体；通用模板默认不请求外部壁纸或评论服务。项目自身代码、布局、样式与文档均为原创实现。
 
 ## 运行时依赖
 
@@ -63,7 +63,7 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 
 ### 站长背景图片 API
 
-- 默认入口：https://www.nekopara.uk/pic_api
+- 原站个人预览入口：https://www.nekopara.uk/pic_api（通用模板默认关闭）
 - 站长明确要求接入；图片由接口重定向至外部存储，不随主题源码打包。交付截图与录屏包含接口实际返回的图片。
 - 素材权利归各自权利人，不属于主题 MIT 许可，也不表示主题获得了随机池内所有图片的再分发授权。可配置站长已审核的固定图片替换。
 
@@ -77,3 +77,17 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 配置校验使用 Astro 公开的 astro/zod 导出（Zod，MIT，https://github.com/colinhacks/zod）。Node 内置模块、Astro 官方 RSS / Sitemap 仅参与构建。生产输出没有 Python 测试、screenshots、examples 或配置源文件；图片说明已移至 docs/，不进入生产输出。
 
 构建会运行 `npm run licenses`，在静态产物输出 THIRD-PARTY-LICENSES.txt，保留浏览器分发代码的许可与版权。完整直接依赖及构建工具特殊许可清单见 [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md)，不将 Sharp / 图像编解码器的 LGPL 或 MPL 依赖误标为 MIT。
+
+
+## 可选评论客户端（0.4.0）
+
+仅在用户明确配置服务并进入评论区域 / 打开最新评论时，由浏览器载入远程客户端；未把这些 SDK 源码、框架或资源打入 npm 主题依赖。静态框架依然为 Astro + MDUI。远程库可以包含各自的 UI 运行时，遵守相应上游许可。自托管或修改这些资源时需保留上游完整许可与版权。
+
+| 资源 | 默认版本 | 许可证 | 官方来源 |
+| --- | --- | --- | --- |
+| @waline/client | 3.16.1 | MIT | https://github.com/walinejs/waline |
+| Twikoo | 2.0.17 | MIT | https://github.com/twikoojs/twikoo |
+| Artalk 前端 | 2.10.0 | MIT | https://github.com/ArtalkJS/Artalk |
+| Giscus 托管 client.js | 官方滚动更新，不虚构版本 | MIT，Copyright (c) 2021 Sage M. Abdullah | https://github.com/giscus/giscus |
+
+前三者默认 jsDelivr 文件固定版本并配置 SRI，目录见 `src/integrations/comments/catalog.ts`；Giscus 使用官方托管服务。SDK 可能继续请求头像、验证码、登录或服务自身资源，不代表本仓库拥有这些资源的版权或将其作为默认素材分发。主题不提供服务端程序。隐私、跨域、嵌入与资源覆盖说明见 [动态评论服务](docs/COMMENTS.md)。

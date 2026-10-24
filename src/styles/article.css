@@ -124,3 +124,15 @@ html.mdui-theme-dark .astro-code, html.mdui-theme-dark .astro-code span { color:
 
 .example-label { margin: 0; font-size: 12px; color: rgb(var(--mdui-color-on-surface-variant)); }
 .reader[data-copy-code="false"] .copy-code { display: none; }
+
+.article-comments { min-width: 0; display: grid; gap: 16px; }
+.comments-heading { display: flex; align-items: baseline; gap: 12px; }
+.comments-heading h2 { margin: 8px 0 0; font-size: 22px; }
+.comments-heading span, [data-comments-status] { font-size: 13px; color: rgb(var(--mdui-color-on-surface-variant)); }
+[data-comments-status]:empty { display: none; }
+.comment-frame { display: block; width: 100%; min-width: 0; height: 360px; border: 0; color-scheme: normal; }
+.comment-frame[hidden] { display: none; }
+.comments-mount[aria-busy="true"] { opacity: 0; max-height: 360px; overflow: hidden; }
+
+.article-comments { scroll-margin-top: 32px; }
+@media (max-width: 1119px) { .article-comments { scroll-margin-top: calc(var(--mobile-header-height) + 20px); } }

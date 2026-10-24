@@ -1,0 +1,12 @@
+{
+  "$schema": "../../site.schema.json",
+  "comments": {
+    "provider": "custom",
+    "custom": {
+      "module": "./examples/comments/rest-adapter.ts",
+      "options": {
+        "endpoint": "https://comments.example.com/"
+      }
+    }
+  }
+}

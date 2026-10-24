@@ -22,7 +22,7 @@ const descriptions = {
   "appearance.wallpaper":
     "默认关闭。运行时加载 HTTP(S) 或 public/ 内图片，不在构建时固定随机 API。dark 留空复用 light。Overlay 为遮罩，Surface 为卡片，ReaderSurface 为阅读区；深浅分别设置。cacheHours=0 不注册壁纸 Worker。position 为 CSS object-position，fit 为 cover/contain。",
   layout:
-    "width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。无有效评论时自动隐藏评论 Tab。",
+    "width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。",
   navigation:
     "tabs 的 id 为 recent/categories/tags/archive；recent 必须启用，可改名。enabled 控制主导航可见性；分类/标签的直接索引页面由 content 开关控制。links 显示在公共侧栏底部。数组替换，不按位置合并。",
   home: "首页眉题、描述和空文章状态。description 留空自动显示篇数。",
@@ -39,7 +39,7 @@ const descriptions = {
   friends:
     "友链数组：name、HTTP(S) url、可选 avatar、description。为空时没有可点击的查看全部操作。",
   comments:
-    "provider:none 安全关闭；link 配合文章 commentsUrl 提供真实讨论入口，不注入第三方 SDK。items 为构建期最近评论接口（见下文），不包含虚构默认数据。anchorsEnabled 仅在站点确有对应 DOM 评论锚点时启用。",
+    "provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/giscus/artalk 为动态 SDK，custom 在构建时选择浏览器模块。lazy 控制视口懒加载，counts/recent 分别控制额外计数与侧栏查询，recentLimit 为 1–10，timeout 为 3000–60000ms。keyPrefix 为不带域名及部署 base 的稳定线程前缀。服务字段只能填写公开连接参数，不能放管理凭据。详见 COMMENTS.md / COMMENT-ADAPTERS.md。",
   analytics:
     "仅支持可选 Umami 外部脚本。默认不输出脚本；enabled=true 必须同时提供 scriptUrl 和 websiteId。脚本只载入一次，SPA 计数交由 Umami。不能把私密密钥写入配置。",
 };
@@ -78,7 +78,7 @@ const intro =
 const sections = Object.entries(descriptions)
   .map(([name, desc]) => `## ${name}\n\n${desc}\n`)
   .join("\n");
-const tail = `\n## 接口与依赖\n\n- social: \`{ name, url, icon? }\`；icon 默认为 link，例如 code、mail--outlined。链接不接受 javascript: / data:。\n- friends: \`{ name, url, avatar?, description? }\`，没有头像仍保留文字回退。\n- navigation.tabs: \`{ id, label, enabled? }\`；links/footer.links: \`{ label, url }\`。\n- comments.items: \`{ id, author, avatar?, excerpt, postId, createdAt, anchor?, demo? }\`。createdAt 为带时区 ISO 时间；postId 必须关联公开文章才显示。演示评论应设 demo:true，主题不会假装已有评论后端。\n- comments.provider=link 仅在文章填写有效 HTTP(S) commentsUrl 时显示“参与讨论”。没有入口不会出现按钮。自定义嵌入应在自有组件中接入，并自行管理 Astro 生命周期。\n- 头像/封面使用 images/name.jpg 对应 src/assets/images/name.jpg，可由 Astro 优化；public/images/name.jpg 使用 /images/name.jpg。壁纸必须使用 public 路径或 HTTP(S) 地址。图片缺失沿用回退。\n- 全站预览的 demo:true、publishing.indexing:false 默认保护示例。发布真实内容需要 demo:false、indexing:true 和真实 url；每篇 demo:true 仍被排除。draft:true 始终不生成文章页、列表、搜索、RSS。\n- 搜索覆盖全部公开文章元数据；分页大小在 publishing.pageSize 配置，2–24，默认 6。置顶优先，再按日期倒序；RSS 始终按日期。关闭 JS 仍有真实分页与分类链接。\n- layout.modules 不包含 search 时也不安装 / 搜索快捷键；features.search=false 还会关闭查询搜索。侧栏为空仍保留手机 App Bar 与主题控制。\n- reading.motion=false 控制阅读扩展动画；系统 prefers-reduced-motion 对全站所有自定义及 MDUI 动画优先。\n- NEKOMI_CONFIG 指向一份完整用户配置（相对于主题默认值，不继承 site.config.json）；NEKOMI_CONTENT_DIR 指向 Markdown 目录。两者可用于独立维护个人配置/文章。只使用受信任的 Markdown，支持原始 HTML，不将其作为不可信投稿接口。\n`;
+const tail = `\n## 接口与依赖\n\n- social: \`{ name, url, icon? }\`；icon 默认为 link，例如 code、mail--outlined。链接不接受 javascript: / data:。\n- friends: \`{ name, url, avatar?, description? }\`，没有头像仍保留文字回退。\n- navigation.tabs: \`{ id, label, enabled? }\`；links/footer.links: \`{ label, url }\`。\n- comments.items / anchorsEnabled 为旧预览兼容：仅 provider=none/link 且 demo:true 的行会显示“示例留言”，非 demo 行不再作为正常数据源。动态服务忽略该数组。\n- comments.provider=link 仅在文章填写有效 HTTP(S) commentsUrl 时显示“参与讨论”。动态适配器通过统一 CommentAdapter 管理生命周期；assets 可显式覆盖可信的 SDK / CSS 地址与 SRI。custom.module 必须是项目内已有 TS/JS/MJS 文件，custom.options 仅接受可公开的 JSON。具体服务最小配置、能力差异、稳定键迁移和安全说明见 [评论接入](COMMENTS.md)；自建模块见 [适配器开发](COMMENT-ADAPTERS.md)。\n- 头像/封面使用 images/name.jpg 对应 src/assets/images/name.jpg，可由 Astro 优化；public/images/name.jpg 使用 /images/name.jpg。壁纸必须使用 public 路径或 HTTP(S) 地址。图片缺失沿用回退。\n- 全站预览的 demo:true、publishing.indexing:false 默认保护示例。发布真实内容需要 demo:false、indexing:true 和真实 url；每篇 demo:true 仍被排除。draft:true 始终不生成文章页、列表、搜索、RSS。\n- 搜索覆盖全部公开文章元数据；分页大小在 publishing.pageSize 配置，2–24，默认 6。置顶优先，再按日期倒序；RSS 始终按日期。关闭 JS 仍有真实分页与分类链接。\n- layout.modules 不包含 search 时也不安装 / 搜索快捷键；features.search=false 还会关闭查询搜索。侧栏为空仍保留手机 App Bar 与主题控制。\n- reading.motion=false 控制阅读扩展动画；系统 prefers-reduced-motion 对全站所有自定义及 MDUI 动画优先。\n- NEKOMI_CONFIG 指向一份完整用户配置（相对于主题默认值，不继承 site.config.json）；NEKOMI_CONTENT_DIR 指向 Markdown 目录。两者可用于独立维护个人配置/文章。只使用受信任的 Markdown，支持原始 HTML，不将其作为不可信投稿接口。\n`;
 writeFileSync(
   "docs/CONFIGURATION.md",
   intro +

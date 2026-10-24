@@ -1,0 +1,36 @@
+---
+// Dedicated static document: no ClientRouter or theme shell inside a vendor widget.
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>文章评论</title>
+    <style is:global>
+      html { color-scheme: light; }
+      body {
+        margin: 0;
+        padding: 4px;
+        background: transparent;
+        font: 14px/1.7 system-ui, sans-serif;
+        color: #29252c;
+        overflow-wrap: anywhere;
+      }
+      #comments { min-width: 0; }
+      html[data-theme=dark] { color-scheme: dark; }
+      html[data-theme=dark] body { color: #e6e1e7; }
+      * { box-sizing: border-box; }
+      img { max-width: 100%; }
+      /* Twikoo's public toolbar needs a second row in a 320px blog reader. */
+      @media (max-width: 300px) {
+        #comments .tk-comments-title { flex-wrap: wrap; row-gap: 8px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="comments"></div>
+    <script>import './frame-runtime';</script>
+  </body>
+</html>

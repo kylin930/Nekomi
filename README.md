@@ -11,6 +11,7 @@
 - 壁纸可选、默认关闭。启用后跨页面保留相同 DOM 与已解码图片，Service Worker 缓存仅辅助刷新。
 - 静态分页 + 可选无限滚动，全量文章搜索，分类 / 标签 / 月份独立 URL；返回列表恢复条件、批次和位置。
 - 可配置预设、侧栏模块 / Tabs、导航、卡片、阅读、页脚；Zod 校验、类型与编辑器 JSON Schema 同源。
+- 可选 Waline / Twikoo / Giscus / Artalk，统一 TypeScript 评论接口，支持自建适配器；默认关闭第三方服务。
 - Canonical、Open Graph、X Card、JSON-LD、官方 Sitemap / RSS、Robots；示例内容默认不被索引。
 
 ## 开始使用
@@ -57,7 +58,7 @@ public/                  按原路径发布的文件，例如壁纸
 
 [完整配置参考：类型、默认值、范围与依赖](docs/CONFIGURATION.md) · [完整配置示例](examples/full.config.json) · [Fresh](examples/fresh.config.json) · [最小配置](examples/minimal.config.json)
 
-数组按给出的顺序整体替换。`layout.modules` 可选 profile/social/search/tabs；`layout.sidebarTabs` 可选 updates/friends/comments。没有有效评论时不显示评论 Tab，也不会出现失效的讨论入口。普通用户不用设置每个间距；栏宽与页面宽度有安全范围，保留既有响应式结构。
+数组按给出的顺序整体替换。`layout.modules` 可选 profile/social/search/tabs；`layout.sidebarTabs` 可选 updates/friends/comments。评论关闭或内置服务不支持最新查询时隐藏评论 Tab；可查询但尚无留言时显示空状态。普通用户不用设置每个间距；栏宽与页面宽度有安全范围，保留既有响应式结构。
 
 ## 写第一篇文章
 
@@ -82,7 +83,7 @@ console.log('Hello, Nekomi');
 ```
 ````
 
-文章地址为 `/posts/hello/`，请尽量保持文件名稳定。日期按 `YYYY-MM-DD` 填写；`updated` 只在确实更新时填写。摘要不填时从正文生成，默认最多 140 字。可选字段还包括 `author`、`description`（SEO）、`pinned`、`draft`、`cover`、`coverAlt`、`commentsUrl` 和单篇 `reading` 开关。
+文章地址为 `/posts/hello/`，请尽量保持文件名稳定。日期按 `YYYY-MM-DD` 填写；`updated` 只在确实更新时填写。摘要不填时从正文生成，默认最多 140 字。可选字段还包括 `author`、`description`（SEO）、`pinned`、`draft`、`cover`、`coverAlt`、`comments`、`commentId`、`commentPath`、`commentsUrl` 和单篇 `reading` 开关。
 
 [Frontmatter 参考](src/content/README.md)。`draft: true` 不生成文章页，也不进入搜索 / 订阅。`pinned: true` 在列表中优先展示；RSS 始终按日期。默认两篇入门文章明确标识为示例，设有 `demo: true`，可以全部删除，空站仍可构建。
 
@@ -164,7 +165,7 @@ npm run build:personal
 
 若要继续作为原站开发，可将这份配置与原示例复制回自己的配置 / 内容目录，并移除新入门示例；先备份已经写的真实内容。原配置中的壁纸 API 属于原站个人选择，其他用户默认不会访问。所有旧内容仍保留 demo 保护。
 
-以后更新时，建议把自己的配置和 Markdown 单独提交，先建备份分支并审阅 CHANGELOG。克隆 / Fork 且保留上游历史的仓库可合并 upstream 更新；GitHub Template 创建的仓库具有独立历史，推荐在新目录引入新版主题，保留自己的 site.config.json、文章、src/assets 图片及 public 内自用资源，再按迁移说明验证。不要直接用旧 public 目录覆盖新版主题 Worker。也支持将个人数据放在主题目录之外：
+以后更新时，建议把自己的配置和 Markdown 单独提交，先建备份分支并审阅 CHANGELOG。克隆 / Fork 且保留上游历史的仓库可合并 upstream 更新；GitHub Template 创建的仓库具有独立历史，推荐在新目录引入新版主题，保留自己的 site.config.json、文章、src/custom 自有适配器、src/assets 图片及 public 内自用资源，再按迁移说明验证。不要直接用旧 public 目录覆盖新版主题 Worker。也支持将个人数据放在主题目录之外：
 
 ```sh
 NEKOMI_CONFIG=/path/to/my-site.json NEKOMI_CONTENT_DIR=/path/to/posts npm run build
@@ -172,11 +173,30 @@ NEKOMI_CONFIG=/path/to/my-site.json NEKOMI_CONTENT_DIR=/path/to/posts npm run bu
 
 独立配置继承主题默认值，不继承仓库根的个人设置。图片仍放在本项目 `src/assets/` 或 `public/`。升级后运行检查，未知 / 删除字段会给出具体配置路径，避免静默失效。[贡献与架构说明](CONTRIBUTING.md)
 
-## 第三方扩展与许可
+## 动态评论与自建扩展
 
-评论默认关闭；目前支持 `comments.provider: "link"` 与单篇有效 `commentsUrl`，跳到真正的讨论页面，不伪造评论后端或本地锚点。最近评论是构建期数据接口，可以由外部工具生成 JSON 后重建。
+评论默认关闭，可选 **Waline、Twikoo、Giscus、Artalk**，浏览器连接独立服务，静态博客不增加 Node 后端。每个服务的能力如实声明：Waline / Twikoo / Artalk 支持公开计数和最近查询；Giscus 只有已挂载讨论的计数消息，不提供全站最近评论 API，因此隐藏该侧栏页签。
 
-统计默认关闭。目前可选 Umami，需显式提供脚本地址和公开 website ID；不接受私钥。默认没有评论 SDK 或统计请求。图标字体仍由 Google Fonts 提供，属于字体资源请求；需完全离线时可按第三方许可自行托管字体。
+```json
+{
+  "comments": {
+    "provider": "waline",
+    "waline": { "serverURL": "https://comments.example.com" }
+  }
+}
+```
+
+这里是占位地址，需要先部署自己的服务。[四种服务的最小配置、部署入口、能力边界与迁移](docs/COMMENTS.md) · [配置示例](examples/comments/) · [真实客户端截图](screenshots/P25-COMMENTS.md)
+
+文章可以设置 `comments: false`、稳定 `commentId` 或原服务 `commentPath`。线程键默认不带域名或部署 base，更改标题不会换线程；重命名文件时保留 commentId。最新评论从选用服务动态获取，按键匹配当前文章，草稿 / 关闭评论 / 未知文章被过滤；不手工维护正常运行的评论列表，也不伪造评论定位。
+
+自建服务通过 `comments.provider: "custom"` 与项目内模块接入。[CommentAdapter 开发说明](docs/COMMENT-ADAPTERS.md)提供完整 TypeScript 生命周期、能力声明、取消 / 清理要求，以及[可运行的只读 REST 范例](examples/comments/rest-adapter.ts)。用户模块放在 src/custom，无需修改主题核心。全部前端配置公开，不能放 API 私钥或管理凭据；认证、审核、反垃圾由独立服务负责。
+
+早期 link / commentsUrl 方式保留；comments.items 仅兼容明确标识的 demo:true 预览，不再作为正常站点的最新评论来源。
+
+## 统计与许可
+
+统计默认关闭。目前可选 Umami，需显式提供脚本地址和公开 website ID；不接受私钥。默认没有评论 SDK 或统计请求；显式启用后才连接所选服务。图标字体仍由 Google Fonts 提供，属于字体资源请求；需完全离线时可按第三方许可自行托管字体。
 
 主题代码为 [MIT](LICENSE)；[第三方依赖与素材说明](THIRD-PARTY-NOTICES.md)。Stellar 与 G 仅用于设计参考，没有复制 GPL 源码或受保护的主题素材。历史阶段截图可能包含原站自行提供的背景，不属于主题许可或默认资产。P2.5 新截图使用无背景默认值，或项目自身界面截图作为测试图片。
 

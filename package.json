@@ -1,6 +1,6 @@
 {
   "name": "nekomi",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -17,7 +17,10 @@
     "test:config": "node --test tests/config.test.mjs",
     "config:docs": "node scripts/config-docs.mjs",
     "licenses": "node scripts/licenses.mjs",
-    "prebuild": "npm run licenses"
+    "prebuild": "npm run licenses",
+    "test:comments": "node --test tests/comments.test.mjs",
+    "test:comments:browser": "python3 tests/comments_audit.py --stress",
+    "test:comments:edges": "python3 tests/comments_edges.py"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "7.3.4",

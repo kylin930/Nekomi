@@ -663,8 +663,225 @@
           "type": "string",
           "enum": [
             "none",
-            "link"
+            "link",
+            "waline",
+            "twikoo",
+            "giscus",
+            "artalk",
+            "custom"
           ]
+        },
+        "lazy": {
+          "default": true,
+          "type": "boolean"
+        },
+        "counts": {
+          "default": true,
+          "type": "boolean"
+        },
+        "recent": {
+          "default": true,
+          "type": "boolean"
+        },
+        "recentLimit": {
+          "default": 4,
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "timeout": {
+          "default": 15000,
+          "type": "integer",
+          "minimum": 3000,
+          "maximum": 60000
+        },
+        "keyPrefix": {
+          "default": "/posts/",
+          "type": "string",
+          "pattern": "^\\/(?:[\\w.~\\-]+\\/)*$"
+        },
+        "waline": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "serverURL": {
+              "default": "",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": ""
+                },
+                {
+                  "type": "string",
+                  "format": "uri"
+                }
+              ]
+            },
+            "lang": {
+              "default": "zh-CN",
+              "type": "string",
+              "maxLength": 1000
+            },
+            "login": {
+              "default": "enable",
+              "type": "string",
+              "enum": [
+                "enable",
+                "disable",
+                "force"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "twikoo": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "envId": {
+              "default": "",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": ""
+                },
+                {
+                  "type": "string",
+                  "format": "uri"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[\\w.-]{1,180}$"
+                }
+              ]
+            },
+            "region": {
+              "default": "",
+              "type": "string",
+              "maxLength": 1000
+            },
+            "lang": {
+              "default": "zh-CN",
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          "additionalProperties": false
+        },
+        "giscus": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "repo": {
+              "default": "",
+              "type": "string",
+              "pattern": "^(?:[\\w.-]+\\/[\\w.-]+)?$"
+            },
+            "repoId": {
+              "default": "",
+              "type": "string",
+              "maxLength": 1000
+            },
+            "category": {
+              "default": "",
+              "type": "string",
+              "maxLength": 1000
+            },
+            "categoryId": {
+              "default": "",
+              "type": "string",
+              "maxLength": 1000
+            },
+            "lang": {
+              "default": "zh-CN",
+              "type": "string",
+              "maxLength": 1000
+            },
+            "reactions": {
+              "default": true,
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "artalk": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "server": {
+              "default": "",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": ""
+                },
+                {
+                  "type": "string",
+                  "format": "uri"
+                }
+              ]
+            },
+            "site": {
+              "default": "",
+              "type": "string",
+              "maxLength": 1000
+            },
+            "locale": {
+              "default": "zh-CN",
+              "type": "string",
+              "maxLength": 1000
+            }
+          },
+          "additionalProperties": false
+        },
+        "custom": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "module": {
+              "default": "",
+              "type": "string",
+              "pattern": "^(?:|\\.\\/(?:[\\w.-]+\\/)*[\\w.-]+\\.(?:ts|js|mjs))$"
+            },
+            "options": {
+              "default": {},
+              "type": "object",
+              "propertyNames": {
+                "type": "string"
+              },
+              "additionalProperties": {
+                "$ref": "#/$defs/__schema0"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "assets": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "script": {
+              "default": "",
+              "type": "string",
+              "maxLength": 2048
+            },
+            "css": {
+              "default": "",
+              "type": "string",
+              "maxLength": 2048
+            },
+            "integrity": {
+              "default": "",
+              "type": "string",
+              "pattern": "^(?:|sha(?:256|384|512)-[A-Za-z0-9+/=]+)$"
+            },
+            "cssIntegrity": {
+              "default": "",
+              "type": "string",
+              "pattern": "^(?:|sha(?:256|384|512)-[A-Za-z0-9+/=]+)$"
+            }
+          },
+          "additionalProperties": false
         },
         "anchorsEnabled": {
           "default": false,
@@ -757,5 +974,38 @@
       "additionalProperties": false
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "$defs": {
+    "__schema0": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/__schema0"
+          }
+        },
+        {
+          "type": "object",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/__schema0"
+          }
+        }
+      ]
+    }
+  }
 }

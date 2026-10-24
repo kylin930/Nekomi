@@ -30,7 +30,7 @@
 
 ## layout
 
-width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。无有效评论时自动隐藏评论 Tab。
+width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。
 
 ## navigation
 
@@ -66,7 +66,7 @@ search 关闭同时移除搜索框、快捷键与 URL 查询搜索。rss 关闭�
 
 ## comments
 
-provider:none 安全关闭；link 配合文章 commentsUrl 提供真实讨论入口，不注入第三方 SDK。items 为构建期最近评论接口（见下文），不包含虚构默认数据。anchorsEnabled 仅在站点确有对应 DOM 评论锚点时启用。
+provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/giscus/artalk 为动态 SDK，custom 在构建时选择浏览器模块。lazy 控制视口懒加载，counts/recent 分别控制额外计数与侧栏查询，recentLimit 为 1–10，timeout 为 3000–60000ms。keyPrefix 为不带域名及部署 base 的稳定线程前缀。服务字段只能填写公开连接参数，不能放管理凭据。详见 COMMENTS.md / COMMENT-ADAPTERS.md。
 
 ## analytics
 
@@ -150,7 +150,34 @@ provider:none 安全关闭；link 配合文章 commentsUrl 提供真实讨论入
 | `footer.copyright` | string | `""` | 长度 ≤ 1000 |
 | `footer.links` | array | `[]` | — |
 | `friends` | array | `[]` | — |
-| `comments.provider` | `none` / `link` | `"none"` | — |
+| `comments.provider` | `none` / `link` / `waline` / `twikoo` / `giscus` / `artalk` / `custom` | `"none"` | — |
+| `comments.lazy` | boolean | `true` | — |
+| `comments.counts` | boolean | `true` | — |
+| `comments.recent` | boolean | `true` | — |
+| `comments.recentLimit` | integer | `4` | ≥ 1，≤ 10 |
+| `comments.timeout` | integer | `15000` | ≥ 3000，≤ 60000 |
+| `comments.keyPrefix` | string | `"/posts/"` | — |
+| `comments.waline.serverURL` | string / string | `""` | — |
+| `comments.waline.lang` | string | `"zh-CN"` | 长度 ≤ 1000 |
+| `comments.waline.login` | `enable` / `disable` / `force` | `"enable"` | — |
+| `comments.twikoo.envId` | string / string / string | `""` | — |
+| `comments.twikoo.region` | string | `""` | 长度 ≤ 1000 |
+| `comments.twikoo.lang` | string | `"zh-CN"` | 长度 ≤ 1000 |
+| `comments.giscus.repo` | string | `""` | — |
+| `comments.giscus.repoId` | string | `""` | 长度 ≤ 1000 |
+| `comments.giscus.category` | string | `""` | 长度 ≤ 1000 |
+| `comments.giscus.categoryId` | string | `""` | 长度 ≤ 1000 |
+| `comments.giscus.lang` | string | `"zh-CN"` | 长度 ≤ 1000 |
+| `comments.giscus.reactions` | boolean | `true` | — |
+| `comments.artalk.server` | string / string | `""` | — |
+| `comments.artalk.site` | string | `""` | 长度 ≤ 1000 |
+| `comments.artalk.locale` | string | `"zh-CN"` | 长度 ≤ 1000 |
+| `comments.custom.module` | string | `""` | — |
+| `comments.custom.options` | object | `{}` | — |
+| `comments.assets.script` | string | `""` | 长度 ≤ 2048 |
+| `comments.assets.css` | string | `""` | 长度 ≤ 2048 |
+| `comments.assets.integrity` | string | `""` | — |
+| `comments.assets.cssIntegrity` | string | `""` | — |
 | `comments.anchorsEnabled` | boolean | `false` | — |
 | `comments.items` | array | `[]` | — |
 | `analytics.enabled` | boolean | `false` | — |
@@ -163,8 +190,8 @@ provider:none 安全关闭；link 配合文章 commentsUrl 提供真实讨论入
 - social: `{ name, url, icon? }`；icon 默认为 link，例如 code、mail--outlined。链接不接受 javascript: / data:。
 - friends: `{ name, url, avatar?, description? }`，没有头像仍保留文字回退。
 - navigation.tabs: `{ id, label, enabled? }`；links/footer.links: `{ label, url }`。
-- comments.items: `{ id, author, avatar?, excerpt, postId, createdAt, anchor?, demo? }`。createdAt 为带时区 ISO 时间；postId 必须关联公开文章才显示。演示评论应设 demo:true，主题不会假装已有评论后端。
-- comments.provider=link 仅在文章填写有效 HTTP(S) commentsUrl 时显示“参与讨论”。没有入口不会出现按钮。自定义嵌入应在自有组件中接入，并自行管理 Astro 生命周期。
+- comments.items / anchorsEnabled 为旧预览兼容：仅 provider=none/link 且 demo:true 的行会显示“示例留言”，非 demo 行不再作为正常数据源。动态服务忽略该数组。
+- comments.provider=link 仅在文章填写有效 HTTP(S) commentsUrl 时显示“参与讨论”。动态适配器通过统一 CommentAdapter 管理生命周期；assets 可显式覆盖可信的 SDK / CSS 地址与 SRI。custom.module 必须是项目内已有 TS/JS/MJS 文件，custom.options 仅接受可公开的 JSON。具体服务最小配置、能力差异、稳定键迁移和安全说明见 [评论接入](COMMENTS.md)；自建模块见 [适配器开发](COMMENT-ADAPTERS.md)。
 - 头像/封面使用 images/name.jpg 对应 src/assets/images/name.jpg，可由 Astro 优化；public/images/name.jpg 使用 /images/name.jpg。壁纸必须使用 public 路径或 HTTP(S) 地址。图片缺失沿用回退。
 - 全站预览的 demo:true、publishing.indexing:false 默认保护示例。发布真实内容需要 demo:false、indexing:true 和真实 url；每篇 demo:true 仍被排除。draft:true 始终不生成文章页、列表、搜索、RSS。
 - 搜索覆盖全部公开文章元数据；分页大小在 publishing.pageSize 配置，2–24，默认 6。置顶优先，再按日期倒序；RSS 始终按日期。关闭 JS 仍有真实分页与分类链接。

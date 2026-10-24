@@ -133,6 +133,7 @@ export function createTheme(data) {
       container.querySelector('[data-theme-cycle]').title = '当前' + labels[mode] + '，点击切换为' + nextLabel;
       container.querySelector('.theme-mode-label').textContent = labels[mode];
     });
+    document.dispatchEvent(new Event('nekomi:theme'));
   }
   window.addEventListener('storage', function (event) {
     if (event.key === KEY || event.key === null) apply(read(), false);

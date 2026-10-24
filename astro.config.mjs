@@ -5,6 +5,7 @@ import sitemap from '@astrojs/sitemap';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { publishing, rawConfig } from './src/config/publishing.mjs';
+import { commentsIntegration } from './src/integrations/comments/build.mjs';
 import { remarkPost, rehypeLocalImages, rehypeArticle } from './src/plugins/markdown.mjs';
 
 const base = publishing.base;
@@ -22,14 +23,14 @@ export default defineConfig({
   // An unconfigured preview deliberately has no public canonical URL.
   site: publishing.url || 'http://localhost:4321',
   base,
-  integrations: rawConfig.features.sitemap ? [sitemap({
+  integrations: [commentsIntegration(rawConfig.comments), ...(rawConfig.features.sitemap ? [sitemap({
     filter: url => publishing.indexing && Boolean(builtPage(url)) && !/name="robots" content="noindex/.test(builtPage(url)),
     serialize(item) {
       const updated = builtPage(item.url).match(/property="article:modified_time" content="([^"]+)"/);
       if (updated) item.lastmod = updated[1];
       return item;
     },
-  })] : [],
+  })] : [])],
   output: 'static',
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   trailingSlash: 'always',
