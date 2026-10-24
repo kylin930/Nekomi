@@ -33,6 +33,14 @@ const link = z
     "Use an HTTP(S), mailto: or site-relative / URL.",
   );
 const web = z.url({ protocol: /^https?$/ });
+const serviceUrl = web.refine((value) => {
+  try {
+    const u = new URL(value);
+    return !u.username && !u.password && !u.search && !u.hash;
+  } catch {
+    return false;
+  }
+}, "Use a public HTTP(S) service base URL without credentials, query or hash.");
 const font = z
   .string()
   .min(1)
@@ -239,7 +247,62 @@ export const configSchema = section({
     )
     .default([]),
   comments: section({
-    provider: z.enum(["none", "link"]).default("none"),
+    provider: z
+      .enum(["none", "link", "waline", "twikoo", "giscus", "artalk", "custom"])
+      .default("none"),
+    lazy: flag(),
+    counts: flag(),
+    recent: flag(),
+    recentLimit: z.number().int().min(1).max(10).default(4),
+    timeout: z.number().int().min(3000).max(60000).default(15000),
+    keyPrefix: baseSchema.default("/posts/"),
+    waline: section({
+      serverURL: z.union([z.literal(""), serviceUrl]).default(""),
+      lang: text("zh-CN"),
+      login: z.enum(["enable", "disable", "force"]).default("enable"),
+    }),
+    twikoo: section({
+      envId: z
+        .union([z.literal(""), serviceUrl, z.string().regex(/^[\w.-]{1,180}$/)])
+        .default(""),
+      region: text(),
+      lang: text("zh-CN"),
+    }),
+    giscus: section({
+      repo: z
+        .string()
+        .regex(/^(?:[\w.-]+\/[\w.-]+)?$/)
+        .default(""),
+      repoId: text(),
+      category: text(),
+      categoryId: text(),
+      lang: text("zh-CN"),
+      reactions: flag(),
+    }),
+    artalk: section({
+      server: z.union([z.literal(""), serviceUrl]).default(""),
+      site: text(),
+      locale: text("zh-CN"),
+    }),
+    custom: section({
+      module: z
+        .string()
+        .regex(/^(?:|\.\/(?:[\w.-]+\/)*[\w.-]+\.(?:ts|js|mjs))$/)
+        .default(""),
+      options: z.record(z.string(), z.json()).default({}),
+    }),
+    assets: section({
+      script: image,
+      css: image,
+      integrity: z
+        .string()
+        .regex(/^(?:|sha(?:256|384|512)-[A-Za-z0-9+/=]+)$/)
+        .default(""),
+      cssIntegrity: z
+        .string()
+        .regex(/^(?:|sha(?:256|384|512)-[A-Za-z0-9+/=]+)$/)
+        .default(""),
+    }),
     anchorsEnabled: flag(false),
     items: z
       .array(
@@ -267,6 +330,27 @@ export const configSchema = section({
       .default(""),
   }),
 }).superRefine((value, ctx) => {
+  const required = {
+    waline: ["serverURL"],
+    twikoo: ["envId"],
+    giscus: ["repo", "repoId", "category", "categoryId"],
+    artalk: ["server", "site"],
+    custom: ["module"],
+  };
+  const provider = value.comments.provider;
+  for (const field of required[provider] || [])
+    if (!value.comments[provider][field]?.trim())
+      ctx.addIssue({
+        code: "custom",
+        path: ["comments", provider, field],
+        message: `Required when comments.provider is ${provider}.`,
+      });
+  if (value.comments.custom.module.split("/").includes(".."))
+    ctx.addIssue({
+      code: "custom",
+      path: ["comments", "custom", "module"],
+      message: "Use a module inside this project, without ../ segments.",
+    });
   if (!value.navigation.tabs.some((t) => t.id === "recent" && t.enabled))
     ctx.addIssue({
       code: "custom",

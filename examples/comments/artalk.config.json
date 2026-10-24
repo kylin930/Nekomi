@@ -1,0 +1,10 @@
+{
+  "$schema": "../../site.schema.json",
+  "comments": {
+    "provider": "artalk",
+    "artalk": {
+      "server": "https://comments.example.com",
+      "site": "My Blog"
+    }
+  }
+}

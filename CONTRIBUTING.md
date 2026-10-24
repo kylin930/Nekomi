@@ -36,3 +36,17 @@ python3 tests/browse_audit.py --fixture --base /Nekomi/ --cdn-cache /tmp/nekomi-
 不要并发执行 Astro 构建（共享内容缓存），也不要在浏览器测试期间覆盖它正在读取的产物。临时文章只在 `.astro/` 或临时目录内，不加入默认内容。
 
 修改行为或配置时补充有意义的回归，更新 CHANGELOG、配置说明及必要截图。Issue 请带版本、视口、主题、base 和最小重现；PR 说明实际问题、结果及验证。GitHub Template 开关和 Pages / Cloudflare 项目需要仓库所有者在平台设置，源代码不能替用户启用。
+
+
+## 评论集成回归
+
+主题仍静态；真实 SDK 资源通过 TLS 校验下载 / 缓存，浏览器连接受控 API 响应，不向真实服务发言。Giscus 执行真实 client.js，远端讨论 iframe 用官方消息协议对端回放；OAuth / 云授权需维护者实站验证。
+
+```sh
+npm run test:comments
+python3 tests/comments_audit.py --screenshots --stress
+python3 tests/comments_audit.py --base /Nekomi/ --stress
+python3 tests/comments_edges.py
+```
+
+所有 Astro 构建顺序执行，不要与其他构建并发。扩展契约位于 src/integrations/comments/index.ts，内置能力在 capabilities.ts；新实现须声明能力、遵从 AbortSignal 并清理资源。最近 HTML 只做 inert 文本转换，不采用第三方 DOM。SDK iframe 是资源 / 样式隔离，不是安全沙箱；不要添加包含凭据的配置或没有公开依据的 API。

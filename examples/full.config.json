@@ -130,6 +130,45 @@
   "friends": [],
   "comments": {
     "provider": "none",
+    "lazy": true,
+    "counts": true,
+    "recent": true,
+    "recentLimit": 4,
+    "timeout": 15000,
+    "keyPrefix": "/posts/",
+    "waline": {
+      "serverURL": "",
+      "lang": "zh-CN",
+      "login": "enable"
+    },
+    "twikoo": {
+      "envId": "",
+      "region": "",
+      "lang": "zh-CN"
+    },
+    "giscus": {
+      "repo": "",
+      "repoId": "",
+      "category": "",
+      "categoryId": "",
+      "lang": "zh-CN",
+      "reactions": true
+    },
+    "artalk": {
+      "server": "",
+      "site": "",
+      "locale": "zh-CN"
+    },
+    "custom": {
+      "module": "",
+      "options": {}
+    },
+    "assets": {
+      "script": "",
+      "css": "",
+      "integrity": "",
+      "cssIntegrity": ""
+    },
     "anchorsEnabled": false,
     "items": []
   },

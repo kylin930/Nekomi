@@ -1,5 +1,6 @@
 ---
 import { render } from 'astro:content';
+import Comments from '../../integrations/comments/Comments.astro';
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import { config, readingOptions } from '../../config/site';
 import { getPosts, facets, type Post } from '../../lib/posts';
@@ -32,7 +33,8 @@ const tagGroups = facets(posts, 'tags');
     <div id="article-hero">{options.cover && assetUrl(cover) && <figure class="article-hero" data-shared-cover={post.id}><SiteImage src={cover} alt={coverAlt} kind="hero" /></figure>}</div>
     {options.toc && headings.length > 0 && <mdui-card variant="outlined" class="toc-inline"><mdui-collapse id="inline-toc" accordion><mdui-collapse-item value="contents" id="inline-toc-item"><mdui-button slot="header" variant="text" class="toc-toggle" id="toc-toggle"><span id="toc-toggle-label">文章目录 · {headings.length} 个章节</span><Icon slot="end-icon" id="toc-toggle-icon" name="expand_more" /></mdui-button><nav id="toc-inline-list" class="toc-content" aria-label="折叠文章目录"><TocTree headings={headings} /></nav></mdui-collapse-item></mdui-collapse></mdui-card>}
     <div id="article-body" class="prose"><Content /></div>
-    <footer class="reader-footer"><p class="reader-endnote">谢谢读到这里。</p><mdui-divider></mdui-divider>{options.neighbors && <nav id="article-neighbors" class="article-neighbors" aria-label="相邻文章">{neighbors.map(({ item, label, direction }) => item ? <mdui-card variant="outlined" clickable class="article-neighbor" data-direction={direction} href={postUrl(item.id)} data-astro-prefetch="hover"><span class="neighbor-label">{label}</span><strong>{item.data.title}</strong></mdui-card> : <div class="neighbor-boundary"><span>{label}</span><p>{direction === 'previous' ? '已经是最新的一篇' : '已经是最早的一篇'}</p></div>)}</nav>}{config.comments.provider === 'link' && post.data.commentsUrl && <mdui-button variant="text" href={post.data.commentsUrl}>参与讨论<Icon name="open_in_new" slot="end-icon" /></mdui-button>}<mdui-button variant="tonal" data-return-list href={withBase('') + '#recent'}>返回文章列表</mdui-button></footer>
+    <footer class="reader-footer"><p class="reader-endnote">谢谢读到这里。</p><mdui-divider></mdui-divider>{options.neighbors && <nav id="article-neighbors" class="article-neighbors" aria-label="相邻文章">{neighbors.map(({ item, label, direction }) => item ? <mdui-card variant="outlined" clickable class="article-neighbor" data-direction={direction} href={postUrl(item.id)} data-astro-prefetch="hover"><span class="neighbor-label">{label}</span><strong>{item.data.title}</strong></mdui-card> : <div class="neighbor-boundary"><span>{label}</span><p>{direction === 'previous' ? '已经是最新的一篇' : '已经是最早的一篇'}</p></div>)}</nav>}{config.comments.provider === 'link' && post.data.comments !== false && post.data.commentsUrl && <mdui-button variant="text" href={post.data.commentsUrl}>参与讨论<Icon name="open_in_new" slot="end-icon" /></mdui-button>}<mdui-button variant="tonal" data-return-list href={withBase('') + '#recent'}>返回文章列表</mdui-button></footer>
+    <Comments post={post} />
   </article>
   {options.toc && <aside slot="toc" class="reading-toc" id="reading-toc" aria-label="阅读辅助" hidden={!headings.length}><p class="toc-label">本文目录</p><nav id="toc-desktop-list" aria-label="文章目录"><TocTree headings={headings} /></nav></aside>}
 </SiteLayout>

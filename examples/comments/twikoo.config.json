@@ -1,0 +1,9 @@
+{
+  "$schema": "../../site.schema.json",
+  "comments": {
+    "provider": "twikoo",
+    "twikoo": {
+      "envId": "https://comments.example.com"
+    }
+  }
+}

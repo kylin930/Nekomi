@@ -1,4 +1,46 @@
-# P2.5 实际验证结果 · 2026-10-23
+# P2.5 动态评论扩展 · 0.4.0 · 2026-10-24
+
+基于 main `7b3b2bc`（合并通用配置版 P2.5），在 work 分支继续。Node.js 24.19.0、npm 11.9.0、Python Playwright 1.62.0、Chromium 154.0.8037.57。浏览器访问 Astro 生产静态产物，Python 只托管文件，不需要 Nekomi Node 后端。
+
+- **配置 31 / 31、评论 23 / 23 单测通过**：关闭默认、服务必填项、公开 URL / 禁止凭据与管理字段、非法 URL / 查询参数、模块路径、时间预算、稳定键 / 旧路径 / 中文与版本 SRI。
+- **五种适配 × 根路径 / `/Nekomi/`** 的浏览器功能及失败组通过。每组包含桌面 1440×900 与真正的 Android 触控上下文 390×844（另检查 320×700 及嵌入文档内部溢出）、明暗切换、真实 SDK 注册 / UI、视口懒挂载、计数、最近能力、另一篇 / 反复历史导航、旧容器断开、公共 DOM / timeOrigin 相同。主题切换不重建编辑器，Waline / Twikoo / Artalk 已输入草稿仍在。
+- Waline 3.16.1、Twikoo 2.0.17、Artalk 2.10.0 加载真实固定版本 JS / CSS，浏览器执行 SRI 校验；只回放公开服务 API。Giscus 执行真实官方 client.js / default.css，远程讨论 UI / metadata 对端是测试模拟，**不冒充实际 GitHub OAuth / Discussions 验证**。Custom 执行完整只读 REST 示例模块。
+- SDK 503 → 失败 → 重试成功；最近 API 503 重试；扣留响应时切换页签 / 文章后取消；旧计数 99 不覆盖新文章的 1；空服务计数为真实 0、Giscus 无 metadata 时隐藏而非伪造 0；无旧 iframe、重复 UI 或 pageerror。
+- **九项边界场景**：本地评论运行 chunk 503 时搜索 / 原生主题按钮 / 导航继续工作，刷新重试恢复；counts/recent 关闭后不发额外请求；服务关闭无评论 UI、SDK、API、本地 controller / frame 请求；单篇关闭同时覆盖动态服务和旧 link / 演示预览入口；零文章；跨 base / 改 ID / 显式旧键；无 recent / count 能力；不协作取消的 mount 超时后迟到也销毁且不发布 999。普通文章标题即使以 comment- 开头也不被接管；具体评论同页 Hash 通过原有列表历史状态记录，“返回文章列表”不会多退 / 少退。
+- 额外临时正式文章构建验证桥接文档 noindex，且不进入 Sitemap / RSS；重复线程键与缺失自定义模块均按预期构建失败。所有临时文章 / 模块位于 .astro，不作为默认内容提交。
+- 最近侧栏只在实际打开时加载，两端复用当前服务、60 秒成功缓存；Giscus SSR 隐藏不支持的 Tab，Custom 无能力给出说明。未知 / 草稿 / 关闭评论文章过滤。恶意最近内容的 img / script 不执行，也没有跟踪像素请求；使用 inert 文本提取、textContent 和 HTTP(S) 头像约束。
+- 独立壁纸配置下再次验证首页 → 文章 → 另一篇 → 前进后退 → 首页，共享壁纸 / 图像 / Sidebar DOM 和 timeOrigin 不变；评论区在离页前销毁，不改变原持久化 Swap。
+- **原六套配置 × 四种视口 / 主题 = 24 组**重新通过：Default、Fresh、Minimal、自定义配色 / 字体 / 宽度 / 头像 / 壁纸 / 统计、空文章、原个人配置。关闭目录 / 复制 / 搜索 / 相邻导航 / 无限滚动 / 分类标签等开关继续影响真正的 SSR 和行为，根域 / 子路径输出正常。
+
+- 原 P0–P2.4 的 **18 组完整浏览器回归重新通过**：旧十篇正文 / 稳定锚点 / 精确代码，主题 / Tabs / Drawer / 焦点，Shiki / 图片 / Prefetch，目录弹簧 / Hash / 历史，标题 / 封面正反向共享过渡与减少动效，八个视口 / 断点 / 对比度，Worker / 图像持久化 / 失败降级，临时长标题 / 六级目录 / 图片与封面。旧样例输入仍来自 examples/personal，不缩减测试以迁就默认两篇入门文章。
+
+- P2.4 **根路径与 `/Nekomi/` 的 42 篇 / 七页临时文章完整套件重新通过**：SEO / Canonical / OG / JSON-LD / RSS / Sitemap / Robots / demo 索引控制，精确返回滚动 / 首五帧、保留批次与筛选，连续阅读加 Hash，全站远页搜索、分类标签返回，慢响应 / 503 / 竞态取消，追加 Prefetch / 共享元素；禁用 JS 仍能通过真实分页遍历全部文章。
+- 最终 Astro Check **0 errors / 0 warnings / 1 hint**（原有 execCommand 剪贴板降级）；生产静态构建成功。没有新增 npm 依赖，固定 Astro / MDUI 版本不变；许可与第三方远程 SDK 清单已更新。默认浏览器五个公共 JS 请求，不请求可选评论 chunks，体积详见 [ASSET-SIZES](ASSET-SIZES.md)。
+
+[20 张实际评论截图](../screenshots/P25-COMMENTS.md)覆盖五种接入方式的桌面 / 手机浅深模式。截图留言明确为回放数据；SDK 头像回放仅使用项目自己的界面截图。通用主题 / 首页 / 预设图集仍见 [P25](../screenshots/P25.md)。
+
+主要命令（Astro 构建顺序执行）：
+
+```sh
+npm run test:config
+npm run test:comments
+npm run check
+npm run build
+python3 tests/comments_audit.py --stress --screenshots
+python3 tests/comments_audit.py --base /Nekomi/ --stress
+python3 tests/comments_audit.py --providers waline --wallpaper
+python3 tests/comments_edges.py
+python3 tests/theme_audit.py
+python3 tests/browser_audit.py --dist .astro/p25-tests/personal/dist --verified-cdn --cdn-cache /tmp/nekomi-p11/cdn
+python3 tests/browse_audit.py --fixture
+python3 tests/browse_audit.py --fixture --base /Nekomi/
+```
+
+边界：未代用户部署评论后端，没有实际登录 / 发表评论 / 审核 / 发送邮件，真实 GitHub OAuth、腾讯云资源授权和各平台生产 CORS / 隐私策略需在自己的部署验证。内置服务不宣称逐条评论定位能力；Giscus 不支持全站最近查询。图标字体仍来自 Google Fonts；评论服务与外部统计默认关闭。接入与安全见 [COMMENTS](../docs/COMMENTS.md)，自建契约见 [COMMENT-ADAPTERS](../docs/COMMENT-ADAPTERS.md)。
+
+---
+
+# P2.5 通用配置版 · 0.3.0 · 2026-10-23
 
 基于最新 main `f798f79`，在 work 分支开发，主题版本 0.3.0。Node.js 24.19.0、npm 11.9.0、Playwright 1.62.0、Chromium 154.0.8037.57；浏览器均访问生产静态产物，Python 文件服务器托管，没有生产 Node 服务。
 

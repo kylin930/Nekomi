@@ -1,0 +1,12 @@
+{
+  "$schema": "../../site.schema.json",
+  "comments": {
+    "provider": "giscus",
+    "giscus": {
+      "repo": "your-name/your-blog",
+      "repoId": "REPLACE_WITH_PUBLIC_REPOSITORY_ID",
+      "category": "Comments",
+      "categoryId": "REPLACE_WITH_PUBLIC_CATEGORY_ID"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import { getCollection } from 'astro:content';
 import { assetUrl, postUrl, pageUrl } from './urls';
 import { publishing } from '../config/publishing.mjs';
+import { commentKey } from '../integrations/comments/identity';
 import { config } from '../config/site';
 import { createHash } from 'node:crypto';
 function summarize(body: string) {
@@ -9,10 +10,18 @@ function summarize(body: string) {
   return chars.slice(0, config.content.excerptLength).join('') + (chars.length > config.content.excerptLength ? '…' : '');
 }
 export async function getPosts() {
-  return (await getCollection('posts')).filter(post => !post.data.draft).map(post => ({ ...post, data: { ...post.data, excerpt: post.data.excerpt ?? summarize(post.body || '') } })).sort((a, b) => Number(b.data.pinned) - Number(a.data.pinned) || b.data.date.localeCompare(a.data.date) || a.id.localeCompare(b.id));
+  const posts = (await getCollection('posts')).filter(post => !post.data.draft).map(post => ({ ...post, data: { ...post.data, excerpt: post.data.excerpt ?? summarize(post.body || '') } })).sort((a, b) => Number(b.data.pinned) - Number(a.data.pinned) || b.data.date.localeCompare(a.data.date) || a.id.localeCompare(b.id));
+  const keys = new Map<string, string>();
+  for (const post of posts) {
+    const key = commentKey(post, config.comments.keyPrefix);
+    if (config.comments.provider === 'twikoo' && /^https?:/.test(key)) throw new Error(`Twikoo commentPath must be a path without a domain: ${post.id}. Preserve a legacy path explicitly.`);
+    if (keys.has(key)) throw new Error(`Duplicate comment identity ${key}: ${keys.get(key)} and ${post.id}. Set unique commentId / commentPath values.`);
+    keys.set(key, post.id);
+  }
+  return posts;
 }
 export type Post = Awaited<ReturnType<typeof getPosts>>[number];
-export const postMetadata = (post: Post, index: number) => ({ id: post.id, ...post.data, cover: assetUrl(post.data.cover), url: postUrl(post.id), pageUrl: pageUrl(Math.floor(index / publishing.pageSize) + 1) });
+export const postMetadata = (post: Post, index: number) => ({ id: post.id, ...post.data, key: commentKey(post, config.comments.keyPrefix), cover: assetUrl(post.data.cover), url: postUrl(post.id), pageUrl: pageUrl(Math.floor(index / publishing.pageSize) + 1) });
 export const indexablePosts = (posts: Post[]) => publishing.indexing ? posts.filter(post => !post.data.demo) : [];
 export function facets(posts: Post[], kind: 'categories' | 'tags' | 'archive') {
   const groups = new Map<string, Post[]>();

@@ -26,7 +26,7 @@ function postId(url, base) {
 }
 export function prepareShared(event, base) {
   if (active) clear(active);
-  if (reduced.matches || !document.startViewTransition) return;
+  if (reduced.matches || !document.startViewTransition || event.to.hash.startsWith('#comment-')) return;
   const from = postId(event.from, base);
   const to = postId(event.to, base);
   const id = !from && to && document.querySelector('[data-listing]') ? to : from && !to ? from : '';
