@@ -103,7 +103,7 @@ def persistence_checks(page, context, url, requests):
         root: getComputedStyle(document.documentElement, '::view-transition-new(root)').animationName
       })); return vt; };
     }''')
-    page.locator('#side-desktop-comments').click()
+    page.locator('#side-desktop-friends').click()
     page.evaluate("NekomiTheme.setMode('dark')")
     page.locator('#post-list .post-title a').first.click()
     page.wait_for_url(url + 'posts/' + TECH + '/')
@@ -129,7 +129,7 @@ def persistence_checks(page, context, url, requests):
       saved.theme === NekomiTheme && saved.listItem === customElements.get('mdui-list-item') && !window.mdui && !customElements.get('mdui-slider') && saved.palette === document.querySelector('style[id^="mdui-custom-color-scheme"]')''')
     assert page.evaluate('imageLoads === 0 && wallpaperDecodes === 1 && refades === 0')
     assert page.evaluate('transitions.length >= 11 && transitions.every(t=>t.enter.includes("nekomi-in") && !t.root.includes("fade"))')
-    expect(page.locator('.sidebar .sidebar-tabs')).to_have_attribute('value', 'comments')
+    expect(page.locator('.sidebar .sidebar-tabs')).to_have_attribute('value', 'friends')
     assert page.evaluate("NekomiTheme.getMode() === 'dark'")
     assert len([r for r in requests if r['type'] == 'document']) == 1
     assert len([r for r in requests if r['url'].startswith('https://www.nekopara.uk/pic_api')]) == 1
@@ -389,8 +389,10 @@ def mobile_checks(page, context, url, requests):
     ready(page)
     page.locator('#menu-button').click()
     expect(page.locator('#drawer-close button')).to_be_focused()
-    page.locator('#side-mobile-comments').click()
-    expect(page.locator('#side-mobile-comments-panel')).to_be_visible()
+    # Empty comments are intentionally absent in P2.5; populated fixture checks all three tabs.
+    expect(page.locator('#side-mobile-comments')).to_have_count(0)
+    page.locator('#side-mobile-friends').click()
+    expect(page.locator('#side-mobile-friends-panel')).to_be_visible()
     page.locator('#side-mobile-updates').click()
     page.locator('[data-sidebar=mobile] [data-search] input').fill('CSS')
     page.keyboard.press('Enter')
@@ -403,7 +405,7 @@ def mobile_checks(page, context, url, requests):
     expect(page.locator('#mobile-drawer')).to_be_hidden()
     assert page.evaluate('getComputedStyle(document.body).overflow') != 'hidden'
     page.locator('#menu-button').click()
-    expect(page.locator('#side-mobile-comments')).to_have_attribute('aria-selected', 'false')
+    expect(page.locator('#side-mobile-friends')).to_have_attribute('aria-selected', 'false')
     field = page.locator('[data-sidebar=mobile] [data-search] input')
     field.fill('排版')
     page.keyboard.press('Enter')
@@ -781,13 +783,13 @@ def main():
                 context.close()
                 print('PASS static output: served by Python only, Markdown body/metadata/code/TOC are present without JavaScript')
             if not args.skip_fixtures and (not args.only or args.only in ('fixtures', 'covers')):
-                fixture = json.loads((ROOT / 'site.config.json').read_text())
+                fixture = json.loads((ROOT / 'examples/personal/site.config.json').read_text())
                 fixture.update(json.loads((ROOT / 'tests/fixtures/sidebar.json').read_text()))
                 fixture['site']['avatar'] = 'images/demo-home.png'
                 fixture['friends'][0]['avatar'] = 'images/missing-fixture-avatar.png'
                 fixture['friends'][1]['avatar'] = 'images/demo-home.png'
                 fixture['appearance']['wallpaper'].update(lightReaderSurface=.96, darkReaderSurface=.98)
-                posts_dir = temp/'posts'; shutil.copytree(ROOT/'src/content/posts', posts_dir)
+                posts_dir = temp/'posts'; shutil.copytree(ROOT/'examples/demo-posts', posts_dir)
                 for post_id, changes in json.loads((ROOT/'tests/fixtures/visual.json').read_text()).items():
                     post_file=posts_dir/(post_id+'.md'); raw=post_file.read_text(); _,front,body=raw.split('---\n',2); meta=json.loads(front);meta.update(changes);post_file.write_text('---\n'+json.dumps(meta,ensure_ascii=False)+'\n---\n'+body)
                 # Only this temporary Collection copy adds image / deep-heading

@@ -16,7 +16,7 @@
     for (const animation of running) if (root.contains(animation.effect?.target)) animation.cancel();
   }
   function enter(element, distance = 8) {
-    if (!element || reduced.matches || !element.getClientRects().length) return;
+    if (!element || document.querySelector('[data-reader-motion="false"]') || reduced.matches || !element.getClientRects().length) return;
     for (let parent = element.parentElement; parent; parent = parent.parentElement) {
       if (parent.nekomiEntrance?.some(animation => animation.playState === 'running')) return;
     }
@@ -52,7 +52,7 @@
   function scrollToElement(element, animate) {
     cancelScroll();
     if (!element) return;
-    if (!animate || reduced.matches) { window.scrollTo({ top: destination(element), behavior: 'instant' }); return; }
+    if (!animate || reduced.matches || element.closest('[data-reader-motion="false"]')) { window.scrollTo({ top: destination(element), behavior: 'instant' }); return; }
     // 质量 1、刚度 220、阻尼 28：接近临界阻尼，只保留很轻的弹性。
     var state = scrolling = { frame: 0, position: scrollY, velocity: 0, last: 0, start: 0 };
     var stiffness = Number(token('spring-stiffness', '220'));

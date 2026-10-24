@@ -1,194 +1,183 @@
-# Nekomi · 小林的小窝
+# Nekomi
 
-基于 **Astro 静态构建、MDUI 2.1.5 / Material Design 3** 的原创博客主题。保留 Stellar 式融入侧栏、P1.1 配色与阅读排版；不使用 React / Vue。所有文章、日期与叙事均为演示内容。
+一个基于 **Astro 静态生成、MDUI 2.1.5 与 Material Design 3** 的原创个人博客主题。融入页面的 Stellar 式侧栏、日系个人站气质、舒适的中文排版；配置和 Markdown 就是日常使用入口，不需要 React、Vue 或常驻 Node.js 服务。
 
-P2.4 完善 SEO、静态分页与列表返回体验。首页默认每批六篇，滚动接近底部再追加；普通分页和分类 / 标签 / 月份页面也能在关闭 JavaScript 时访问。返回时先还原列表内容高度，再由 Astro 恢复原位置；保留 P2.3 共享元素、MD3 Expressive 动效与原位壁纸。
+![Nekomi 默认首页](screenshots/p25-default-home-light-1440.png)
 
-[发布与索引配置、分页和状态恢复](docs/PUBLISHING.md) · [P2.3 动效原则与分工](docs/MOTION.md) · [P2.4 实际截图与浏览录屏](screenshots/P24.md)
+[手机阅读](screenshots/p25-default-reader-light-390.png) · [深色模式](screenshots/p25-default-home-dark-1440.png) · [Fresh 预设](screenshots/p25-fresh-home-light-1440.png) · [Minimal 预设](screenshots/p25-minimal-home-light-1440.png) · [截图与配置测试](screenshots/P25.md)
 
-| 页面 | 桌面浅色 / 深色 | 手机浅色 / 深色 |
-| --- | --- | --- |
-| 首页 | [浅色](screenshots/p24-home-light-1440x900.png) · [深色](screenshots/p24-home-dark-1440x900.png) | [浅色](screenshots/p24-home-light-390x844.png) · [深色](screenshots/p24-home-dark-390x844.png) |
-| 阅读 | [浅色](screenshots/p24-reader-light-1440x900.png) · [深色](screenshots/p24-reader-dark-1440x900.png) | [浅色](screenshots/p24-reader-light-390x844.png) · [深色](screenshots/p24-reader-dark-390x844.png) |
+- 可复用 Astro 组件与 Content Collections；Markdown、Shiki 双主题高亮、本地响应式图片、原生 MDUI 目录与代码复制。
+- ClientRouter 无刷新导航、标题 / 封面共享过渡、轻量弹簧目录；尊重减少动态效果。
+- 壁纸可选、默认关闭。启用后跨页面保留相同 DOM 与已解码图片，Service Worker 缓存仅辅助刷新。
+- 静态分页 + 可选无限滚动，全量文章搜索，分类 / 标签 / 月份独立 URL；返回列表恢复条件、批次和位置。
+- 可配置预设、侧栏模块 / Tabs、导航、卡片、阅读、页脚；Zod 校验、类型与编辑器 JSON Schema 同源。
+- Canonical、Open Graph、X Card、JSON-LD、官方 Sitemap / RSS、Robots；示例内容默认不被索引。
 
-[P2.2 手机顶部、原生目录与语法高亮截图](screenshots/P22.md) · [P2.1 八个视口与排版样例](screenshots/P21.md) · [P2 手机无刷新导航录屏](screenshots/p2-navigation-390x844.webm)。截图和录屏使用站长 API 实际返回并经检查的图片，不是生成素材；自动化回归使用本项目截图作为确定性图片 fixture。
+## 开始使用
 
-## 开发、构建与部署
+推荐 **Node.js 24 LTS**，最低 `22.23.4`；使用 npm 与仓库锁文件。需要 HTTP(S) 预览，不支持直接打开 `file://`。
 
-推荐 Node.js **24 LTS**（`.nvmrc`），npm。依赖版本由 `package-lock.json` 固定。
+在 GitHub 使用 **Use this template → Create a new repository**（维护者需先在仓库 Settings 勾选 Template repository）；也可以克隆后修改自己的 Git remote：
 
 ```sh
+git clone https://github.com/kylin930/Nekomi.git my-blog
+cd my-blog
 npm ci
 npm run dev
-# http://localhost:4321
+```
 
+访问 `http://localhost:4321`。日常只需编辑：
+
+```text
+site.config.json         你的站点配置
+src/content/posts/*.md   你的文章
+src/assets/images/       可优化头像、封面、正文图片
+public/                  按原路径发布的文件，例如壁纸
+```
+
+不要修改主题内部的 `src/config/schema.mjs` 来配置站点。默认值由主题维护，用户配置只写需要覆盖的部分。配置修改后重新构建；开发服务器未反映配置时重启。
+
+## 配置你的站点
+
+```json
+{
+  "$schema": "./site.schema.json",
+  "site": {
+    "name": "我的小窝",
+    "tagline": "分享技术、日常",
+    "intro": "一些笔记，和生活的小片段。",
+    "avatarFallback": "我",
+    "social": [{ "name": "GitHub", "url": "https://github.com/你的用户名", "icon": "code" }]
+  },
+  "appearance": { "preset": "fresh", "color": "#427f79" }
+}
+```
+
+**Default** 保留 Nekomi 紫色与原有形状；**Fresh** 使用柔和青绿与辅助色；**Minimal** 降低首篇染色、收敛形状并采用简洁标题字体。三者共享同一套 Token 与页面结构。显式 `color`、`secondary`、`font`、`headingFont`、`radius` 优先于预设。字体不自动从外部下载，使用你设备上的字体栈。
+
+[完整配置参考：类型、默认值、范围与依赖](docs/CONFIGURATION.md) · [完整配置示例](examples/full.config.json) · [Fresh](examples/fresh.config.json) · [最小配置](examples/minimal.config.json)
+
+数组按给出的顺序整体替换。`layout.modules` 可选 profile/social/search/tabs；`layout.sidebarTabs` 可选 updates/friends/comments。没有有效评论时不显示评论 Tab，也不会出现失效的讨论入口。普通用户不用设置每个间距；栏宽与页面宽度有安全范围，保留既有响应式结构。
+
+## 写第一篇文章
+
+在 `src/content/posts/hello.md` 写入：
+
+````md
+---
+title: 你好，世界
+date: '2026-10-24'
+category: 随笔
+tags: [生活]
+excerpt: 第一篇文章的简短介绍。
+demo: false
+---
+
+## 从这里开始
+
+正文使用 Markdown。
+
+```js
+console.log('Hello, Nekomi');
+```
+````
+
+文章地址为 `/posts/hello/`，请尽量保持文件名稳定。日期按 `YYYY-MM-DD` 填写；`updated` 只在确实更新时填写。摘要不填时从正文生成，默认最多 140 字。可选字段还包括 `author`、`description`（SEO）、`pinned`、`draft`、`cover`、`coverAlt`、`commentsUrl` 和单篇 `reading` 开关。
+
+[Frontmatter 参考](src/content/README.md)。`draft: true` 不生成文章页，也不进入搜索 / 订阅。`pinned: true` 在列表中优先展示；RSS 始终按日期。默认两篇入门文章明确标识为示例，设有 `demo: true`，可以全部删除，空站仍可构建。
+
+## 头像、封面和壁纸
+
+- 头像 / 封面放入 `src/assets/images/`，配置 `site.avatar: "images/avatar.webp"`，文章写 `cover: images/cover.webp` 和 `coverAlt`。Astro 生成响应式 WebP 和固有尺寸；无头像使用文字回退，失效封面收起。
+- Markdown 使用 `![描述](../../assets/images/photo.webp)`，也兼容 `/images/photo.webp` 本地资源写法。图片必须自行提供并确认授权。
+- `cards.cover` 可选 `auto`（宽屏右图、窄屏上图）、`top`、`none`；`reading.cover` 控制阅读页头图。
+- **壁纸默认关闭**。将有权使用的图片放在 `public/images/wallpaper.webp` 后配置：
+
+```json
+{
+  "appearance": {
+    "wallpaper": {
+      "enabled": true,
+      "light": "images/wallpaper.webp",
+      "dark": "",
+      "lightOverlay": 0.60,
+      "darkOverlay": 0.68,
+      "position": "center",
+      "fit": "cover"
+    }
+  }
+}
+```
+
+壁纸也支持运行时 HTTP(S) 地址；它不参与 Astro 构建期图片优化，随机 API 不会被构建固定成某张图。浅深遮罩、卡片 / 阅读表面和缓存时长分别可调。新模板不请求原站个人图片 API。[图片详细说明](docs/IMAGES.md)
+
+## 发布、SEO 与订阅
+
+确认真实站点地址后，在配置里设置：
+
+```json
+{
+  "demo": false,
+  "publishing": {
+    "url": "https://blog.example.com",
+    "base": "/",
+    "indexing": true,
+    "author": "你的署名"
+  }
+}
+```
+
+地址仅为示例，不是主题默认正式域名。`url` 是源站，`base` 是路径；也可用 `SITE_URL`、`SITE_BASE` 构建环境变量覆盖。`SITE_URL` 不应包含 `/Nekomi/`。
+
+全站 `demo:false` + `indexing:true` + 真实地址才启用索引。每篇 `demo:true` 仍然 noindex、排除 RSS 和 Sitemap；不要把主题样例当作自己的真实文章发布。无封面且无分享图时不生成虚构图片。分类、标签、月份和分页直接输出真实链接，无 JS 仍可发现文章。
+
+RSS 为 `/rss.xml`，Robots 为 `/robots.txt`，可收录内容生成 `/sitemap-index.xml`。相关开关见 `features`。部署在项目子路径时需在域名根目录合并 robots 规则；详见 [发布说明](docs/PUBLISHING.md)。
+
+```sh
 npm run check
+npm run test:config
 npm run build
 npm run preview
 ```
 
-`npm run preview` 仅用于本地预览。发布 `dist/` 内的静态文件即可，生产不需要安装 npm 依赖、运行 Astro 服务或 SPA fallback。服务器应将目录请求映射到 `index.html`，不存在的路径返回 `404.html` 并保留 HTTP 404 状态。
+部署 `dist/` 的静态文件，不需要生产 Node 服务或 SPA fallback；服务器应正常解析目录 `index.html`，不存在路径返回 `404.html` 与 HTTP 404。
 
-根域部署默认使用 `/`。部署到 GitHub Pages 的 `/Nekomi/` 等子目录时：
+### GitHub Pages
 
-```sh
-SITE_BASE=/Nekomi/ npm run build
-```
+1. 创建自己的仓库。Settings → Pages → Source 选择 GitHub Actions。
+2. 仓库 Actions Variables 添加 `SITE_URL=https://你的用户名.github.io`、`SITE_BASE=/你的仓库名/`；用户主页仓库或自定义根域使用 `/`。
+3. 本仓库提供[手动 Pages 工作流](.github/workflows/pages.yml)，在 Actions 手动运行。它会检查、构建并部署静态产物，不在克隆后自动发布。
+4. 自定义域名按 GitHub Pages 文档设置 DNS / HTTPS，并在 `public/CNAME` 写你的域名；同步改 `SITE_URL` / `SITE_BASE`，不要使用原作者域名。
 
-这会统一处理文章、脚本、CSS、图片、搜索和壁纸 Worker 的站内路径。`publishing.url` / `SITE_URL` 配置源站，`publishing.base` / `SITE_BASE` 配置路径；默认未确认正式域名，示例内容不参与索引。详见[发布说明](docs/PUBLISHING.md)。需要 HTTP(S)，不支持直接以 `file://` 打开构建产物。
+### Cloudflare Pages
 
-云环境若默认缓存目录不可写，可运行 `npm --cache /tmp/nekomi-npm-cache ci`；若 Astro 遥测配置目录不可写，使用 `ASTRO_TELEMETRY_DISABLED=1 npm run build` / `npm run check`。不需要改动 HOME 或证书设置。
+连接自己的 Git 仓库；构建命令 `npm run build`，输出目录 `dist`，Node 版本设为 24。环境变量 `SITE_URL` 填实际自定义域名（或项目 Pages 地址），`SITE_BASE=/`。需要根域时在平台设置 Custom domains / DNS，并重新构建更新 Canonical。不要为静态路由添加全站重写到首页的规则。
 
-MDUI 固定 `mdui@2.1.5` npm 依赖，由 Vite 输出本地带 hash 的资源，不再请求 unpkg 或依赖 `window.mdui`。`src/scripts/mdui.js` 逐项注册实际使用的 20 种组件；组件内部的依赖由 Vite 去重。官方公共 CSS 仍完整导入（主题 / Tokens / 工具样式需要），`setTheme` / `setColorScheme` 从功能模块导入，不导入 MDUI 总入口。图标字体仍由 Google Fonts 提供。
+## 从 P2.4 迁移与保留个人配置
 
-文章标题、封面、阅读全文和相邻文章明确设置 `data-astro-prefetch="hover"`；`prefetchAll: false` 避免预取整页链接。普通锚点使用 Astro 原生处理，MDUI Shadow DOM 内的按钮 / Card 使用 Astro `prefetch()` 公共 API，延迟 80ms、URL 归一化并去重，遵循网络节流 / 离线限制。没有额外页面缓存系统。P2.4 的 JS / CSS 合计约 317.7 KiB，逐文件 gzip 估算 81.6 KiB，比 P2.3 增加约 2.8 KiB gzip；SEO 集成仅在构建期运行，没有新增 UI / 动画库，详见[完整体积口径](tests/ASSET-SIZES.md)。
-
-## 组件、路由与生命周期
-
-`SiteLayout.astro` 统一输出侧栏、原生 Top App Bar、Navigation Drawer、Dialog、Snackbar、主题控制和壁纸。公共 HTML 在构建时生成，不再由客户端字符串拼装。首页列表、分类、标签、归档、文章正文、目录和相邻导航也直接输出到静态 HTML。
-
-- 首页：`/`，筛选链接仍为 `/?q=CSS#recent`；顶部 Tabs 状态与 Hash 同步。
-- 静态分页：`/page/2/`；分类、标签、月份索引为 `/categories/`、`/tags/`、`/archive/`，具体主题列表也有独立 URL。
-- 文章：`/posts/css-grid-two-column-blog/`、`/posts/weekend-walk-by-river/`，可直接访问、刷新与分享。
-- 章节：`/posts/css-grid-two-column-blog/#grid-minimum`，保留 P1 的显式标题 ID。
-- 旧 `article.html?post=<id>#<heading>` 入口保留轻量兼容跳转；原 `#preview/<id>` 同样兼容。新内部链接全部使用静态文章 URL。
-- 无效路径使用静态 `404.html`；不再运行时请求正文片段。
-
-`ClientRouter` 管理请求、历史、滚动恢复和 View Transitions。页面位置 / 尺寸使用 500ms 的官方 Web spatial 转换曲线，透明度单独使用 200ms effects 曲线；后退方向反转。当前可见文章的标题临时命名为 `post-title`，有已解码封面时再衔接 `post-cover`，完成或取消后清理名称。不是给所有卡片同时命名，也不把壁纸或外壳放进淡入快照。慢图 / 坏图只衔接标题；没有 View Transition API 时使用 Astro 原生 fallback。
-
-MDUI 原生 Tabs 指示器、Ripple、状态层、Drawer / Dialog / Collapse 动画保留。Nekomi 只增强面板方向、卡片小幅缩放 / 圆角、目录 3px 移动标记与原生 active 的颜色过渡。空间与透明度 WAAPI 分离，时间解析支持 Vite 压缩后的 `.35s`；页面离开时取消动画、清理计时器和观察器。`prefers-reduced-motion` 下不启用共享元素和自定义进入，CSS / MDUI 时长缩至 1ms，目录立即定位。
-
-**壁纸持久化与缓存是两层独立机制。** 壁纸、公共侧栏和导航都声明了命名 `transition:persist`。此外使用 Astro 官方 `astro:before-swap` / `event.swap` / `swapFunctions`：保留公共外壳在原来的 DOM 位置，只替换 `<main>` 和阅读目录，使用官方 helper 更新 head、根属性、脚本状态和焦点。壁纸容器及已解码的 `<img>` 不被移除、移动或替换，不重新请求随机 API，不再次解码或播放首次淡入。导航发生在图片尚未加载完时，也沿用同一个加载任务。
-
-这个替换边界同时适配固定的 MDUI 2.1.5：Astro 默认 body swap 会在同一任务中两次移动持久化元素，触发该版本 ResizeObserver 清理异常。保留外壳原位避免了重复 disconnect；没有修改 MDUI 内部代码、屏蔽异常或升级 MDUI 版本。新增公共区域应放进布局 / 公共组件；新增页面沿用相同布局与 `main-content` 边界。
-
-`runtime.js` 是只执行一次的模块：共享监听与主题单例只初始化一次。`astro:page-load` 为当前正文建立 AbortController，离开时清理监听、RAF、弹簧滚动和复制反馈计时器。导航前等待原生 Drawer / Dialog 关闭，焦点约束和滚动锁交由 MDUI 管理。MDUI 深层 Shadow DOM 中的图标链接也桥接到 Astro 导航，保留修饰键和新窗口行为。必要的固定版本无障碍补充在 `a11y.js`，不重做组件面板或模态机制。
-
-## 内容与配置
-
-站点配置集中在 [`site.config.json`](site.config.json)：发布地址、索引策略、每页篇数、个人名称、简介、圆形头像、配色、壁纸、友链与最近评论。构建时有 schema 校验，配置修改后需要重新构建。可用 `NEKOMI_CONFIG=/absolute/site.json` 指定完整配置，用于预览 / 测试，不改变默认数据。
-
-文章放在 [`src/content/posts/`](src/content/posts/)，Content Collection schema 位于 [`src/content.config.ts`](src/content.config.ts)。文件名就是稳定文章 ID：
-
-```md
----
-title: 文章标题
-excerpt: 用于首页与搜索的摘要
-date: "2026-10-23"
-category: 前端
-tags: [CSS, Astro]
-cover: ""
-coverAlt: ""
-demo: false
----
-
-正文从这里开始，不重复页面标题。
-
-## 稳定章节 {#stable-section}
-
-支持普通 Markdown、代码围栏、图片、列表和表格。
-```
-
-[详细文章约定](src/content/README.md) · [图片接入](public/images/README.md)。保留十篇可替换样例与全部稳定标题锚点；P2.3 整理公开文案，更新两篇日常文章的标题和一般性叙述，并将工程说明与 Astro 现状同步。首页索引、侧栏更新、搜索与相邻文章均由同一 Collection 推导，不再维护第二份文章索引。
-
-代码块由 Astro Shiki 在构建时生成 GitHub Light / Dark 双主题语法颜色，再补齐一层语言栏、原生复制 Button 和横向滚动区域（没有客户端高亮包），表格同样独立横向滚动。目录自动生成扁平的原生 `mdui-list` / `mdui-list-item`，以 H2–H6 深度缩进，原生 `href` / `rounded` / `active` 管理链接和选中状态，1440px 起有足够空间时放右侧，否则使用原生 Collapse。折叠目录点击后等待原生关闭动画，再执行原有弹簧定位；`aria-current` 同步到实际链接。正文保持原有 760px 上限与中文阅读节奏；复制、当前章节、标题永久链接、弹簧滚动、焦点与历史由轻量原生 JS 增强。
-
-首页搜索范围为全量文章的标题、摘要、分类和标签；按需读取匹配结果所在静态分页，不只搜索已加载卡片。文章页搜索按 Enter 无刷新返回首页。友链预览最多五项，“查看全部”使用原生 Dialog；侧栏三个 Tabs 在首页、文章和移动 Drawer 中共用。
-
-最近评论配置示例：
-
-```json
-{
-  "anchorsEnabled": false,
-  "items": [{
-    "id": "demo-1", "author": "演示访客", "avatar": "",
-    "excerpt": "这是一条 UI 测试留言。",
-    "postId": "css-grid-two-column-blog",
-    "createdAt": "2026-10-23T08:30:00+08:00",
-    "anchor": "", "demo": true
-  }]
-}
-```
-
-写入配置的 `comments` 字段。默认为空，示例通过 `demo` 字段保留数据性质，公开页面不显示开发阶段提示；未知文章被过滤。没有评论后端时只进入对应文章，只有真实评论节点已实现后才可启用 `anchorsEnabled`。时间在构建时按 Asia/Shanghai 输出，避免部署机器时区影响。
-
-## 排版与响应式参数
-
-- 正文保留桌面 17px、手机 16px，统一行高 **1.85**；段落及图片 / 表格 / 代码等块间距 **1.25em**。H2 上间距 **1.85em**，H3 为 1.55em，H4 为 1.4em，H5–H6 为 1.25em；代码行高 1.8。
-- 阅读页用 Grid 统一主段落区域间距：桌面 24px、手机 16px；紧凑导航下阅读容器与 App Bar 间新增 16px（App Bar 已计入安全区域），首页不变。标题元数据内部 16px / 8px。无头图、无标签、无目录时不留下空行；末段余白和文章末尾导航收紧，保留完整标题与标签。360px 及以下主标题 26px，其他手机为 28px。
-- **1120px 起**保留 320px 融入式侧栏；更窄时使用单列、原生 App Bar 和 Drawer。断点由 320 侧栏 + 32 栏距 + 56 外边距 + 至少 712px 阅读表面推导，CSS 与键盘 / Drawer 的 JS 判断同步。
-- **1440px 起**显示右侧 184px 目录，完整保留 760px 阅读表面（正文 696px）；1280 / 1359 / 1360px 使用折叠目录。正文左侧沿内容网格对齐，目录出现时不压缩或横移正文。1120px 时最小正文仍有 648px。
-- 首页只微调原有 Card：标题 21px、最新篇 22px（手机均 20px），标题上下 8px、底部操作间距 8px；无图文字最长 48rem。有图仍按卡片实际宽度切换，上图 / 右图的阈值为 640px，右图最多 208px并与文字顶端对齐，最新篇底色权重降到 18%。
-
-参数集中在 `src/styles/tokens.css`，布局和排版在 `main.css` / `home.css` / `article.css`。媒体查询中的 1120 / 1440px 与宽度预算对应；自定义侧栏或正文宽度时应同步重新核对预算，不只修改单个断点。
-
-## 配色、壁纸与动效
-
-主题按钮循环“浅色 → 深色 → 跟随系统”，使用 MDUI `setColorScheme()` / `setTheme()`；偏好本地保存，无存储权限时仍在客户端导航中保留。主色与樱粉 / 清蓝语义色、320px 透明侧栏、圆形无边框头像均沿用 P1.1。
-
-`site.config.json` 中的 `appearance.wallpaper`：
-
-| 字段 | 默认值 / 用途 |
-| --- | --- |
-| `enabled` | `true` |
-| `light` | `https://www.nekopara.uk/pic_api` |
-| `dark` | 空，沿用浅色同一图片 |
-| `position` / `fit` | `center` / `cover`，可用 CSS object-position 与 `contain` |
-| `lightOverlay` / `darkOverlay` | `.60` / `.68`，遮罩范围 0–1 |
-| `lightSurface` / `darkSurface` | `.84` / `.88`，首页卡片及集合表面，范围 .65–1 |
-| `lightReaderSurface` / `darkReaderSurface` | `.97` / `.97`，文章阅读表面，范围 .85–1 |
-| `cacheHours` | `24`，1–168；0 禁用辅助缓存 |
-
-600px 及以下在配置遮罩上额外叠加浅色 .10 / 深色 .08（上限 1），卡片表面不低于 .92、阅读区不低于 .985。侧栏仅使用连续渐隐并保持透明；壁纸存在时，其小字采用适合当前层次的 MD3 语义前景色。以上只改变 CSS 合成，不替换图像、重新解码或修改 Worker。
-
-图片加载失败回退 MD3 默认背景；低优先级异步解码后首次淡入 650ms，不阻塞正文。明暗模式沿用同一图时只改变遮罩和表面。侧栏保持融入式渐隐，不新增浮动玻璃卡片。
-
-API 在 P1.1 已实际验证：`/pic_api` 301 → `/pic_api/` 302 → 对象存储 200 `image/png`，不是 JSON；随机响应没有稳定 Cache-Control / Expires，最终图有 ETag / Last-Modified。样本约 2.8–4.2MB。没有假设固定图片地址或未经确认的缩略图参数。
-
-`public/wallpaper-cache.js` 继续作为刷新 / 重访的辅助：仅缓存 `__nekomi_wallpaper` 图片请求，no-cors opaque 响应默认保存 24 小时、最多两张，合并并发并清理坏图；需要 HTTPS / localhost。它不缓存页面、脚本或文章，不是离线站点。**即使禁用 Worker，内部导航也保持同一个图片元素与图像。** 随机池内容与首次下载体积由 API 控制；需要稳定素材时可配置站长审核、压缩后的固定图片。
-
-目录滚动继续采用质量 1、刚度 220、阻尼 28 的小步弹簧积分，响应滚轮 / 触摸 / 指针 / 键盘中断和重复定位。原生 Tabs 指示器、涟漪、Drawer、Dialog、Collapse 动画交由 MDUI；没有大型动画库。自定义 CSS 负责布局、排版与公开 Parts，不重复实现已有组件。
-
-## 验证
+原“小林的小窝”配置完整保存在 [`examples/personal/site.config.json`](examples/personal/site.config.json)，十篇原示例及稳定锚点保存在 [`examples/demo-posts/`](examples/demo-posts/)。以下命令仅切换构建输入，不覆盖文件：
 
 ```sh
-npm run check
-npm run build
-python3 -m pip install -r tests/requirements.txt
-python3 tests/browser_audit.py --chromium /usr/bin/chromium --artifacts /tmp/nekomi-browser
+npm run dev:personal
+npm run build:personal
 ```
 
-测试只用 Python 静态文件服务器托管构建产物，覆盖无刷新导航、壁纸 / 图像身份、一次请求 / 解码、内容迁移完整性、直接访问与历史、原生组件、主题、复制与目录、八个指定视口及断点边界及明暗模式；还单独构建填充友链 / 评论的 fixture。详见 [测试说明](tests/README.md)与[本轮实测结果](tests/RESULTS.md)。
+若要继续作为原站开发，可将这份配置与原示例复制回自己的配置 / 内容目录，并移除新入门示例；先备份已经写的真实内容。原配置中的壁纸 API 属于原站个人选择，其他用户默认不会访问。所有旧内容仍保留 demo 保护。
 
-云环境验证通过 `--verified-cdn` 保留代理和 TLS 校验，仅对 Google Fonts 用 curl 获取原始响应后向 Chromium 回放；MDUI 全部由本地构建产物加载，不关闭证书验证；这不代表 Chromium 原生外部字体证书链已配置。交付截图的背景来自实际 API 样本。仅实测 Chromium，Firefox / Safari 尚未实测。
+以后更新时，建议把自己的配置和 Markdown 单独提交，先建备份分支并审阅 CHANGELOG。克隆 / Fork 且保留上游历史的仓库可合并 upstream 更新；GitHub Template 创建的仓库具有独立历史，推荐在新目录引入新版主题，保留自己的 site.config.json、文章、src/assets 图片及 public 内自用资源，再按迁移说明验证。不要直接用旧 public 目录覆盖新版主题 Worker。也支持将个人数据放在主题目录之外：
 
-## 目录
-
-```text
-astro.config.mjs          静态构建、子路径、Markdown 插件
-site.config.json          站点 / 主题 / 壁纸 / 友链 / 评论配置
-src/
-  layouts/SiteLayout.astro 公共布局与 ClientRouter
-  components/            侧栏、导航、壁纸、卡片、目录等
-  pages/index.astro      首页首批文章
-  pages/page/[page].astro 构建时分页
-  pages/[kind]/          分类 / 标签 / 月份静态索引与分页
-  pages/rss.xml.ts       官方 RSS 订阅源
-  pages/robots.txt.ts    Robots 与 Sitemap 引用
-  pages/posts/[id].astro  独立文章静态路由
-  pages/404.astro         错误页面
-  pages/article.html.ts   旧链接兼容入口
-  content.config.ts      Content Collections schema
-  assets/images/         Astro 优化的本地头像 / 封面 / 正文图片
-  content/posts/*.md     十篇完整 Markdown 演示文章
-  plugins/markdown.mjs   稳定标题 ID、代码 / 表格构建增强
-  scripts/               单例运行时与可清理的页面增强
-  styles/                复用 P1.1 样式与内容 View Transitions
-public/                  不需优化的公开资源与壁纸 Worker
-docs/                   发布 / 索引 / 浏览状态与动效分工
-tests/                   静态产物浏览器回归与迁移基线
-screenshots/             实际页面截图与录屏
-dist/                    构建产物（不提交）
+```sh
+NEKOMI_CONFIG=/path/to/my-site.json NEKOMI_CONTENT_DIR=/path/to/posts npm run build
 ```
 
-本轮止于 P2.4 SEO、内容发现与浏览体验；未新增评论后端、管理后台或常驻 Node 服务。许可见 [LICENSE](LICENSE) 与 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+独立配置继承主题默认值，不继承仓库根的个人设置。图片仍放在本项目 `src/assets/` 或 `public/`。升级后运行检查，未知 / 删除字段会给出具体配置路径，避免静默失效。[贡献与架构说明](CONTRIBUTING.md)
+
+## 第三方扩展与许可
+
+评论默认关闭；目前支持 `comments.provider: "link"` 与单篇有效 `commentsUrl`，跳到真正的讨论页面，不伪造评论后端或本地锚点。最近评论是构建期数据接口，可以由外部工具生成 JSON 后重建。
+
+统计默认关闭。目前可选 Umami，需显式提供脚本地址和公开 website ID；不接受私钥。默认没有评论 SDK 或统计请求。图标字体仍由 Google Fonts 提供，属于字体资源请求；需完全离线时可按第三方许可自行托管字体。
+
+主题代码为 [MIT](LICENSE)；[第三方依赖与素材说明](THIRD-PARTY-NOTICES.md)。Stellar 与 G 仅用于设计参考，没有复制 GPL 源码或受保护的主题素材。历史阶段截图可能包含原站自行提供的背景，不属于主题许可或默认资产。P2.5 新截图使用无背景默认值，或项目自身界面截图作为测试图片。
+
+[测试结果](tests/RESULTS.md) · [动效与 MDUI 分工](docs/MOTION.md) · [配置参考](docs/CONFIGURATION.md) · [CHANGELOG](CHANGELOG.md)

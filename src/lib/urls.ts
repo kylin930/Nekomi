@@ -13,3 +13,5 @@ export function assetUrl(value: string) {
   return value.startsWith(base) && base !== '/' ? value : withBase(value);
 }
 export const dateLabel = (date: string) => new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(date + 'T00:00:00Z'));
+
+export const navigationUrl = (url: string) => url.startsWith('/') ? assetUrl(url) : url;

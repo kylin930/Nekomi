@@ -41,7 +41,7 @@
   --post-accent-container: var(--mdui-color-secondary-container);
   --post-on-accent-container: var(--mdui-color-on-secondary-container);
 }
-.post-latest { background: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) 18%, var(--site-paper)); --shape-corner: var(--nekomi-shape-card); }
+.post-latest { background: color-mix(in srgb, rgb(var(--mdui-color-primary-container)) var(--nekomi-latest-tint, 18%), var(--site-paper)); --shape-corner: var(--nekomi-shape-card); }
 .post-content { padding: 20px 24px 12px; }
 .post-copy { max-inline-size: 48rem; }
 .post-meta { flex-wrap: wrap; gap: 8px 12px; font-size: 12px; line-height: 1.6; }
@@ -76,8 +76,11 @@
 .post-card { transition: transform var(--nekomi-spatial-fast-duration) var(--nekomi-spatial-fast-easing), border-radius var(--nekomi-spatial-fast-duration) var(--nekomi-spatial-fast-easing), box-shadow var(--nekomi-effects-default-duration) var(--nekomi-effects-easing), background-color var(--nekomi-duration-background) var(--nekomi-effects-easing); }
 .post-card:focus-within { box-shadow: 0 0 0 2px rgba(var(--mdui-color-primary), .34); }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .post-card:hover { transform: scale(1.003); --shape-corner: 24px; box-shadow: var(--mdui-elevation-level1); }
+  .post-card:hover { transform: scale(1.003); --shape-corner: calc(var(--nekomi-shape-card) + 4px); box-shadow: var(--mdui-elevation-level1); }
 }
 @media (prefers-reduced-motion: no-preference) {
   .post-card:has(:is(a, mdui-button, mdui-chip):active) { transform: scale(.997); --shape-corner: var(--nekomi-shape-pressed); }
 }
+
+.post-cover-top .post-main { display: flex; flex-direction: column-reverse; }
+.post-cover-top .post-cover { width: 100%; aspect-ratio: 16 / 7; max-height: 280px; }

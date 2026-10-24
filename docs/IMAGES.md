@@ -5,7 +5,7 @@
 - **站点头像**：在根目录 `site.config.json` 的 `site.avatar` 填 `images/avatar.webp`，同时填写 `avatarAlt`。保持无边框圆形，缺失或失败时显示 `avatarFallback`。
 - **文章封面**：Markdown frontmatter 填 `cover: images/covers/example.webp` 与 `coverAlt`。宽卡片右图、窄卡片上图，阅读页标题后显示可选头图。缺失不占位，失败收起。建议至少 800px 的 WebP / AVIF。
 - **正文图片**：`src/assets/images/` 下的图片可继续用原有的 `/images/...` 写法，插件将 Markdown 及 HTML figure 中的本地路径交给 Astro 原生图片流程，正文无需改写。标准 Markdown 的相对图片导入也可直接使用 Astro 的优化。Markdown 中用 `![图片说明](/images/example.webp)`；复杂排版可用 HTML figure，外部或 public 图片建议写自然 width / height 和 figcaption。图片失败保留说明。
-- **壁纸**：壁纸仍须用运行时可访问的 `public/` 路径或 HTTP(S) 地址，不从 `src/assets/` 解析，也不进入构建期图片优化。配置 `appearance.wallpaper.light` / `dark` 为 `images/wallpapers/day.webp` 等。默认仍是站长 API；深色空值沿用浅色图。支持 position / fit、明暗遮罩、表面与缓存时长。
+- **壁纸**：壁纸仍须用运行时可访问的 `public/` 路径或 HTTP(S) 地址，不从 `src/assets/` 解析，也不进入构建期图片优化。配置 `appearance.wallpaper.light` / `dark` 为 `images/wallpapers/day.webp` 等。默认关闭且没有外部地址；原站 API 仅保留在 examples/personal 配置中；深色空值沿用浅色图。支持 position / fit、明暗遮罩、表面与缓存时长。
 - **友链 / 评论头像**：配置中填 `images/friends/example.webp`，无图或坏图回退名称首字。
 
 配置图片路径相对于站点根目录，可填写 HTTP(S) 外链；本地建议使用 `images/...`，会自动适配 `SITE_BASE`。不要把原项目的 `assets/images/` 路径直接照搬。仅使用有授权的素材，避免超大原图；主题不生成头像、插画或美术资源。

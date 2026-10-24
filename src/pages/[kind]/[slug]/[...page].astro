@@ -10,7 +10,7 @@ import { facetUrl } from '../../../lib/urls';
 import { canIndex } from '../../../lib/seo';
 export const getStaticPaths = (async ({ paginate }) => {
   const posts = await getPosts();
-  return ['categories', 'tags', 'archive'].flatMap(kind => facets(posts, kind as 'categories' | 'tags' | 'archive').flatMap(group =>
+  return ['categories', 'tags', 'archive'].filter(kind => kind === 'archive' || config.content[kind as 'categories' | 'tags']).flatMap(kind => facets(posts, kind as 'categories' | 'tags' | 'archive').flatMap(group =>
     paginate(group.posts, { pageSize: publishing.pageSize, params: { kind, slug: group.slug } }).map(item => ({ ...item, props: { feed: listing(group.posts, item.props.page.currentPage, kind + '/' + group.slug), group } }))));
 }) satisfies GetStaticPaths;
 const { feed, group } = Astro.props;

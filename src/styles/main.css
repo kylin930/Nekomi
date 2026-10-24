@@ -241,3 +241,8 @@ mdui-tab[active]::part(container) { background: rgba(var(--mdui-color-primary-co
 
 .post-tags mdui-chip { --shape-corner: var(--mdui-shape-corner-full); --mdui-color-outline: var(--mdui-color-outline-variant); background: transparent; font-size: 12px; }
 .post-tags mdui-chip::part(button) { padding-inline: 9px; }
+
+.social-links, .custom-links { display: flex; flex-wrap: wrap; gap: 4px; margin-block: 12px; }
+
+.profile-brand > div { min-width: 0; }
+.site-tagline, .site-intro, .site-footer { overflow-wrap: anywhere; }

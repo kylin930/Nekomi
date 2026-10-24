@@ -2,7 +2,7 @@
 html:has(body[data-page="article"]) { scroll-padding-top: 0; }
 .reading-layout { column-gap: var(--space-4); }
 .reading-layout #main-content { width: 100%; max-width: var(--reader-width); justify-self: start; }
-.reader { display: grid; gap: var(--space-3); max-width: var(--reader-width); min-width: 0; padding: var(--space-3) var(--space-4); border-radius: 20px; background: var(--site-reader-paper); transition: background-color var(--nekomi-duration-background) var(--nekomi-easing-feedback); }
+.reader { display: grid; gap: var(--space-3); max-width: var(--reader-width); min-width: 0; padding: var(--space-3) var(--space-4); border-radius: var(--nekomi-shape-card); background: var(--site-reader-paper); transition: background-color var(--nekomi-duration-background) var(--nekomi-easing-feedback); }
 .reader > * { min-width: 0; }
 .reader-breadcrumb { margin-inline-start: -12px; }
 .reader-header { display: grid; gap: var(--space-2); }
@@ -121,3 +121,6 @@ html.mdui-theme-dark .astro-code, html.mdui-theme-dark .astro-code span { color:
 @media (prefers-color-scheme: dark) {
   html.mdui-theme-auto .astro-code, html.mdui-theme-auto .astro-code span { color: var(--shiki-dark); background-color: var(--shiki-dark-bg); }
 }
+
+.example-label { margin: 0; font-size: 12px; color: rgb(var(--mdui-color-on-surface-variant)); }
+.reader[data-copy-code="false"] .copy-code { display: none; }

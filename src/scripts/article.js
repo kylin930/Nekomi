@@ -5,6 +5,8 @@ import { pushArticleHash } from './list-state';
 export function initArticle(site, signal, navigationType) {
   const body = document.getElementById('article-body');
   const headings = [...body.querySelectorAll('h2, h3, h4, h5, h6')];
+  const copyEnabled = document.getElementById('reader').dataset.copyCode !== 'false';
+  if (!copyEnabled) body.querySelectorAll('.copy-code').forEach(button => button.remove());
   const links = [...document.querySelectorAll('.toc-list mdui-list-item')];
   const lists = [...document.querySelectorAll('.toc-list')];
   let previousSection;
@@ -18,7 +20,7 @@ export function initArticle(site, signal, navigationType) {
   const on = (element, type, handler, options = {}) => element?.addEventListener(type, handler, { ...options, signal });
   function currentSection() {
     frame = 0;
-    if (signal.aborted || !headings.length) return;
+    if (signal.aborted || !links.length || !headings.length) return;
     const offset = document.querySelector('.site-appbar').getBoundingClientRect().height + 32;
     let current = headings[0];
     for (const heading of headings) { if (heading.getBoundingClientRect().top <= offset) current = heading; else break; }
@@ -107,7 +109,7 @@ export function initArticle(site, signal, navigationType) {
   ['opened', 'closed'].forEach(type => on(inlineToc, type, settle));
   on(document, 'click', event => {
     const button = event.target.closest('.copy-code');
-    if (button) { copyCode(button); return; }
+    if (button && copyEnabled) { copyCode(button); return; }
     const anchor = event.target.closest('.toc-list mdui-list-item, .heading-anchor, .prose a[href^="#"]');
     if (!anchor || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || event.button) return;
     const hash = new URL(anchor.getAttribute('href'), location.href).hash;
@@ -128,13 +130,13 @@ export function initArticle(site, signal, navigationType) {
   on(window, 'popstate', () => scrollHash(false));
   ['wheel', 'touchstart'].forEach(type => on(window, type, () => { pending = null; }, { passive: true }));
   on(site.drawer, 'open', () => { pending = null; motion.cancelScroll(); });
-  on(window, 'scroll', update, { passive: true });
-  on(window, 'resize', () => { motion.cancelScroll(); if (tocMoving && !document.querySelector('.toc-inline').getClientRects().length) settle(); update(); });
+  if (links.length) on(window, 'scroll', update, { passive: true });
+  if (links.length) on(window, 'resize', () => { motion.cancelScroll(); if (tocMoving && !document.querySelector('.toc-inline').getClientRects().length) settle(); update(); });
   // Let ClientRouter restore a traversed page's actual scroll position, rather than forcing its previous hash.
   if (navigationType !== 'traverse') scrollHash(false);
-  const observer = new ResizeObserver(() => { measureToc = true; update(); });
-  lists.forEach(list => observer.observe(list));
+  const observer = links.length ? new ResizeObserver(() => { measureToc = true; update(); }) : null;
+  lists.forEach(list => observer?.observe(list));
   currentSection();
   Promise.all(links.map(link => link.updateComplete)).then(() => { if (!signal.aborted) { measureToc = true; update(); } });
-  return () => { observer.disconnect(); cancelAnimationFrame(frame); timers.forEach(clearTimeout); motion.cancelScroll(); };
+  return () => { observer?.disconnect(); cancelAnimationFrame(frame); timers.forEach(clearTimeout); motion.cancelScroll(); };
 }

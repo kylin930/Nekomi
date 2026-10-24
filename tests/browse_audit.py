@@ -42,8 +42,8 @@ def external_routes(context,cache,wallpaper=None):
 
 
 def build_fixture(directory,base='/'):
-    posts=directory/'posts';shutil.copytree(ROOT/'src/content/posts',posts)
-    config=json.loads((ROOT/'site.config.json').read_text());config['demo']=False
+    posts=directory/'posts';shutil.copytree(ROOT/'examples/demo-posts',posts)
+    config=json.loads((ROOT/'examples/personal/site.config.json').read_text());config['demo']=False
     config['publishing'].update(url='https://nekomi.example',indexing=True,pageSize=6)
     for index in range(32):
         meta={'title':f'分页回归条目 {index+1:02d}','excerpt':'远页索引词' if index==0 else '用于独立临时构建的浏览与 SEO 回归数据。',

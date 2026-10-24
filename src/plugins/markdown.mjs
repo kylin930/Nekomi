@@ -1,3 +1,4 @@
+import { rawConfig } from '../config/publishing.mjs';
 import { existsSync } from 'node:fs';
 import { resolve, relative, dirname } from 'node:path';
 
@@ -49,7 +50,8 @@ export function rehypeLocalImages({ base = '/' } = {}) {
   };
 }
 export function rehypeArticle() {
-  return tree => {
+  return (tree, file) => {
+    const copy = file.data.astro?.frontmatter?.reading?.copyCode ?? rawConfig.reading.copyCode;
     function walk(node) {
       if (!node.children) return;
       node.children = node.children.map(child => {
@@ -68,7 +70,7 @@ export function rehypeArticle() {
           Object.assign(child.properties, { tabIndex: 0, role: 'region', ariaLabel: language.toUpperCase() + ' 代码，可横向滚动' });
           return element('figure', { className: ['code-block'] }, [
             element('div', { className: ['code-header'] }, [element('span', {}, [text(language.toUpperCase())]),
-              element('mdui-button', { variant: 'text', className: ['copy-code'], ariaLabel: '复制 ' + language.toUpperCase() + ' 代码' }, [text('复制')])]), child,
+              ...(copy ? [element('mdui-button', { variant: 'text', className: ['copy-code'], ariaLabel: '复制 ' + language.toUpperCase() + ' 代码' }, [text('复制')])] : [])]), child,
           ]);
         }
         return child;
