@@ -33,7 +33,6 @@ const tagGroups = facets(posts, 'tags');
   <article id="reader" class="reader" data-reader-motion={String(options.motion)} data-copy-code={String(options.copyCode)} data-lightbox={String(options.lightbox)}>
     <nav class="reader-breadcrumb" aria-label="返回导航"><mdui-button variant="text" data-return-list href={withBase('') + '#recent'}><Icon name="arrow_back" slot="icon" />返回文章列表</mdui-button></nav>
     <header class="reader-header">
-      {post.data.demo && <p class="example-label">示例文章 · 可替换的主题内容</p>}
       {options.metadata && config.content.categories && <div class="reader-kicker"><a id="article-category" href={categoryUrl}>{category}</a></div>}
       <h1 id="article-title" data-shared-title={post.id}>{title}</h1>
       {options.metadata && <p class="reader-meta"><time id="article-date" datetime={date}>{dateLabel(date)}</time><span aria-hidden="true">·</span><span id="article-source">{post.data.author || config.publishing.author || config.site.name}</span>{showReadingTime && <><span aria-hidden="true">·</span><span id="article-reading-time">约 {post.data.readingMinutes} 分钟</span></>}{post.data.updated && <><span>· 更新于</span><time datetime={post.data.updated}>{dateLabel(post.data.updated)}</time></>}</p>}

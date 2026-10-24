@@ -121,3 +121,19 @@ python3 tests/reading_edges.py --dist .astro/p25-tests/p31-core-base/dist --base
 使用实际 Chromium 触摸输入检查滑动 / 双指缩放 / 拖动，另测灯箱期间搜索快捷键、单图 / 原图失败、带灯箱离页、减少动态、引擎加载中变色、隐藏图表展开、长行内公式、闭合 Details 的目录状态及嵌套 Tabs 键盘作用域。
 
 `python3 tests/reading_assets.py` 另外验证 src/ 之外的独立 Markdown 目录：与项目资产内容相同但路径不同的图片，在连续两次构建后仍有可访问的全尺寸图片。检查内部构建路径不会写入 HTML，避免资产去重导致原图失效或文件路径泄露。
+
+
+## v1.0.0 发布前核心检查
+
+```sh
+node --test tests/config.test.mjs tests/social.test.mjs tests/comments.test.mjs tests/reading.test.mjs
+npm run check
+npm run build
+python3 tests/release_audit.py
+python3 tests/reading_audit.py
+python3 tests/comments_audit.py
+python3 tests/theme_audit.py
+python3 tests/browse_audit.py --fixture
+```
+
+`release_audit.py` 检查版本与锁文件、Node.js 要求、许可和中文发布说明，并分别在根路径 / 子路径构建临时正式发布配置。三个示例原样复制，另外增加一篇只存在于临时目录的非 demo 文章，验证移除顶部标签后，示例仍 noindex、排除 RSS / Sitemap / BlogPosting，而真实文章仍正常收录；结束时核对源示例字节没有变化。阅读套件同时在真实浏览器确认文章头部没有旧标签。上述操作不创建 Tag、GitHub Release 或部署。

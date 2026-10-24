@@ -1,3 +1,20 @@
+# v1.0.0 发布前核心回归 · 2026-10-24
+
+基于最新 main `fd0e322`（P3.1 合并结果），在 work 分支收尾。仅移除文章顶部示例标签及其专用样式，更新版本与发布文档；示例 Markdown、demo schema、SEO / RSS / Sitemap 实现和依赖版本保持不变。
+
+- `package.json`、锁文件顶层与根包版本均为 **1.0.0**；Node.js 要求仍为 **≥22.23.4**，推荐 **24 LTS**。使用 Node.js 24.19.0 / npm 11.9.0、Playwright 1.62.0 / Chromium 154 验证。
+- **88 项单测通过**。Astro Check 为 **0 errors / 0 warnings / 1 hint**（原有 execCommand 剪贴板降级）；默认生产构建成功，输出 **16 张静态页面**。示例站的 Sitemap “No pages found” 仍是预期结果。
+- 新增 `release_audit.py`：核对版本、Node.js、MDUI 2.1.5、MIT 许可与中文发布说明；在 `/` 和 `/Nekomi/` 的临时正式发布配置中，验证三篇原样复制的 demo:true 示例没有顶部标签，仍 noindex、排除 RSS / Sitemap / BlogPosting；另加的临时非 demo 文章正常收录。核对源文件字节未变化，没有将示例改成正式文章。
+- **Markdown 浏览器回归通过**：桌面 / 手机 × 浅色 / 深色，检查标签确实不在文章头部；灯箱、公式、图表、指令、隐藏章节 / Hash、视频按需加载、相关文章、友链、跨页清理、无 JS 和功能全关状态正常。
+- **五种评论方式通过**：Waline / Twikoo / Giscus / Artalk / Custom 的懒加载、计数、主题、历史导航、销毁、侧栏能力与移动端。使用真实客户端 SDK 和受控服务响应，未向真实服务发布评论。
+- **六套主题配置 24 组浏览器检查通过**：Default / Fresh / Minimal / 自定义子路径 / 空站 / 原个人配置；覆盖明暗、移动 Drawer、配置覆盖、公共 DOM / 壁纸 / 主题持久化与 ClientRouter。
+- **42 篇文章 / 七页浏览回归通过**：SEO 元数据、RSS / Sitemap / Robots、静态分页、全量搜索 / 分类 / 标签、加载批次、原生滚动恢复及首五帧、前进后退 / 相邻文章 / Hash、慢响应 / 503 / 重试 / 取消、追加 Prefetch / 共享过渡；无 JS 也能遍历全部文章。
+- MIT 主题许可与第三方许可清单保持准确，生成许可文件无变化；没有新增依赖、素材、功能或部署动作。仓库当前尚未启用 GitHub Template，文档已提供克隆方式并明确模板入口需维护者启用。
+
+[中文 Release 说明草稿](../docs/releases/v1.0.0.md)已准备好；此次工作只提交代码，Tag 与 GitHub Release 由维护者决定创建时间。验证边界沿用下方 P3.1 记录：仅实测 Chromium，视频与远程评论对端为受控回放，不代表实际登录 / 地区限制 / 服务部署验证。
+
+---
+
 # P3.1 文章阅读与 Markdown · 0.6.0 · 2026-10-24
 
 基于最新 main `5b31903`（P3.0 合并结果），在 work 分支开发。保持 Astro 7.4.2、MDUI 2.1.5、Node.js 24.19.0 / npm 11.9.0。浏览器为 Playwright 1.62.0 + Chromium 154，访问生产静态 HTML，由 Python 提供文件服务，不运行生产 Node 后端。
