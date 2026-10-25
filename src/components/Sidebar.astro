@@ -21,7 +21,7 @@ const friends = config.friends.filter(f => externalUrl(f.url));
 const dynamicComments = !['none', 'link'].includes(config.comments.provider);
 const liveRecent = config.comments.recent && (config.comments.provider === 'custom' || (config.comments.provider in builtinCapabilities && builtinCapabilities[config.comments.provider as keyof typeof builtinCapabilities].recent));
 const comments = (dynamicComments ? [] : config.comments.items.filter(c => c.demo)).filter(c => c.author.trim() && c.excerpt.trim() && posts.some(p => p.id === c.postId && p.data.comments !== false)).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
-const tabs = config.layout.sidebarTabs.filter(id => id !== 'comments' || config.comments.recent && (liveRecent || comments.length > 0));
+const tabs = config.layout.sidebarTabs.filter(id => (id !== 'updates' || config.layout.recentPostsLimit > 0) && (id !== 'friends' || config.layout.friendsPreviewLimit > 0) && (id !== 'comments' || config.comments.recent && (liveRecent || comments.length > 0)));
 const commentTime = (date: string) => new Intl.DateTimeFormat('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Shanghai' }).format(new Date(date));
 ---
 <div data-sidebar={context}>
@@ -42,12 +42,12 @@ const commentTime = (date: string) => new Intl.DateTimeFormat('zh-CN', { month: 
     {tabs.map(id => <>
     {id === 'updates' && <mdui-tab-panel data-initial-active={id === tabs[0] || undefined} slot="panel" value="updates" id={prefix + '-updates-panel'} role="tabpanel" aria-labelledby={prefix + '-updates'}>
       <div class="side-panel-content">{!updates.length && <p class="friend-empty">暂无文章</p>}
-        <mdui-list>{updates.slice(0, 5).map(post => <PostListItem post={post} description={dateLabel(post.data.date)} active={post.id === currentId} />)}</mdui-list>
+        <mdui-list>{updates.slice(0, config.layout.recentPostsLimit).map(post => <PostListItem post={post} description={dateLabel(post.data.date)} active={post.id === currentId} />)}</mdui-list>
       </div>
     </mdui-tab-panel>}
     {id === 'friends' && <mdui-tab-panel data-initial-active={id === tabs[0] || undefined} slot="panel" value="friends" id={prefix + '-friends-panel'} role="tabpanel" aria-labelledby={prefix + '-friends'}>
       <div class="side-panel-content">{friends.length > 0 && <div class="side-panel-heading"><span>{friends.length} 个站点</span><mdui-button variant="text" href={config.friendsPage.enabled ? withBase('friends/') : undefined} data-friends-all={!config.friendsPage.enabled || undefined}>查看全部<Icon name="arrow_forward" slot="end-icon" /></mdui-button></div>}
-        {friends.length ? <mdui-list class="friend-list">{friends.slice(0, 5).map(friend => <FriendItem friend={friend} />)}</mdui-list> : <p class="friend-empty">暂无友链</p>}
+        {friends.length ? <mdui-list class="friend-list">{friends.slice(0, config.layout.friendsPreviewLimit).map(friend => <FriendItem friend={friend} />)}</mdui-list> : <p class="friend-empty">暂无友链</p>}
       </div>
     </mdui-tab-panel>}
     {id === 'comments' && <mdui-tab-panel data-initial-active={id === tabs[0] || undefined} slot="panel" value="comments" id={prefix + '-comments-panel'} role="tabpanel" aria-labelledby={prefix + '-comments'}>

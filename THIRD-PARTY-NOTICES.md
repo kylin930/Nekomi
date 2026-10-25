@@ -98,6 +98,10 @@ GitHub 与 Bilibili 图标为 **Simple Icons 15.1.0** 的原始独立 SVG，许�
 
 CC0 不授予平台商标权。品牌图标仅用于用户实际配置的链接，不代表平台背书，也没有默认添加个人账号。
 
+## v1.0 个性化装饰验收截图
+
+默认主题不提供人物图或壁纸。本轮 `screenshots/v100-decorations-*.png` 的临时素材为 Twemoji Standing Person（Twitter, Inc. and other contributors，CC BY 4.0）与 Fronalpstock big（Hannes Röst，CC BY-SA 3.0）。合成截图使用 CC BY-SA 4.0；原作者、来源、变换方式和许可见 [截图说明](screenshots/DECORATIONS.md)。原图片只在 /tmp 和被忽略的测试产物使用，没有打包为默认静态资源。装饰实现为原创，不复制 Cuckoo 的 GPL 代码 / 主题素材。
+
 ## P3.1 Markdown 与图片阅读
 
 - **PhotoSwipe 5.4.4（MIT）**：本地打包，仅首次打开正文图片时下载 JS / 样式，负责手势、缩放、焦点圈定与图片切换。官方文档 https://photoswipe.com/getting-started/ ，项目 https://github.com/dimsemenov/PhotoSwipe 。
@@ -107,6 +111,6 @@ CC0 不授予平台商标权。品牌图标仅用于用户实际配置的链接�
 
 这些直接与传递浏览器依赖的完整版权 / 许可由 `scripts/licenses.mjs` 收集到静态产物 THIRD-PARTY-LICENSES.txt；查找遵从 Node 的嵌套依赖解析，保留同包不同版本，不只记录根 node_modules。
 
-Cuckoo（https://github.com/bhaoo/Cuckoo ，GPL-3.0）仅参考 develop 分支 README 所描述的写作功能范围，没有复制源码、CSS、主题素材或图片。新增示例仅复用项目自身界面截图，YouTube / Bilibili 示例只是外部链接与主动加载的官方播放器，不打包视频、封面或平台素材。视频能否播放、其许可与平台隐私行为由引用者自行确认。
+Cuckoo（https://github.com/bhaoo/Cuckoo ，GPL-3.0）仅作写作功能与角色装饰思路参考，没有复制源码、CSS、主题素材或图片。新增示例仅复用项目自身界面截图，YouTube / Bilibili 示例只是外部链接与主动加载的官方播放器，不打包视频、封面或平台素材。视频能否播放、其许可与平台隐私行为由引用者自行确认。
 
 Mermaid 的传递浏览器代码还包含 **DOMPurify（MPL-2.0 OR Apache-2.0）** 与 **elkjs 0.9.3（EPL-2.0）**，不能统称整棵依赖为 MIT。两者保留上游许可，ELK 未做源码修改；对应源代码 / 构建说明见 https://github.com/kieler/elkjs/tree/0.9.3 及 https://github.com/eclipse/elk ，这些源代码获取地址也随生产 notices 分发。

@@ -14,15 +14,17 @@ writeFileSync(
 const descriptions = {
   demo: "全站示例保护；true 时禁止公开索引、RSS 条目与 Sitemap 条目。",
   demoNotice: "供导入方使用的示例说明，主题不渲染开发提示。",
-  site: "站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。",
+  site: "站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。favicon / appleTouchIcon 使用 public/ 内路径或公开 HTTP(S) URL，自动补部署 base；留空保留空 favicon、不输出 Apple 图标。Apple 图标建议提供 180×180 PNG。",
   publishing:
     "发布与 SEO。url 仅源站，不带路径；base 以 / 开始和结束；环境变量 SITE_URL / SITE_BASE 优先。author 未填时使用站名。",
   appearance:
     "预设 default / fresh / minimal 提供 Token 默认值；显式字段优先。color 为六位主色，secondary 为空由 MDUI 推导，填写后使用 MDUI customColors 的完整语义色组。mode 仅决定首次默认，用户保存的偏好优先。字体为本地 CSS font-family，不自动下载字体。brandFont 独立控制站名、手机 App Bar 与身份文字，headingFont 只控制内容标题；更改正文 font 不会覆盖 brandFont。radius 控制卡片和阅读表面，按钮等 MDUI 控件保留原生形状角色。",
   "appearance.wallpaper":
-    "默认关闭。运行时加载 HTTP(S) 或 public/ 内图片，不在构建时固定随机 API。dark 留空复用 light。Overlay 为遮罩，Surface 为卡片，ReaderSurface 为阅读区；深浅分别设置。cacheHours=0 不注册壁纸 Worker。position 为 CSS object-position，fit 为 cover/contain。",
+    "默认关闭。运行时加载 HTTP(S) 或 public/ 内图片，不在构建时固定随机 API。dark 留空复用 light。1120px 以下使用 mobileLight / mobileDark；未设置时分别回退 light / dark（dark 也未设置再用 light）；仅有 mobileLight 时深色也可使用它。断点切换才重新选源，内部导航保留原 DOM / 已加载图片及缓存架构。Overlay 为遮罩，Surface 为卡片，ReaderSurface 为阅读区；深浅分别设置。cacheHours=0 不注册壁纸 Worker。position 为 CSS object-position，fit 为 cover/contain。",
+  "appearance.decorations":
+    "sidebar / comments 各自独立，默认 enabled=false。light / dark 是 public/ 内图片路径或 HTTPS 地址；dark 留空复用 light，仅填 dark 时两种模式均使用它。width 64–320px、opacity 0–1、offsetX / offsetY -64–64px、align right/center；mobile=false 默认不在窄屏评论及 Drawer 展示。enabled=false、来源为空或 opacity=0 不渲染占位也不请求图片。侧栏按实际剩余高度缩放，不足 120px 隐藏；不覆盖内容和设置。评论宽屏独立右栏，窄阅读区退化为上方小图，移动端可选小图；偏移受安全边界约束，详见 DECORATIONS.md。",
   layout:
-    "width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。",
+    "width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。recentPostsLimit / friendsPreviewLimit 为预览数量，0–12，默认 5；0 隐藏相应 Tab，友链独立页不受影响。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。",
   navigation:
     "tabs 的 id 为 recent/categories/tags/archive；recent 必须启用，可改名。enabled 控制主导航可见性；分类/标签的直接索引页面由 content 开关控制。links 显示在公共侧栏底部。数组替换，不按位置合并。",
   home: "emptyTitle / emptyDescription 自定义无文章状态，空描述不输出段落。P3 标题区不再显示装饰文字或统计：eyebrow 仅保留旧配置输入兼容；description 改用于全部文章页的 SEO Description，留空沿用站点副标题。搜索计数由独立 live region 按需显示。",

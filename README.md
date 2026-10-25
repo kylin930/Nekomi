@@ -14,6 +14,7 @@
 - 壁纸可选、默认关闭。启用后跨页面保留相同 DOM 与已解码图片，Service Worker 缓存仅辅助刷新。
 - 静态分页 + 可选无限滚动，全量文章搜索，分类 / 标签 / 月份独立 URL；返回列表恢复条件、批次和位置。
 - 可配置预设、侧栏模块 / Tabs、导航、卡片、阅读、页脚；Zod 校验、类型与编辑器 JSON Schema 同源。
+- 可选侧栏 / 评论区角色装饰（默认关闭，自备素材）、站点图标和移动端独立壁纸，空间不足自动退让。
 - 可选 Waline / Twikoo / Giscus / Artalk，统一 TypeScript 评论接口，支持自建适配器；默认关闭第三方服务。
 - Canonical、Open Graph、X Card、JSON-LD、官方 Sitemap / RSS、Robots；示例内容默认不被索引。
 
@@ -93,6 +94,10 @@ public/                  按原路径发布的文件，例如壁纸
   }
 }
 ```
+
+## 可选角色装饰
+
+侧栏和评论区可通过 `appearance.decorations.sidebar / comments` 配置角色图片；默认关闭，无素材时保持原布局。`site.favicon / appleTouchIcon` 设置站点图标，`appearance.wallpaper.mobileLight / mobileDark` 设置窄屏壁纸，`layout.recentPostsLimit / friendsPreviewLimit` 控制侧栏预览数量。[使用说明及安全布局](docs/DECORATIONS.md) · [可复制配置](examples/decorations.config.json)。图片请放入 `public/` 或使用有权使用的 HTTPS 资源。
 
 ## 写第一篇文章
 

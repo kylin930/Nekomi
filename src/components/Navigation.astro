@@ -7,6 +7,7 @@ import Avatar from './Avatar.astro';
 import ThemeControl from './ThemeControl.astro';
 import Icon from './Icon.astro';
 import FriendItem from './FriendItem.astro';
+import Decoration from './Decoration.astro';
 interface Props { posts: Post[]; currentId?: string }
 const { posts, currentId } = Astro.props;
 const { site } = config;
@@ -21,7 +22,7 @@ const friends = config.friends.filter(f => externalUrl(f.url));
 </div>
 <mdui-navigation-drawer id="mobile-drawer" modal close-on-esc close-on-overlay-click role="dialog" aria-modal="true" aria-label="站点侧栏" transition:persist="mobile-drawer" transition:animate="none">
   <div class="drawer-toolbar"><span>{site.name}</span><mdui-button-icon id="drawer-close" autofocus><Icon name="close" /><span class="visually-hidden">关闭侧栏</span></mdui-button-icon></div>
-  <div class="drawer-content"><Sidebar context="mobile" posts={posts} currentId={currentId} /></div>
+  <div class="drawer-content"><Sidebar context="mobile" posts={posts} currentId={currentId} /><Decoration kind="sidebar" context="mobile" /></div>
 </mdui-navigation-drawer>
 <mdui-dialog id="friends-dialog" headline="友情链接" close-on-esc close-on-overlay-click transition:persist="friends-dialog" transition:animate="none">
   <span slot="description">共 {friends.length} 个站点。</span><mdui-list class="friend-list">{friends.map(friend => <FriendItem friend={friend} />)}</mdui-list>

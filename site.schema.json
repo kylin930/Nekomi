@@ -40,6 +40,16 @@
           "type": "string",
           "maxLength": 2048
         },
+        "favicon": {
+          "default": "",
+          "type": "string",
+          "maxLength": 2048
+        },
+        "appleTouchIcon": {
+          "default": "",
+          "type": "string",
+          "maxLength": 2048
+        },
         "avatarAlt": {
           "default": "站点头像",
           "type": "string",
@@ -233,6 +243,16 @@
               "type": "string",
               "maxLength": 2048
             },
+            "mobileLight": {
+              "default": "",
+              "type": "string",
+              "maxLength": 2048
+            },
+            "mobileDark": {
+              "default": "",
+              "type": "string",
+              "maxLength": 2048
+            },
             "position": {
               "default": "center",
               "type": "string",
@@ -291,6 +311,127 @@
             }
           },
           "additionalProperties": false
+        },
+        "decorations": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "sidebar": {
+              "default": {},
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "type": "boolean"
+                },
+                "light": {
+                  "default": "",
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "dark": {
+                  "default": "",
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "width": {
+                  "default": 200,
+                  "type": "integer",
+                  "minimum": 64,
+                  "maximum": 320
+                },
+                "opacity": {
+                  "default": 0.85,
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "offsetX": {
+                  "default": 0,
+                  "type": "integer",
+                  "minimum": -64,
+                  "maximum": 64
+                },
+                "offsetY": {
+                  "default": 0,
+                  "type": "integer",
+                  "minimum": -64,
+                  "maximum": 64
+                },
+                "align": {
+                  "default": "right",
+                  "type": "string",
+                  "enum": [
+                    "right",
+                    "center"
+                  ]
+                },
+                "mobile": {
+                  "default": false,
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            },
+            "comments": {
+              "default": {},
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "default": false,
+                  "type": "boolean"
+                },
+                "light": {
+                  "default": "",
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "dark": {
+                  "default": "",
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "width": {
+                  "default": 144,
+                  "type": "integer",
+                  "minimum": 64,
+                  "maximum": 320
+                },
+                "opacity": {
+                  "default": 0.85,
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "offsetX": {
+                  "default": 0,
+                  "type": "integer",
+                  "minimum": -64,
+                  "maximum": 64
+                },
+                "offsetY": {
+                  "default": 0,
+                  "type": "integer",
+                  "minimum": -64,
+                  "maximum": 64
+                },
+                "align": {
+                  "default": "right",
+                  "type": "string",
+                  "enum": [
+                    "right",
+                    "center"
+                  ]
+                },
+                "mobile": {
+                  "default": false,
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -316,6 +457,18 @@
           "type": "integer",
           "minimum": 280,
           "maximum": 320
+        },
+        "recentPostsLimit": {
+          "default": 5,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12
+        },
+        "friendsPreviewLimit": {
+          "default": 5,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12
         },
         "modules": {
           "default": [

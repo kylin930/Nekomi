@@ -63,6 +63,23 @@ const unique = (schema) =>
   });
 const tab = z.enum(["recent", "categories", "tags", "archive"]);
 const sidebarTab = z.enum(["updates", "friends", "comments"]);
+// Decorations are optional public resources; remote sources must use HTTPS.
+const decorationImage = image.refine(
+  (value) => !value.startsWith("http:"),
+  "Use an HTTPS URL or a public/ image path for decorations.",
+);
+/** @param {number} width */
+const decoration = (width) => section({
+  enabled: flag(false),
+  light: decorationImage,
+  dark: decorationImage,
+  width: z.number().int().min(64).max(320).default(width),
+  opacity: z.number().min(0).max(1).default(0.85),
+  offsetX: z.number().int().min(-64).max(64).default(0),
+  offsetY: z.number().int().min(-64).max(64).default(0),
+  align: z.enum(["right", "center"]).default("right"),
+  mobile: flag(false),
+});
 export const originSchema = z.string().refine((value) => {
   if (!value) return true;
   try {
@@ -114,6 +131,8 @@ export const configSchema = section({
     tagline: text("分享技术、日常"),
     intro: text(),
     avatar: image,
+    favicon: image,
+    appleTouchIcon: image,
     avatarAlt: text("站点头像"),
     avatarFallback: z.string().max(2).default("N"),
     email: z.union([z.literal(""), z.email()]).default(""),
@@ -159,6 +178,8 @@ export const configSchema = section({
       enabled: flag(false),
       light: image,
       dark: image,
+      mobileLight: image,
+      mobileDark: image,
       position: z
         .string()
         .max(80)
@@ -173,11 +194,14 @@ export const configSchema = section({
       darkReaderSurface: z.number().min(0.85).max(1).default(0.97),
       cacheHours: z.number().min(0).max(168).default(24),
     }),
+    decorations: section({ sidebar: decoration(200), comments: decoration(144) }),
   }),
   layout: section({
     width: z.number().int().min(1360).max(1600).default(1440),
     readerWidth: z.number().int().min(680).max(800).default(760),
     sidebarWidth: z.number().int().min(280).max(320).default(320),
+    recentPostsLimit: z.number().int().min(0).max(12).default(5),
+    friendsPreviewLimit: z.number().int().min(0).max(12).default(5),
     modules: unique(z.enum(["profile", "social", "search", "tabs"])).default([
       "profile",
       "social",

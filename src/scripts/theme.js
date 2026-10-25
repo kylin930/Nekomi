@@ -23,9 +23,11 @@ export function createTheme(data) {
   ] });
   var wallpaper = appearance.wallpaper || {};
   var systemDark = matchMedia('(prefers-color-scheme: dark)');
+  var mobileWallpaper = matchMedia('(max-width: 1119px)');
   var wallpaperRequest = 0;
   var currentWallpaper = '';
   var pendingImage = null;
+  var pendingWallpaper = '';
   var workerReady;
   var layer = document.querySelector('.site-wallpaper');
   var palette = document.querySelector('style[id^="mdui-custom-color-scheme-"]');
@@ -66,13 +68,18 @@ export function createTheme(data) {
     document.body.style.setProperty('--wallpaper-overlay', number(dark ? wallpaper.darkOverlay : wallpaper.lightOverlay, dark ? .68 : .60, 0, 1));
     document.body.style.setProperty('--wallpaper-paper-opacity', number(dark ? wallpaper.darkSurface : wallpaper.lightSurface, dark ? .88 : .84, .65, 1));
     document.body.style.setProperty('--wallpaper-reader-opacity', number(dark ? wallpaper.darkReaderSurface : wallpaper.lightReaderSurface, .97, .85, 1));
-    var path = dark ? wallpaper.dark || wallpaper.light : wallpaper.light;
+    var path = mobileWallpaper.matches
+      ? dark ? wallpaper.mobileDark || wallpaper.dark || wallpaper.light || wallpaper.mobileLight : wallpaper.mobileLight || wallpaper.light
+      : dark ? wallpaper.dark || wallpaper.light : wallpaper.light;
     var url = '';
-    if (path) { try { var parsed = new URL(path, baseUrl); if (['http:', 'https:'].includes(parsed.protocol)) url = parsed.href; } catch (_) { /* 无效图片回退。 */ } }
+    if (path) { try { var parsed = new URL(/^https?:\/\//.test(path) || path.startsWith(baseUrl.pathname) ? path : path.replace(/^\//, ''), baseUrl); if (['http:', 'https:'].includes(parsed.protocol)) url = parsed.href; } catch (_) { /* 无效图片回退。 */ } }
+    if (url && wallpaper.enabled !== false && url === pendingWallpaper) return;
     var request = ++wallpaperRequest;
+    pendingWallpaper = '';
     if (pendingImage) { clearTimeout(pendingImage.nekomiTimeout); pendingImage.onload = pendingImage.onerror = null; pendingImage.src = ''; pendingImage = null; }
     if (!url || wallpaper.enabled === false) { clearWallpaper(); return; }
     if (url === currentWallpaper) return;
+    pendingWallpaper = url;
     var resolved = await cachedSource(url);
     if (request !== wallpaperRequest) return;
     var image = pendingImage = new Image();
@@ -88,6 +95,7 @@ export function createTheme(data) {
       try { await image.decode(); } catch (_) { /* load 已确认图片可用。 */ }
       if (request !== wallpaperRequest) return;
       pendingImage = null;
+      pendingWallpaper = '';
       currentWallpaper = url;
       var previous = layer.querySelectorAll('img');
       layer.append(image);
@@ -100,6 +108,7 @@ export function createTheme(data) {
       clearTimeout(timer);
       if (request !== wallpaperRequest) return;
       pendingImage = null;
+      pendingWallpaper = '';
       ++wallpaperRequest;
       image.onload = image.onerror = null;
       image.src = '';
@@ -111,6 +120,7 @@ export function createTheme(data) {
     image.src = resolved;
   }
   systemDark.addEventListener('change', function () { if (mode === 'auto') applyWallpaper(); });
+  mobileWallpaper.addEventListener('change', applyWallpaper);
   function apply(next, persist) {
     if (!modes.includes(next)) return;
     mode = next;

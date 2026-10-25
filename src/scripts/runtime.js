@@ -21,6 +21,7 @@ let disposePage;
 let generation = 0;
 let visited = false;
 let navigationType;
+let decorations;
 const base = new URL(data.base, location.origin);
 const postUrl = id => new URL('posts/' + encodeURIComponent(id) + '/', base).href;
 const filterUrl = query => new URL('?q=' + encodeURIComponent(query) + '#recent', base).href;
@@ -41,7 +42,8 @@ function closeModal(component) {
 }
 function imageFailure(image) {
   if (!(image instanceof HTMLImageElement)) return;
-  if (image.matches('[data-cover]')) image.closest('.post-cover')?.remove();
+  if (image.closest('[data-decoration]')) image.closest('[data-decoration]').hidden = true;
+  else if (image.matches('[data-cover]')) image.closest('.post-cover')?.remove();
   else if (image.matches('[data-avatar]')) image.remove();
   else if (image.matches('[data-hero]')) image.closest('figure')?.remove();
   else if (image.matches('.prose img')) {
@@ -168,6 +170,12 @@ async function initialize() {
   if (!boot) boot = customElements.whenDefined('mdui-tabs').then(() => {
     theme = createTheme(data);
     site = createSite();
+    if (document.querySelector('[data-decoration]')) {
+      decorations = import('./decorations').then(({ initDecorations }) => {
+        document.querySelectorAll('.sidebar, #mobile-drawer').forEach(root => initDecorations(root));
+        return initDecorations;
+      });
+    }
     if (!['none', 'link'].includes(data.comments.provider)) {
       // Optional comments must not block the site's search, navigation or theme boot.
       import('../integrations/comments/controller').then(({ createComments }) => {
@@ -186,6 +194,9 @@ async function initialize() {
   disposePage?.();
   pageController = new AbortController();
   const signal = pageController.signal;
+  // Comments may first appear after a home-page visit with no sidebar decoration.
+  if (!decorations && document.querySelector('[data-decoration]')) decorations = import('./decorations').then(module => module.initDecorations);
+  if (decorations) decorations.then(init => { if (!signal.aborted) init(document.getElementById('main-content'), signal); });
   document.querySelectorAll('[data-site-sidebar] [data-post], [data-sidebar=mobile] [data-post]').forEach(item => { item.active = item.dataset.post === document.body.dataset.postId; });
   if (document.body.dataset.page === 'home') disposePage = initHome(site, signal);
   else if (document.body.dataset.page === 'article') disposePage = initArticle(site, signal, navigationType);

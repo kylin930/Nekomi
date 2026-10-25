@@ -14,7 +14,7 @@
 
 ## site
 
-站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。
+站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。favicon / appleTouchIcon 使用 public/ 内路径或公开 HTTP(S) URL，自动补部署 base；留空保留空 favicon、不输出 Apple 图标。Apple 图标建议提供 180×180 PNG。
 
 ## publishing
 
@@ -26,11 +26,15 @@
 
 ## appearance.wallpaper
 
-默认关闭。运行时加载 HTTP(S) 或 public/ 内图片，不在构建时固定随机 API。dark 留空复用 light。Overlay 为遮罩，Surface 为卡片，ReaderSurface 为阅读区；深浅分别设置。cacheHours=0 不注册壁纸 Worker。position 为 CSS object-position，fit 为 cover/contain。
+默认关闭。运行时加载 HTTP(S) 或 public/ 内图片，不在构建时固定随机 API。dark 留空复用 light。1120px 以下使用 mobileLight / mobileDark；未设置时分别回退 light / dark（dark 也未设置再用 light）；仅有 mobileLight 时深色也可使用它。断点切换才重新选源，内部导航保留原 DOM / 已加载图片及缓存架构。Overlay 为遮罩，Surface 为卡片，ReaderSurface 为阅读区；深浅分别设置。cacheHours=0 不注册壁纸 Worker。position 为 CSS object-position，fit 为 cover/contain。
+
+## appearance.decorations
+
+sidebar / comments 各自独立，默认 enabled=false。light / dark 是 public/ 内图片路径或 HTTPS 地址；dark 留空复用 light，仅填 dark 时两种模式均使用它。width 64–320px、opacity 0–1、offsetX / offsetY -64–64px、align right/center；mobile=false 默认不在窄屏评论及 Drawer 展示。enabled=false、来源为空或 opacity=0 不渲染占位也不请求图片。侧栏按实际剩余高度缩放，不足 120px 隐藏；不覆盖内容和设置。评论宽屏独立右栏，窄阅读区退化为上方小图，移动端可选小图；偏移受安全边界约束，详见 DECORATIONS.md。
 
 ## layout
 
-width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。
+width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。recentPostsLimit / friendsPreviewLimit 为预览数量，0–12，默认 5；0 隐藏相应 Tab，友链独立页不受影响。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。
 
 ## navigation
 
@@ -90,6 +94,8 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `site.tagline` | string | `"分享技术、日常"` | 长度 ≤ 1000 |
 | `site.intro` | string | `""` | 长度 ≤ 1000 |
 | `site.avatar` | string | `""` | 长度 ≤ 2048 |
+| `site.favicon` | string | `""` | 长度 ≤ 2048 |
+| `site.appleTouchIcon` | string | `""` | 长度 ≤ 2048 |
 | `site.avatarAlt` | string | `"站点头像"` | 长度 ≤ 1000 |
 | `site.avatarFallback` | string | `"N"` | 长度 ≤ 2 |
 | `site.email` | string / string | `""` | — |
@@ -113,6 +119,8 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `appearance.wallpaper.enabled` | boolean | `false` | — |
 | `appearance.wallpaper.light` | string | `""` | 长度 ≤ 2048 |
 | `appearance.wallpaper.dark` | string | `""` | 长度 ≤ 2048 |
+| `appearance.wallpaper.mobileLight` | string | `""` | 长度 ≤ 2048 |
+| `appearance.wallpaper.mobileDark` | string | `""` | 长度 ≤ 2048 |
 | `appearance.wallpaper.position` | string | `"center"` | 长度 ≤ 80 |
 | `appearance.wallpaper.fit` | `cover` / `contain` | `"cover"` | — |
 | `appearance.wallpaper.lightOverlay` | number | `0.6` | ≥ 0，≤ 1 |
@@ -122,9 +130,29 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `appearance.wallpaper.lightReaderSurface` | number | `0.97` | ≥ 0.85，≤ 1 |
 | `appearance.wallpaper.darkReaderSurface` | number | `0.97` | ≥ 0.85，≤ 1 |
 | `appearance.wallpaper.cacheHours` | number | `24` | ≥ 0，≤ 168 |
+| `appearance.decorations.sidebar.enabled` | boolean | `false` | — |
+| `appearance.decorations.sidebar.light` | string | `""` | 长度 ≤ 2048 |
+| `appearance.decorations.sidebar.dark` | string | `""` | 长度 ≤ 2048 |
+| `appearance.decorations.sidebar.width` | integer | `200` | ≥ 64，≤ 320 |
+| `appearance.decorations.sidebar.opacity` | number | `0.85` | ≥ 0，≤ 1 |
+| `appearance.decorations.sidebar.offsetX` | integer | `0` | ≥ -64，≤ 64 |
+| `appearance.decorations.sidebar.offsetY` | integer | `0` | ≥ -64，≤ 64 |
+| `appearance.decorations.sidebar.align` | `right` / `center` | `"right"` | — |
+| `appearance.decorations.sidebar.mobile` | boolean | `false` | — |
+| `appearance.decorations.comments.enabled` | boolean | `false` | — |
+| `appearance.decorations.comments.light` | string | `""` | 长度 ≤ 2048 |
+| `appearance.decorations.comments.dark` | string | `""` | 长度 ≤ 2048 |
+| `appearance.decorations.comments.width` | integer | `144` | ≥ 64，≤ 320 |
+| `appearance.decorations.comments.opacity` | number | `0.85` | ≥ 0，≤ 1 |
+| `appearance.decorations.comments.offsetX` | integer | `0` | ≥ -64，≤ 64 |
+| `appearance.decorations.comments.offsetY` | integer | `0` | ≥ -64，≤ 64 |
+| `appearance.decorations.comments.align` | `right` / `center` | `"right"` | — |
+| `appearance.decorations.comments.mobile` | boolean | `false` | — |
 | `layout.width` | integer | `1440` | ≥ 1360，≤ 1600 |
 | `layout.readerWidth` | integer | `760` | ≥ 680，≤ 800 |
 | `layout.sidebarWidth` | integer | `320` | ≥ 280，≤ 320 |
+| `layout.recentPostsLimit` | integer | `5` | ≥ 0，≤ 12 |
+| `layout.friendsPreviewLimit` | integer | `5` | ≥ 0，≤ 12 |
 | `layout.modules` | array | `["profile","social","search","tabs"]` | — |
 | `layout.sidebarTabs` | array | `["updates","friends","comments"]` | — |
 | `navigation.tabs` | array | `[{"id":"recent","label":"全部文章","enabled":true},{"id":"categories","label":"分类","enabled":true},{"id":"tags","label":"标签","enabled":true},{"id":"archive","label":"归档","enabled":true}]` | — |
