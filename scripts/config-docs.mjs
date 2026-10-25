@@ -27,7 +27,7 @@ const descriptions = {
   "appearance.decorations":
     "sidebar / comments 各自独立，默认 enabled=false。light / dark 是 public/ 内图片路径或 HTTPS 地址；dark 留空复用 light，仅填 dark 时两种模式均使用它。width 64–320px、opacity 0–1、offsetX / offsetY -64–64px、align right/center；mobile=false 默认不在窄屏评论及 Drawer 展示。enabled=false、来源为空或 opacity=0 不渲染占位也不请求图片。侧栏按实际剩余高度缩放，不足 120px 隐藏；不覆盖内容和设置。评论宽屏独立右栏，窄阅读区退化为上方小图，移动端可选小图；偏移受安全边界约束，详见 DECORATIONS.md。",
   layout:
-    "width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。recentPostsLimit / friendsPreviewLimit 为预览数量，0–12，默认 5；0 隐藏相应 Tab，友链独立页不受影响。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。",
+    "backToTop 默认 true，启用全站原生 mdui-fab 返回顶部；滚动超过 400px 显示，模态 / 灯箱 / 提示条打开时暂时隐藏，减少动态时立即回顶。ui.navigation.backToTop 设置无障碍名称；false 不渲染按钮或加载对应脚本。width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。recentPostsLimit / friendsPreviewLimit 为预览数量，0–12，默认 5；0 隐藏相应 Tab，友链独立页不受影响。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。",
   navigation:
     "tabs 的 id 为 recent/categories/tags/archive；recent 必须启用，可改名。enabled 控制主导航可见性；分类/标签的直接索引页面由 content 开关控制。links 显示在公共侧栏底部。topLinks 为独立顶部导航行，含 label / url / enabled（默认 true）/ newTab（默认 false），数组顺序即显示顺序；不伪装成 Tab，不生成面板或页面。站内 / 路径补 base 并走 ClientRouter，HTTP(S) 外链正常跳转，新窗口附安全 rel；空数组 / 全禁用不输出占位。数组替换，不按位置合并。",
   home: "emptyTitle / emptyDescription 自定义无文章状态，空描述不输出段落。P3 标题区不再显示装饰文字或统计：eyebrow 仅保留旧配置输入兼容；description 改用于全部文章页的 SEO Description，留空沿用站点副标题。搜索计数由独立 live region 按需显示。",
@@ -42,7 +42,7 @@ const descriptions = {
   features:
     "RSS 入口位于 social 侧栏模块（含 Drawer），features.rss=false 时不自动显示；不会在默认页脚重复。移除 social 模块也会隐藏该入口，自动发现仍由 rss 开关控制。search 关闭同时移除搜索框、快捷键与 URL 查询搜索。rss 关闭时隐藏入口及自动发现、端点返回空频道；sitemap 关闭不加载集成，robots 不引用站点地图。",
   footer:
-    "页脚开关、起始年份、纯文字说明、自定义版权（留空自动 © 年份 站名）、附加链接。默认 text 为空；自定义内容照常保留。RSS 自动入口不再放在页脚。",
+    "enabled 控制整个页脚；since 为创站年份，自动版权按配置时区的构建年份生成单年或年份范围。copyright 留空自动显示 © 年份 站名，非空完整替换自动版权，不做模板插值；text 与 links 依次追加。默认 text 为空、links 为 []，RSS 自动入口在侧栏。实际效果与可复制示例见 [简明指南的页脚与版权](CONFIGURATION-GUIDE.md#页脚与版权)。",
   friends:
     "友链数组：name、HTTP(S) url、可选 avatar、description。为空时没有可点击的查看全部操作。",
   comments:
@@ -81,7 +81,21 @@ function walk(node, path = "", defaults = resolveConfig({})) {
 }
 walk(schema);
 const intro =
-  "# 配置参考\n\n修改 `site.config.json` 后重新构建。未填写字段使用主题默认值；嵌套对象逐字段补全，数组整体替换。未知字段、重复模块、危险 URL、越界数值会在构建前报出完整字段路径。编辑器使用根目录 `site.schema.json` 补全；下面的默认值由同一 Zod schema 生成（`npm run config:docs`）。\n\n最小起点见 [site.config.json](../site.config.json)，完整可复制配置见 [full.config.json](../examples/full.config.json)，另外提供 [Fresh](../examples/fresh.config.json)、[Minimal](../examples/minimal.config.json) 与 [原站个人配置](../examples/personal/site.config.json)。\n\n";
+  "# 配置参考\n\n**第一次配置？先看 [简明配置指南](CONFIGURATION-GUIDE.md)**，按需求修改名称、头像、主题色、壁纸、侧栏、页脚和评论；分类配色、文案、日期、导航和字体的进阶示例见 [个性化配置](PERSONALIZATION.md)。[返回 README](../README.md)。\n\n修改 `site.config.json` 后重新构建。未填写字段使用主题默认值；嵌套对象逐字段补全，数组整体替换。未知字段、重复模块、危险 URL、越界数值会在构建前报出完整字段路径。编辑器使用根目录 [site.schema.json](../site.schema.json) 补全；下面的默认值由同一 Zod schema 生成（`npm run config:docs`），无需手动维护参数表。\n\n最小起点见 [site.config.json](../site.config.json)，完整可复制配置见 [full.config.json](../examples/full.config.json)，另外提供 [Fresh](../examples/fresh.config.json)、[Minimal](../examples/minimal.config.json) 与 [原站个人配置](../examples/personal/site.config.json)。\n\n";
+const contents = `## 目录
+
+- [站点信息](#site) · [界面文案](#ui)
+- [外观与预设](#appearance) · [字体](#appearancewebfonts) · [语义色](#appearancesemanticcolors) · [壁纸](#appearancewallpaper) · [角色装饰](#appearancedecorations)
+- [侧栏与布局](#layout) · [友链数据](#friends) · [友链页面](#friendspage)
+- [导航](#navigation)
+- [文章与分类](#content) · [首页](#home) · [文章卡片](#cards) · [阅读](#reading) · [Markdown](#markdown)
+- [评论](#comments) · [第三方统计](#analytics)
+- [页脚与版权](#footer)
+- [发布与 SEO](#publishing) · [示例保护](#demo) · [兼容说明](#demonotice) · [搜索与 RSS / Sitemap 开关](#features)
+- [全部字段、默认值与范围](#字段默认值与范围)
+- [接口与依赖](#接口与依赖)
+
+`;
 const sections = Object.entries(descriptions)
   .map(([name, desc]) => `## ${name}\n\n${desc}\n`)
   .join("\n");
@@ -89,6 +103,7 @@ const tail = `\n## 接口与依赖\n\n- social: \`{ name, url, icon? }\`；icon 
 writeFileSync(
   "docs/CONFIGURATION.md",
   intro +
+    contents +
     sections +
     "\n## 字段、默认值与范围\n\n| 字段 | 类型 / 枚举 | 默认值 | 范围 |\n| --- | --- | --- | --- |\n" +
     rows.join("\n") +

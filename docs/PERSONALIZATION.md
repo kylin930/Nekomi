@@ -1,5 +1,7 @@
 # 个性化配置：分类、文案、日期、导航与字体
 
+第一次使用请先看 [简明配置指南](CONFIGURATION-GUIDE.md)，包括名称、头像、壁纸、侧栏、页脚版权和评论的可复制示例；本页说明进一步定制的方法。[返回 README](../README.md)。
+
 修改 `site.config.json` 并重新构建。未填写的字段沿用中文默认值，旧配置继续可用。示例：[中文个人站](../examples/personalized.config.json)、[英文通用站](../examples/journal.config.json)、[完整默认配置](../examples/full.config.json)。完整类型和范围见 [配置参考](CONFIGURATION.md)。
 
 ## 分类名称与配色

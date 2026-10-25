@@ -1,0 +1,42 @@
+---
+import { ui } from '../config/site';
+---
+<div class="back-to-top" data-back-to-top hidden inert aria-hidden="true" transition:persist="back-to-top" transition:animate="none">
+  <mdui-fab variant="surface" icon="arrow_upward" aria-label={ui.navigation.backToTop} title={ui.navigation.backToTop}>
+    <span class="visually-hidden">{ui.navigation.backToTop}</span>
+  </mdui-fab>
+</div>
+<style>
+  /* Only position and reveal the wrapper; FAB shape, colors, elevation and
+     state layers belong to MDUI. Stay below the App Bar and modal surfaces. */
+  .back-to-top {
+    position: fixed;
+    right: calc(24px + env(safe-area-inset-right, 0px));
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(12px) scale(.88);
+    transition: opacity var(--nekomi-effects-default-duration) var(--nekomi-effects-easing),
+      transform var(--nekomi-spatial-fast-duration) var(--nekomi-spatial-fast-easing),
+      visibility 0s var(--nekomi-spatial-fast-duration);
+  }
+  .back-to-top[hidden] { display: none; }
+  .back-to-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    transition-delay: 0s;
+  }
+  @media (max-width: 1119px) {
+    .back-to-top {
+      right: calc(16px + env(safe-area-inset-right, 0px));
+      bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top { transition: none; }
+  }
+</style>

@@ -172,6 +172,7 @@ async function initialize() {
   if (!boot) boot = customElements.whenDefined('mdui-tabs').then(() => {
     theme = createTheme(data);
     site = createSite();
+    if (data.layout.backToTop) import('./back-to-top').then(({ initBackToTop }) => initBackToTop());
     if (document.querySelector('[data-decoration]')) {
       decorations = import('./decorations').then(({ initDecorations }) => {
         document.querySelectorAll('.sidebar, #mobile-drawer').forEach(root => initDecorations(root));

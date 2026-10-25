@@ -1,8 +1,23 @@
 # 配置参考
 
-修改 `site.config.json` 后重新构建。未填写字段使用主题默认值；嵌套对象逐字段补全，数组整体替换。未知字段、重复模块、危险 URL、越界数值会在构建前报出完整字段路径。编辑器使用根目录 `site.schema.json` 补全；下面的默认值由同一 Zod schema 生成（`npm run config:docs`）。
+**第一次配置？先看 [简明配置指南](CONFIGURATION-GUIDE.md)**，按需求修改名称、头像、主题色、壁纸、侧栏、页脚和评论；分类配色、文案、日期、导航和字体的进阶示例见 [个性化配置](PERSONALIZATION.md)。[返回 README](../README.md)。
+
+修改 `site.config.json` 后重新构建。未填写字段使用主题默认值；嵌套对象逐字段补全，数组整体替换。未知字段、重复模块、危险 URL、越界数值会在构建前报出完整字段路径。编辑器使用根目录 [site.schema.json](../site.schema.json) 补全；下面的默认值由同一 Zod schema 生成（`npm run config:docs`），无需手动维护参数表。
 
 最小起点见 [site.config.json](../site.config.json)，完整可复制配置见 [full.config.json](../examples/full.config.json)，另外提供 [Fresh](../examples/fresh.config.json)、[Minimal](../examples/minimal.config.json) 与 [原站个人配置](../examples/personal/site.config.json)。
+
+## 目录
+
+- [站点信息](#site) · [界面文案](#ui)
+- [外观与预设](#appearance) · [字体](#appearancewebfonts) · [语义色](#appearancesemanticcolors) · [壁纸](#appearancewallpaper) · [角色装饰](#appearancedecorations)
+- [侧栏与布局](#layout) · [友链数据](#friends) · [友链页面](#friendspage)
+- [导航](#navigation)
+- [文章与分类](#content) · [首页](#home) · [文章卡片](#cards) · [阅读](#reading) · [Markdown](#markdown)
+- [评论](#comments) · [第三方统计](#analytics)
+- [页脚与版权](#footer)
+- [发布与 SEO](#publishing) · [示例保护](#demo) · [兼容说明](#demonotice) · [搜索与 RSS / Sitemap 开关](#features)
+- [全部字段、默认值与范围](#字段默认值与范围)
+- [接口与依赖](#接口与依赖)
 
 ## demo
 
@@ -46,7 +61,7 @@ sidebar / comments 各自独立，默认 enabled=false。light / dark 是 public
 
 ## layout
 
-width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。recentPostsLimit / friendsPreviewLimit 为预览数量，0–12，默认 5；0 隐藏相应 Tab，友链独立页不受影响。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。
+backToTop 默认 true，启用全站原生 mdui-fab 返回顶部；滚动超过 400px 显示，模态 / 灯箱 / 提示条打开时暂时隐藏，减少动态时立即回顶。ui.navigation.backToTop 设置无障碍名称；false 不渲染按钮或加载对应脚本。width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。recentPostsLimit / friendsPreviewLimit 为预览数量，0–12，默认 5；0 隐藏相应 Tab，友链独立页不受影响。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。
 
 ## navigation
 
@@ -82,7 +97,7 @@ RSS 入口位于 social 侧栏模块（含 Drawer），features.rss=false 时不
 
 ## footer
 
-页脚开关、起始年份、纯文字说明、自定义版权（留空自动 © 年份 站名）、附加链接。默认 text 为空；自定义内容照常保留。RSS 自动入口不再放在页脚。
+enabled 控制整个页脚；since 为创站年份，自动版权按配置时区的构建年份生成单年或年份范围。copyright 留空自动显示 © 年份 站名，非空完整替换自动版权，不做模板插值；text 与 links 依次追加。默认 text 为空、links 为 []，RSS 自动入口在侧栏。实际效果与可复制示例见 [简明指南的页脚与版权](CONFIGURATION-GUIDE.md#页脚与版权)。
 
 ## friends
 
@@ -116,6 +131,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `ui.common.siteCount` | string | `"{count} 个站点"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.common.totalSites` | string | `"共 {count} 个站点。"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.common.visit` | string | `"访问 {name}"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.backToTop` | string | `"返回顶部"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.navigation.siteInfo` | string | `"站点信息"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.navigation.content` | string | `"博客内容"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.navigation.more` | string | `"更多链接"` | 长度 ≥ 1，长度 ≤ 500 |
@@ -310,6 +326,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `appearance.decorations.comments.offsetY` | integer | `0` | ≥ -64，≤ 64 |
 | `appearance.decorations.comments.align` | `right` / `center` | `"right"` | — |
 | `appearance.decorations.comments.mobile` | boolean | `false` | — |
+| `layout.backToTop` | boolean | `true` | — |
 | `layout.width` | integer | `1440` | ≥ 1360，≤ 1600 |
 | `layout.readerWidth` | integer | `760` | ≥ 680，≤ 800 |
 | `layout.sidebarWidth` | integer | `320` | ≥ 280，≤ 320 |
