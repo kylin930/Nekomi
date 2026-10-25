@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import rehypeKatex from 'rehype-katex';
+import { message } from '../config/messages.mjs';
 import { rawConfig } from '../config/publishing.mjs';
 export const text = (value) => ({ type: 'text', value });
 const block = (tag, props = {}, children = []) => ({
@@ -11,14 +12,8 @@ const plain = (node) =>
   node.type === 'text' || node.type === 'inlineCode'
     ? node.value
     : (node.children || []).map(plain).join('');
-const kinds = {
-  note: ['提示', 'lightbulb--outlined'],
-  info: ['信息', 'info--outlined'],
-  tip: ['提示', 'lightbulb--outlined'],
-  success: ['成功', 'check_circle--outlined'],
-  warning: ['注意', 'warning_amber'],
-  danger: ['警告', 'error--outlined'],
-};
+const kinds = { note: 'lightbulb--outlined', info: 'info--outlined', tip: 'lightbulb--outlined', success: 'check_circle--outlined', warning: 'warning_amber', danger: 'error--outlined' };
+const ui = rawConfig.ui;
 export function safeURL(value) {
   if (
     typeof value !== 'string' ||
@@ -89,7 +84,7 @@ export function remarkComponents() {
         if (kinds[node.name]) {
           check(node, ['icon'], file);
           if (!body) file.fail('Use :::' + node.name + ' for a callout.', node);
-          const [fallback, icon] = kinds[node.name];
+          const fallback = ui.markdown[node.name === 'tip' ? 'note' : node.name], icon = kinds[node.name];
           if (attrs.icon && !/^[\w-]+$/.test(attrs.icon))
             file.fail('Use a Material icon name.', node);
           node.data = {
@@ -116,7 +111,7 @@ export function remarkComponents() {
             hProperties: { className: ['md-details'], open: 'open' in attrs },
           };
           node.children = [
-            block('summary', {}, [text(title || '详细内容')]),
+            block('summary', {}, [text(title || ui.markdown.details)]),
             block('div', { className: ['md-details-body'] }, node.children),
           ];
         } else if (node.name === 'gallery') {
@@ -148,7 +143,7 @@ export function remarkComponents() {
             hName: 'div',
             hProperties: {
               className: options.components ? ['md-gallery'] : [],
-              'aria-label': title || '文章图片组',
+              'aria-label': title || ui.markdown.gallery,
             },
           };
           node.children = images.map((image) => {
@@ -223,14 +218,14 @@ export function remarkComponents() {
             },
           };
           node.children = [
-            block('figcaption', {}, [text(title || name + ' 视频')]),
-            block('p', {}, [text('播放器仅在点击后连接 ' + name + '。')]),
+            block('figcaption', {}, [text(title || message(ui.markdown.video, { provider: name }))]),
+            block('p', {}, [text(message(ui.markdown.videoPrivacy, { provider: name }))]),
             ...(options.components
               ? [
                   block(
                     'mdui-button',
                     { variant: 'tonal', 'data-video-load': '', hidden: true },
-                    [text('加载 ' + name + ' 视频')],
+                    [text(message(ui.markdown.videoLoad, { provider: name }))],
                   ),
                 ]
               : []),
@@ -243,7 +238,7 @@ export function remarkComponents() {
                   rel: ['noopener', 'noreferrer'],
                 },
               },
-              children: [text('在 ' + name + ' 打开')],
+              children: [text(message(ui.markdown.videoOpen, { provider: name }))],
             },
           ];
         } else if (node.name === 'tabs') {
@@ -313,7 +308,7 @@ export function remarkComponents() {
               id,
               value: 'panel-1',
               variant: 'secondary',
-              'aria-label': title || '内容选项',
+              'aria-label': title || ui.markdown.tabs,
               ...(options.components ? { 'data-md-tabs': '' } : {}),
             },
           };
@@ -375,7 +370,7 @@ export function rehypeFeatures() {
         Object.assign(node.properties, {
           tabIndex: 0,
           role: 'region',
-          'aria-label': '数学公式，可横向滚动',
+          'aria-label': ui.markdown.mathRegion,
         });
       if (
         node.tagName === 'pre' &&
@@ -399,22 +394,22 @@ export function rehypeFeatures() {
               className: ['mermaid-render'],
               'data-mermaid-render': '',
               role: 'region',
-              'aria-label': 'Mermaid 图表，可滚动',
+              'aria-label': ui.markdown.diagramRegion,
               hidden: true,
             }),
             element('p', { 'data-mermaid-status': '', role: 'status' }, [
               {
                 type: 'text',
-                value: '图表将在进入阅读区域时加载，源码始终可查看。',
+                value: ui.markdown.diagramIdle,
               },
             ]),
             element(
               'mdui-button',
               { variant: 'text', 'data-mermaid-retry': '', hidden: true },
-              [text('重试渲染')],
+              [text(ui.markdown.diagramRetry)],
             ),
             element('details', { className: ['mermaid-source'], open: true }, [
-              element('summary', {}, [text('图表源码')]),
+              element('summary', {}, [text(ui.markdown.diagramSource)]),
               node,
             ]),
           ],

@@ -1,4 +1,5 @@
 import { z } from "astro/zod";
+import { defaultUI } from './messages.mjs';
 // Shared by astro.config, Content Collections and server components. No browser bundle.
 const text = (fallback = "") => z.string().max(1000).default(fallback);
 const flag = (fallback = true) => z.boolean().default(fallback);
@@ -111,6 +112,25 @@ const languageSchema = z.string().refine((value) => {
     return false;
   }
 }, "Use a valid BCP 47 language, e.g. zh-CN.");
+const timeZone = z.string().refine(value => {
+  try { new Intl.DateTimeFormat('en', { timeZone: value }); return true; } catch { return false; }
+}, 'Use a valid IANA time zone, e.g. Asia/Shanghai or America/New_York.');
+/** @param {string} value */
+const placeholders = value => [...new Set(value.match(/\{\w+\}/g) || [])].sort().join(',');
+/** @param {string} fallback */
+function messageSchema(fallback) {
+  return z.string().min(1).max(500)
+    .refine(value => Boolean(value.trim()), 'Use non-empty UI text; hide modules using their layout switches.')
+    .refine(value => placeholders(value) === placeholders(fallback), `Keep the same placeholders as: ${fallback}`)
+    .default(fallback);
+}
+const uiSchema = section(Object.fromEntries(
+  Object.entries(defaultUI).map(([group, entries]) => [
+    group,
+    section(Object.fromEntries(Object.entries(entries).map(([key, fallback]) => [key, messageSchema(fallback)]))),
+  ]),
+));
+
 export const readingSchema = z.strictObject({
   lightbox: z.boolean().optional(),
   readingTime: z.boolean().optional(),
@@ -126,6 +146,7 @@ export const configSchema = section({
   $schema: z.string().optional(),
   demo: flag(true),
   demoNotice: text("示例内容，请替换为自己的文章。"),
+  ui: uiSchema,
   site: section({
     name: z.string().min(1).max(80).default("Nekomi"),
     tagline: text("分享技术、日常"),
@@ -153,6 +174,7 @@ export const configSchema = section({
     url: originSchema.default(""),
     base: baseSchema.default("/"),
     language: languageSchema.default("zh-CN"),
+    timeZone: timeZone.default('Asia/Shanghai'),
     indexing: flag(false),
     pageSize: z.number().int().min(2).max(24).default(6),
     author: text(),
@@ -173,6 +195,14 @@ export const configSchema = section({
     headingFont: font.default(
       '"Noto Serif CJK SC", "Songti SC", "STSong", ui-serif, serif',
     ),
+    webFonts: z.array(z.strictObject({
+      family: z.string().trim().min(1).max(80).regex(/^[\p{L}\p{N} ._-]+$/u, 'Use a plain font-family name.'),
+      src: image.unwrap().refine(value => Boolean(value) && !value.startsWith('http:') && /\.woff2(?:\?[^#]*)?$/i.test(value), 'Use a local or HTTPS .woff2 file.'),
+      weight: z.string().regex(/^(?:[1-9]\d{0,2}|1000)(?: (?:[1-9]\d{0,2}|1000))?$/).refine(value => { const parts = value.split(' ').map(Number); return parts.length === 1 || parts[0] <= parts[1]; }, 'Use one weight or an ascending range.').default('400'),
+      style: z.enum(['normal', 'italic']).default('normal'),
+      preload: flag(false),
+    })).max(6).default([]),
+    semanticColors: section({ success: color.default('#357b54'), warning: color.default('#946b00') }),
     radius: z.number().int().min(8).max(28).default(20),
     wallpaper: section({
       enabled: flag(false),
@@ -226,6 +256,7 @@ export const configSchema = section({
     links: z
       .array(z.strictObject({ label: z.string().min(1).max(40), url: link }))
       .default([]),
+    topLinks: z.array(z.strictObject({ label: z.string().trim().min(1).max(40), url: link, enabled: flag(), newTab: flag(false) })).max(12).default([]),
   }),
   home: section({
     eyebrow: text(),
@@ -234,6 +265,8 @@ export const configSchema = section({
     emptyDescription: text(),
   }),
   cards: section({
+    example: flag(),
+    pinned: flag(),
     cover: z.enum(["auto", "top", "none"]).default("auto"),
     excerpt: flag(),
     date: flag(),
@@ -257,6 +290,10 @@ export const configSchema = section({
   markdown: section({ math: flag(), mermaid: flag(), components: flag() }),
   friendsPage: section({ enabled: flag(), navigation: flag(false) }),
   content: section({
+    defaultCategory: z.string().trim().min(1).max(100).default('未分类'),
+    categoryColors: z.record(z.string().min(1).max(100).refine(key => key.trim() === key, 'Use an exact category name without surrounding whitespace.'), z.union([z.enum(['primary', 'secondary', 'tertiary', 'error', 'success', 'warning']), color])).refine(value => Object.keys(value).length <= 64, 'Use at most 64 category color entries.').default({}),
+    categoryPreviewLimit: z.number().int().min(0).max(12).default(3),
+    archivePreviewLimit: z.number().int().min(0).max(12).default(3),
     infiniteScroll: flag(),
     excerptLength: z.number().int().min(40).max(400).default(140),
     categories: flag(),

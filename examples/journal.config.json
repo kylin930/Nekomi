@@ -1,0 +1,235 @@
+{
+  "$schema": "../site.schema.json",
+  "site": {
+    "name": "Field Journal",
+    "tagline": "Notes and references",
+    "avatarFallback": "F",
+    "avatarAlt": "Site avatar"
+  },
+  "publishing": {
+    "language": "en-GB",
+    "timeZone": "Pacific/Kiritimati"
+  },
+  "appearance": {
+    "preset": "minimal",
+    "font": "system-ui, sans-serif",
+    "brandFont": "system-ui, sans-serif"
+  },
+  "content": {
+    "defaultCategory": "General",
+    "categoryColors": {
+      "Fieldwork": "#15738a",
+      "Reference": "secondary",
+      "Ideas": "tertiary"
+    },
+    "categoryPreviewLimit": 1,
+    "archivePreviewLimit": 0
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "id": "recent",
+        "label": "All posts"
+      },
+      {
+        "id": "categories",
+        "label": "Topics"
+      },
+      {
+        "id": "tags",
+        "label": "Tags"
+      },
+      {
+        "id": "archive",
+        "label": "Archives"
+      }
+    ],
+    "topLinks": [
+      {
+        "label": "Websites",
+        "url": "/friends/"
+      },
+      {
+        "label": "Resources",
+        "url": "https://example.com/resources",
+        "newTab": true
+      },
+      {
+        "label": "Disabled",
+        "url": "/missing/",
+        "enabled": false
+      }
+    ]
+  },
+  "home": {
+    "emptyTitle": "No posts yet"
+  },
+  "ui": {
+    "common": {
+      "close": "Close",
+      "viewAll": "View all",
+      "backToPosts": "Back to posts",
+      "readArticle": "Read article",
+      "readTitle": "Read: {title}",
+      "readMore": "Read more",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "page": "Page {page}",
+      "postCount": "Posts: {count}",
+      "viewPosts": "View posts ({count})",
+      "siteCount": "Sites: {count}",
+      "totalSites": "Sites: {count}.",
+      "visit": "Visit {name}"
+    },
+    "navigation": {
+      "content": "Browse posts",
+      "more": "More links",
+      "topLinks": "Site links",
+      "openSidebar": "Open sidebar",
+      "closeSidebar": "Close sidebar",
+      "sidebar": "Site sidebar",
+      "skip": "Skip to content",
+      "email": "Email",
+      "rss": "RSS feed",
+      "social": "Contact and subscribe",
+      "allFacet": "All {label}",
+      "browse": "Browse articles",
+      "facetDescription": "Posts about {title}",
+      "categories": "categories",
+      "tags": "tags",
+      "archive": "archives",
+      "siteInfo": "Site information"
+    },
+    "home": {
+      "categoriesTitle": "Topics",
+      "tagsTitle": "Tags",
+      "archiveTitle": "Archives",
+      "noArticles": "No posts yet",
+      "example": "Sample",
+      "pinned": "Pinned",
+      "latest": "Latest",
+      "noCategories": "No topics yet",
+      "noTags": "No tags yet",
+      "noArchives": "No archives yet"
+    },
+    "sidebar": {
+      "updates": "Latest entries",
+      "friends": "Websites",
+      "comments": "Recent comments",
+      "content": "Sidebar sections",
+      "appearance": "Appearance",
+      "noFriends": "No websites yet",
+      "friendsDescription": "Recommended websites",
+      "exampleComments": "Sample comments",
+      "openComment": "Open this comment in its article.",
+      "openCommentPost": "Read the related article.",
+      "noComments": "No comments yet"
+    },
+    "search": {
+      "placeholder": "Find a post…",
+      "clear": "Clear search",
+      "title": "Search results",
+      "results": "Query <{query}> · Results: {count}",
+      "empty": "No matching posts",
+      "suggestion": "Try another query or clear search.",
+      "allPosts": "All posts",
+      "loadMore": "Load more",
+      "retry": "Retry loading",
+      "loading": "Loading posts…",
+      "failed": "Could not load posts. Please retry.",
+      "pagination": "Post pages"
+    },
+    "reading": {
+      "breadcrumb": "Return navigation",
+      "related": "Related posts",
+      "previous": "Previous",
+      "next": "Next",
+      "noPrevious": "No previous post",
+      "noNext": "No next post",
+      "neighbors": "Adjacent posts",
+      "discuss": "Join the discussion",
+      "minutes": "About {count} min",
+      "updated": "Updated",
+      "toc": "Contents",
+      "tocTitle": "On this page",
+      "tocSummary": "Contents ({count})",
+      "tocCollapsed": "Collapsible contents",
+      "auxiliary": "Reading navigation",
+      "anchor": "Jump to: {title}",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copySuccess": "Code copied",
+      "copyFailed": "Copy failed. Please select the code.",
+      "copyLabel": "Copy {language} code",
+      "codeRegion": "{language} code, horizontally scrollable",
+      "table": "Article table",
+      "tableRegion": "{title}, horizontally scrollable",
+      "missingImage": "Image unavailable{detail}",
+      "missingPage": "Page not found",
+      "missingDescription": "The link may be out of date. Please return to the posts.",
+      "moved": "Article links have moved"
+    },
+    "theme": {
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "System",
+      "label": "Theme: {mode}; switch to {next}",
+      "title": "Current: {mode}; switch to {next}"
+    },
+    "comments": {
+      "title": "Comments",
+      "frameTitle": "Article comments",
+      "idle": "Scroll here to load comments.",
+      "loading": "Loading comments…",
+      "failed": "Comments are unavailable.",
+      "retry": "Reload comments",
+      "noScript": "Comments require JavaScript and a separate service.",
+      "count": "Comments: {count}",
+      "recentIdle": "Open this section to load comments.",
+      "recentLoading": "Loading recent comments…",
+      "recentUnavailable": "This service has no recent-comment API.",
+      "recentReady": "Recent comments",
+      "recentEmpty": "No recent comments to show.",
+      "recentFailed": "Could not load recent comments.",
+      "recentRetry": "Retry comments",
+      "runtimeFailed": "The comment module failed to load. Please refresh.",
+      "reload": "Refresh and retry",
+      "guest": "Guest"
+    },
+    "lightbox": {
+      "title": "Image viewer",
+      "zoom": "Zoom",
+      "previous": "Previous image",
+      "next": "Next image",
+      "error": "Could not load this image.",
+      "original": "View original",
+      "enlarge": "Enlarge: {title}",
+      "image": "Article image",
+      "failed": "The image viewer failed to load."
+    },
+    "markdown": {
+      "note": "Note",
+      "info": "Info",
+      "success": "Success",
+      "warning": "Caution",
+      "danger": "Warning",
+      "details": "Details",
+      "gallery": "Image gallery",
+      "tabs": "Content options",
+      "mathRegion": "Math, horizontally scrollable",
+      "diagramRegion": "Mermaid diagram, scrollable",
+      "diagramIdle": "The diagram loads near the viewport. Source is always available.",
+      "diagramLoading": "Rendering diagram…",
+      "diagramFailed": "Could not render the diagram. Source is below.",
+      "diagramModuleFailed": "The diagram module failed to load. Source is available.",
+      "diagramRetry": "Retry diagram",
+      "diagramSource": "Diagram source",
+      "video": "{provider} video",
+      "videoPrivacy": "The player connects to {provider} only after a click.",
+      "videoLoad": "Load {provider} video",
+      "videoOpen": "Open on {provider}",
+      "videoClose": "Close player",
+      "videoFailed": "Could not load the player. Open the source link."
+    }
+  }
+}

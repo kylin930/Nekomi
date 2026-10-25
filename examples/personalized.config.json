@@ -1,0 +1,61 @@
+{
+  "$schema": "../site.schema.json",
+  "site": {
+    "name": "山间笔记",
+    "tagline": "旅行、摄影与资料整理",
+    "avatarFallback": "山"
+  },
+  "publishing": {
+    "language": "zh-CN",
+    "timeZone": "America/New_York"
+  },
+  "appearance": {
+    "preset": "fresh",
+    "semanticColors": {
+      "success": "#327359",
+      "warning": "#9b6500"
+    }
+  },
+  "content": {
+    "defaultCategory": "收件箱",
+    "categoryColors": {
+      "旅行": "#b75d28",
+      "摄影": "tertiary",
+      "资料": "secondary"
+    },
+    "categoryPreviewLimit": 2,
+    "archivePreviewLimit": 1
+  },
+  "navigation": {
+    "topLinks": [
+      {
+        "label": "友链",
+        "url": "/friends/"
+      },
+      {
+        "label": "项目",
+        "url": "https://example.com/projects",
+        "newTab": true
+      }
+    ]
+  },
+  "ui": {
+    "sidebar": {
+      "updates": "更新笔记",
+      "friends": "朋友们",
+      "comments": "留言板"
+    },
+    "home": {
+      "categoriesTitle": "按主题查看",
+      "tagsTitle": "话题索引",
+      "archiveTitle": "月份索引"
+    },
+    "search": {
+      "placeholder": "找篇笔记…",
+      "results": "查询 {query}：{count} 条记录"
+    },
+    "common": {
+      "readMore": "打开文章"
+    }
+  }
+}

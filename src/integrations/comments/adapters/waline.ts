@@ -36,7 +36,7 @@ const createWaline: CommentAdapterFactory = (settings) => ({
       const normalized = recentComment({
         id: String(c.objectId ?? ""),
         key: String(c.url ?? ""),
-        author: String(c.nick || "访客"),
+        author: String(c.nick || ""),
         excerpt: String(c.comment || c.orig || ""),
         createdAt: timestamp(c.time),
         avatar: String(c.avatar || ""),

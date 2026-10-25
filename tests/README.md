@@ -1,5 +1,20 @@
 # P2–P2.4 静态构建浏览器回归
 
+## v1.0.0 个性化审计
+
+```sh
+node --test tests/config.test.mjs tests/social.test.mjs tests/comments.test.mjs tests/reading.test.mjs tests/personalization.test.mjs
+npm run check
+npm run build
+python3 tests/personalization_audit.py --screenshots
+```
+
+`personalization_audit.py` 构建默认、中文个人站、英文通用站三套配置，检查桌面 / 手机 × 明暗共 12 组；覆盖首页 / 阅读 / 分类 / 标签 / 归档、侧栏命名、日期 / 时区、分类角色及 ≥4.5 对比度、空 / 旧分类标识、预览数量、字体、普通顶部链接、真实 SSR 链接及单次解析元数据。子路径为 `/Journal/`，同时验证普通页面与文章的 ClientRouter 导航；评论使用只读示例适配器和受控 API，不发布真实留言。
+
+临时文章和 KaTeX MIT 字体仅放在被忽略的 `.astro/p25-tests/` 产物，不写入主题文章或 public。实际截图见 [screenshots/PERSONALIZATION.md](../screenshots/PERSONALIZATION.md)，配置与剩余范围见 [个性化指南](../docs/PERSONALIZATION.md)。
+
+兼容回归继续使用下方 release / reading / comments / theme / browse 套件。`publishing.language` 不自动翻译 UI；测试通过显式 UI 配置验证英文，并对仅改 language 的情况保留中文默认值。
+
 依赖 Node.js 24 / npm（构建）、Python 3、Playwright 1.62.0 和 Chromium（浏览器验证）。构建完成后，测试仅用 Python 文件服务器提供 `dist/`，不是 Astro dev / preview，也不需要生产 Node 服务。
 
 ```sh

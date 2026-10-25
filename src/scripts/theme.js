@@ -1,12 +1,14 @@
 import { setTheme } from 'mdui/functions/setTheme.js';
 import { setColorScheme } from 'mdui/functions/setColorScheme.js';
+import { categoryColors } from '../lib/categories.mjs';
+import { say } from './ui';
 
 /* 单按钮循环切换：浅色 → 深色 → 跟随系统。 */
 export function createTheme(data) {
   'use strict';
   var KEY = 'nekomi-theme';
   var modes = ['light', 'dark', 'auto'];
-  var labels = { light: '浅色', dark: '深色', auto: '跟随系统' };
+  var labels = data.ui.theme;
   var icons = { light: 'light_mode', dark: 'dark_mode', auto: 'contrast' };
   function read() {
     try { var value = localStorage.getItem(KEY); return modes.includes(value) ? value : data.appearance.mode; }
@@ -18,8 +20,8 @@ export function createTheme(data) {
   var source = /^#(?:[a-f0-9]{3}|[a-f0-9]{6})$/i.test(appearance.color || '') ? appearance.color : '#8064b1';
   setColorScheme(source, { customColors: [
     ...(appearance.secondary ? [{ name: 'accent', value: appearance.secondary }] : []),
-    { name: 'blossom', value: '#b65e82' }, { name: 'sky', value: '#427f9d' },
-    { name: 'success', value: '#357b54' }, { name: 'warning', value: '#946b00' }
+    ...categoryColors(data.content.categoryColors),
+    ...Object.entries(appearance.semanticColors).map(([name, value]) => ({ name, value }))
   ] });
   var wallpaper = appearance.wallpaper || {};
   var systemDark = matchMedia('(prefers-color-scheme: dark)');
@@ -140,8 +142,8 @@ export function createTheme(data) {
     var nextLabel = labels[modes[(modes.indexOf(mode) + 1) % modes.length]];
     document.querySelectorAll('[data-theme-control]').forEach(function (container) {
       container.querySelector('[data-theme-glyph]').name = icons[mode];
-      container.querySelector('[data-theme-label]').textContent = '主题：' + labels[mode] + '，点击切换为' + nextLabel;
-      container.querySelector('[data-theme-cycle]').title = '当前' + labels[mode] + '，点击切换为' + nextLabel;
+      container.querySelector('[data-theme-label]').textContent = say('theme', 'label', { mode: labels[mode], next: nextLabel });
+      container.querySelector('[data-theme-cycle]').title = say('theme', 'title', { mode: labels[mode], next: nextLabel });
       container.querySelector('.theme-mode-label').textContent = labels[mode];
     });
     document.dispatchEvent(new Event('nekomi:theme'));

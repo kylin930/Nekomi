@@ -1,3 +1,4 @@
+import { say, commentTime } from '../../scripts/ui';
 import { pushArticleHash } from "../../scripts/list-state";
 import { selectAdapter } from "./registry";
 import { publicUrl } from "./data";
@@ -183,12 +184,12 @@ export function createComments(site: Site) {
     )
       return;
     const request = (recentController = new AbortController());
-    recentState("正在加载留言…");
+    recentState(say('comments', 'recentLoading'));
     try {
       const service = await task(request.signal, async () => adapter());
       request.signal.throwIfAborted();
       if (!service.capabilities.recent || !service.getRecent) {
-        recentState("此评论服务不提供最新评论。");
+        recentState(say('comments', 'recentUnavailable'));
         return;
       }
       const items = await task(request.signal, (signal) =>
@@ -210,6 +211,7 @@ export function createComments(site: Site) {
         const list = panel.querySelector("[data-comments-recent-list]")!;
         const fragment = document.createDocumentFragment();
         for (const { comment, post } of shown) {
+          const authorName = comment.author || say('comments', 'guest');
           const item = document.createElement("mdui-list-item");
           item.setAttribute("rounded", "");
           item.setAttribute(
@@ -222,8 +224,8 @@ export function createComments(site: Site) {
           const avatar = document.createElement("mdui-avatar");
           avatar.className = "comment-avatar";
           avatar.setAttribute("slot", "icon");
-          avatar.setAttribute("aria-label", comment.author);
-          avatar.textContent = Array.from(comment.author)[0] || "?";
+          avatar.setAttribute("aria-label", authorName);
+          avatar.textContent = Array.from(authorName)[0] || "?";
           const imageUrl = publicUrl(comment.avatar);
           if (imageUrl) {
             const img = new Image();
@@ -239,15 +241,12 @@ export function createComments(site: Site) {
           const byline = document.createElement("div");
           byline.className = "comment-byline";
           const author = document.createElement("strong");
-          author.textContent = comment.author.slice(0, 80);
+          author.textContent = authorName.slice(0, 80);
           const time = document.createElement("time");
           const date = new Date(comment.createdAt);
           if (Number.isFinite(date.getTime())) {
             time.dateTime = date.toISOString();
-            time.textContent = new Intl.DateTimeFormat(
-              document.documentElement.lang,
-              { month: "numeric", day: "numeric" },
-            ).format(date);
+            time.textContent = commentTime(date);
           }
           byline.append(author, time);
           const excerpt = document.createElement("p");
@@ -263,9 +262,9 @@ export function createComments(site: Site) {
         list.replaceChildren(fragment);
       }
       recentCached = Date.now();
-      recentState(shown.length ? "最近的留言" : "暂时没有可显示的留言。");
+      recentState(shown.length ? say('comments', 'recentReady') : say('comments', 'recentEmpty'));
     } catch {
-      if (!request.signal.aborted) recentState("留言暂时无法加载。", true);
+      if (!request.signal.aborted) recentState(say('comments', 'recentFailed'), true);
     } finally {
       if (recentController === request) recentController = undefined;
     }
@@ -275,7 +274,7 @@ export function createComments(site: Site) {
     else if (recentController) {
       recentController.abort();
       recentController = undefined;
-      recentState("打开此页签加载留言。");
+      recentState(say('comments', 'recentIdle'));
     }
   }
   if (panels().length) {
@@ -323,7 +322,7 @@ export function createComments(site: Site) {
         value < 0
       )
         return;
-      count.textContent = `${Math.floor(value)} 条`;
+      count.textContent = say('comments', 'count', { count: Math.floor(value) });
       count.hidden = false;
     };
     const locate = () => {
@@ -358,7 +357,7 @@ export function createComments(site: Site) {
       const request = session;
       busy = true;
       count.hidden = true;
-      setStatus("loading", "正在加载评论…");
+      setStatus("loading", say('comments', 'loading'));
       try {
         const service = await task(request.signal, async () => adapter());
         signal.throwIfAborted();
@@ -387,7 +386,7 @@ export function createComments(site: Site) {
                   !request.signal.aborted
                 ) {
                   disposeSession();
-                  setStatus("error", "评论暂时无法加载。");
+                  setStatus("error", say('comments', 'failed'));
                 }
               },
             });
@@ -452,7 +451,7 @@ export function createComments(site: Site) {
       } catch {
         if (session === request && !signal.aborted && !request.signal.aborted) {
           disposeSession();
-          setStatus("error", "评论暂时无法加载，请稍后重试。");
+          setStatus("error", say('comments', 'failed'));
         }
       } finally {
         busy = false;

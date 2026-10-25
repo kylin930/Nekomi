@@ -22,7 +22,7 @@ const posts = defineCollection({
     markdown: z.strictObject({ math: z.boolean().optional(), mermaid: z.boolean().optional(), components: z.boolean().optional() }).optional(),
     date: z.iso.date(),
     updated: z.iso.date().optional(),
-    category: z.string().default('未分类'),
+    category: z.string().nullish(),
     tags: z.array(z.string()).default([]),
     cover: z.string().default(''),
     coverAlt: z.string().default(''),

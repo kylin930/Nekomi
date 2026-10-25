@@ -1,6 +1,8 @@
 ---
 import { ClientRouter } from 'astro:transitions';
-import { config } from '../config/site';
+import { config, ui } from '../config/site';
+import WebFonts from '../components/WebFonts.astro';
+import TopLinks from '../components/TopLinks.astro';
 import { getPosts, postMetadata } from '../lib/posts';
 import { base } from '../lib/urls';
 import { pageTransition } from '../lib/transitions';
@@ -24,7 +26,7 @@ import '../styles/article.css';
 import '../styles/transitions.css';
 import '../styles/decorations.css';
 interface Props { title: string; description?: string; page?: 'home' | 'article' | 'error' | 'page'; currentId?: string; post?: Post; noindex?: boolean }
-const { title, description = config.site.tagline, page = 'home', currentId, post } = Astro.props;
+const { title, description = config.site.tagline || config.site.intro || config.site.name, page = 'home', currentId, post } = Astro.props;
 const posts = await getPosts();
 const noindex = Astro.props.noindex ?? (page === 'error' || !canIndex(post ? [post] : posts));
 const a = config.appearance;
@@ -39,6 +41,7 @@ const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest(
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <Seo title={title} description={description} noindex={noindex} post={post} />
+    <WebFonts />
     {config.features.rss && <link rel="alternate" type="application/rss+xml" title={config.site.name + ' RSS'} href={withBase('rss.xml')} />}
     <meta name="color-scheme" content="light dark" />
     <style is:global>
@@ -64,15 +67,16 @@ const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest(
   </head>
   <body data-page={page} data-post-id={currentId}>
     <Wallpaper />
-    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    <a class="skip-link" href="#main-content">{ui.navigation.skip}</a>
     <Navigation posts={posts} currentId={currentId} />
     <div class:list={['site-layout', { 'reading-layout': page === 'article' }]}>
-      <aside class="sidebar" aria-label="站点信息" data-site-sidebar transition:persist="desktop-sidebar" transition:animate="none">
+      <aside class="sidebar" aria-label={ui.navigation.siteInfo} data-site-sidebar transition:persist="desktop-sidebar" transition:animate="none">
         <Sidebar context="desktop" posts={posts} currentId={currentId} />
-        <div class="sidebar-settings"><span>外观</span><ThemeControl /></div>
+        <div class="sidebar-settings"><span>{ui.sidebar.appearance}</span><ThemeControl /></div>
         <Decoration kind="sidebar" />
       </aside>
       <main id="main-content" tabindex="-1" aria-busy="false" transition:name="page-content" transition:animate={pageTransition}>
+        <TopLinks />
         <slot />
         <Footer />
       </main>

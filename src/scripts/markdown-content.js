@@ -1,3 +1,4 @@
+import { say } from './ui';
 export function initMarkdownContent(body, signal) {
   for (const video of body.querySelectorAll('[data-md-video]')) {
     const button = video.querySelector('[data-video-load]'),
@@ -7,9 +8,7 @@ export function initMarkdownContent(body, signal) {
       frame?.remove();
       frame = undefined;
       button.textContent =
-        '加载 ' +
-        (video.dataset.mdVideo === 'youtube' ? 'YouTube' : 'Bilibili') +
-        ' 视频';
+        say('markdown', 'videoLoad', { provider: video.dataset.mdVideo === 'youtube' ? 'YouTube' : 'Bilibili' });
     };
     button.hidden = false;
     button.addEventListener(
@@ -47,13 +46,13 @@ export function initMarkdownContent(body, signal) {
           () => {
             if (!signal.aborted) {
               close();
-              status.textContent = '播放器无法加载，请通过原站链接打开。';
+              status.textContent = say('markdown', 'videoFailed');
             }
           },
           { once: true, signal },
         );
         video.insertBefore(frame, status);
-        button.textContent = '关闭播放器';
+        button.textContent = say('markdown', 'videoClose');
       },
       { signal },
     );

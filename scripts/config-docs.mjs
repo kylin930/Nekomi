@@ -16,7 +16,10 @@ const descriptions = {
   demoNotice: "供导入方使用的示例说明，主题不渲染开发提示。",
   site: "站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。favicon / appleTouchIcon 使用 public/ 内路径或公开 HTTP(S) URL，自动补部署 base；留空保留空 favicon、不输出 Apple 图标。Apple 图标建议提供 180×180 PNG。",
   publishing:
-    "发布与 SEO。url 仅源站，不带路径；base 以 / 开始和结束；环境变量 SITE_URL / SITE_BASE 优先。author 未填时使用站名。",
+    "language 控制 HTML / SEO 语言与 Intl 日期格式，不自动翻译界面或第三方组件；通过 ui 显式覆盖主题文案，SDK 继续使用自己的 lang / locale。timeZone 为显示时间戳的有效时区（默认 Asia/Shanghai）；date / updated 是日历日期，永远不做时区偏移。页脚年份也按配置时区。发布与 SEO。url 仅源站，不带路径；base 以 / 开始和结束；环境变量 SITE_URL / SITE_BASE 优先。author 未填时使用站名。",
+  ui: "集中管理主题自有文案，按 common / navigation / home / sidebar / search / reading / theme / comments / lightbox / markdown 分组。逐字段覆盖、缺省中文；仅纯文本，不解释 HTML。模板必须保留原有 {count} / {title} 等占位符，构建前校验；不会改写文章、评论正文、作者自写指令标题或 SDK 内部语言。ui.sidebar.updates / friends / comments 控制三个侧栏 Tab 名称，内部 ID 与 layout.sidebarTabs 顺序不变；不要用空白文案隐藏模块。参见 PERSONALIZATION.md。",
+  "appearance.webFonts": "可选本地 / HTTPS WOFF2 资源数组，默认 [] 不加载。每项 family、src 必填；weight 为 1–1000 或递增区间字符串，默认 400；style normal/italic；preload 默认 false。最多六项，固定 font-display:swap；在 font / brandFont / headingFont 字体栈中引用 family 才会按需使用。建议文件放 public/fonts，部署 base 自动补齐；不要添加不必要的预加载。",
+  "appearance.semanticColors": "success / warning 为可复用语义色源，沿用原默认值，交由 MDUI 生成完整浅深色组；用于 Markdown 提示等组件，也可作为分类颜色角色。旧 blossom / sky 专用色源已移除，分类改由 categoryColors 配置。",
   appearance:
     "预设 default / fresh / minimal 提供 Token 默认值；显式字段优先。color 为六位主色，secondary 为空由 MDUI 推导，填写后使用 MDUI customColors 的完整语义色组。mode 仅决定首次默认，用户保存的偏好优先。字体为本地 CSS font-family，不自动下载字体。brandFont 独立控制站名、手机 App Bar 与身份文字，headingFont 只控制内容标题；更改正文 font 不会覆盖 brandFont。radius 控制卡片和阅读表面，按钮等 MDUI 控件保留原生形状角色。",
   "appearance.wallpaper":
@@ -26,16 +29,16 @@ const descriptions = {
   layout:
     "width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。recentPostsLimit / friendsPreviewLimit 为预览数量，0–12，默认 5；0 隐藏相应 Tab，友链独立页不受影响。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。",
   navigation:
-    "tabs 的 id 为 recent/categories/tags/archive；recent 必须启用，可改名。enabled 控制主导航可见性；分类/标签的直接索引页面由 content 开关控制。links 显示在公共侧栏底部。数组替换，不按位置合并。",
+    "tabs 的 id 为 recent/categories/tags/archive；recent 必须启用，可改名。enabled 控制主导航可见性；分类/标签的直接索引页面由 content 开关控制。links 显示在公共侧栏底部。topLinks 为独立顶部导航行，含 label / url / enabled（默认 true）/ newTab（默认 false），数组顺序即显示顺序；不伪装成 Tab，不生成面板或页面。站内 / 路径补 base 并走 ClientRouter，HTTP(S) 外链正常跳转，新窗口附安全 rel；空数组 / 全禁用不输出占位。数组替换，不按位置合并。",
   home: "emptyTitle / emptyDescription 自定义无文章状态，空描述不输出段落。P3 标题区不再显示装饰文字或统计：eyebrow 仅保留旧配置输入兼容；description 改用于全部文章页的 SEO Description，留空沿用站点副标题。搜索计数由独立 live region 按需显示。",
   cards:
-    "cover:auto 为响应式图文，top 始终图在上，none 隐藏。其余开关控制摘要、日期、分类、标签、阅读按钮及首篇强调；标题真实链接始终存在。",
+    "cover:auto 为响应式图文，top 始终图在上，none 隐藏。example / pinned 仅控制示例 / 置顶角标，不改变 demo SEO 保护、pinned 排序。其余开关控制摘要、日期、分类、标签、阅读按钮及首篇强调；标题真实链接始终存在。",
   reading:
     "全站阅读默认值，可被文章 reading 同名字段覆盖。lightbox 开启正文未链接图片的灯箱，首次打开才加载库和样式；readingTime 开启构建时估计时长，Frontmatter readingTime 可为布尔值或指定分钟数；related 控制构建时相关文章，relatedLimit 为 0–6，默认 3。toc 关闭不渲染目录、不绑定章节滚动跟踪；copyCode 关闭不输出复制按钮；motion 控制阅读页自定义进入和目录弹簧。原生 MDUI 交互仍遵从系统减少动态设置。",
   markdown: "math / mermaid / components 默认 true，可由文章 markdown 同名字段覆盖。KaTeX 构建时渲染；Mermaid 仅在含图表的文章、图表接近视口时加载；交互组件仅在需要时初始化。组件语法、安全限制与关闭后的回退见 MARKDOWN.md。",
   friendsPage: "enabled 默认 true，生成独立 /friends/ 并让侧栏查看全部进入该页；false 不生成并保留旧 Dialog。navigation 默认 false，可开启公共侧栏 / Drawer 入口。复用 friends 数组，无数据正常显示空状态。",
   content:
-    "infiniteScroll=false 禁用观察器自动加载，保留普通分页与手动加载。excerptLength 用于未填写 excerpt 的正文纯文本摘要；手写摘要不截断。categories/tags 同时控制导航、卡片、文章信息和静态分类/标签页面。",
+    "categoryColors 按分类显示名映射 primary / secondary / tertiary / error / success / warning 或六位 HEX；默认 {} 全部回退 primary。HEX 经 MDUI 生成完整色组，最多 64 项、同色去重，不直接作明暗通用颜色。defaultCategory 为未分类文章的显示名称；内部以 null 分类键判断，兼容省略、空分类及旧值未分类，显示名称不参与推荐逻辑。categoryPreviewLimit / archivePreviewLimit 为 0–12，默认各 3；0 不渲染预览列表，静态分类归档链接与全量文章不受影响。infiniteScroll=false 禁用观察器自动加载，保留普通分页与手动加载。excerptLength 用于未填写 excerpt 的正文纯文本摘要；手写摘要不截断。categories/tags 同时控制导航、卡片、文章信息和静态分类/标签页面。",
   features:
     "RSS 入口位于 social 侧栏模块（含 Drawer），features.rss=false 时不自动显示；不会在默认页脚重复。移除 social 模块也会隐藏该入口，自动发现仍由 rss 开关控制。search 关闭同时移除搜索框、快捷键与 URL 查询搜索。rss 关闭时隐藏入口及自动发现、端点返回空频道；sitemap 关闭不加载集成，robots 不引用站点地图。",
   footer:

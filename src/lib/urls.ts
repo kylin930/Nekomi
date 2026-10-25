@@ -12,6 +12,6 @@ export function assetUrl(value: string) {
   if (/^[a-z][a-z\d+.-]*:/i.test(value) || value.startsWith('//')) return externalUrl(value.startsWith('//') ? 'https:' + value : value);
   return value.startsWith(base) && base !== '/' ? value : withBase(value);
 }
-export const dateLabel = (date: string) => new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(date + 'T00:00:00Z'));
+export { dateLabel } from './format';
 
 export const navigationUrl = (url: string) => url.startsWith('/') ? assetUrl(url) : url;

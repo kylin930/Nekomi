@@ -1,3 +1,4 @@
+import { say } from './ui';
 import { initContentTabs, isContentVisible, revealContentTarget } from './content-target';
 import { a11y } from './a11y';
 import { motion } from './motion';
@@ -15,7 +16,7 @@ export function initArticle(site, signal, navigationType) {
   const lightboxEnabled = document.getElementById('reader').dataset.lightbox !== 'false';
   initContentTabs(body, signal);
   if (body.querySelector('[data-md-video]')) import('./markdown-content').then(module => { if (!signal.aborted) module.initMarkdownContent(body, signal); }).catch(() => {});
-  if (body.querySelector('[data-md-mermaid]')) import('./diagrams').then(module => { if (!signal.aborted) module.initDiagrams(body, signal); }).catch(() => { if (!signal.aborted) body.querySelectorAll('[data-mermaid-status]').forEach(node => { node.textContent = '图表模块无法加载，可查看源码。'; }); });
+  if (body.querySelector('[data-md-mermaid]')) import('./diagrams').then(module => { if (!signal.aborted) module.initDiagrams(body, signal); }).catch(() => { if (!signal.aborted) body.querySelectorAll('[data-mermaid-status]').forEach(node => { node.textContent = say('markdown', 'diagramModuleFailed'); }); });
   let previousSection;
   let measureToc = true;
   const path = location.pathname;
@@ -97,10 +98,10 @@ export function initArticle(site, signal, navigationType) {
     try { if (navigator.clipboard && isSecureContext) { await navigator.clipboard.writeText(code); copied = true; } } catch { /* Fall back below. */ }
     if (!copied) { try { copied = legacyCopy(code); } catch { /* Report a useful failure. */ } }
     if (signal.aborted) return;
-    site.notify(copied ? '代码已复制' : '复制失败，请手动选择代码。');
+    site.notify(copied ? say('reading', 'copySuccess') : say('reading', 'copyFailed'));
     if (copied) {
-      button.textContent = '已复制';
-      const timer = setTimeout(() => { timers.delete(timer); button.textContent = '复制'; }, 2000);
+      button.textContent = say('reading', 'copied');
+      const timer = setTimeout(() => { timers.delete(timer); button.textContent = say('reading', 'copy'); }, 2000);
       timers.add(timer);
     }
   }
@@ -109,7 +110,7 @@ export function initArticle(site, signal, navigationType) {
     const anchor = document.createElement('a');
     anchor.className = 'heading-anchor';
     anchor.href = '#' + encodeURIComponent(heading.id);
-    anchor.setAttribute('aria-label', '定位到：' + heading.textContent.trim());
+    anchor.setAttribute('aria-label', say('reading', 'anchor', { title: heading.textContent.trim() }));
     anchor.textContent = '#';
     heading.append(anchor);
   });
@@ -157,13 +158,13 @@ export function initArticle(site, signal, navigationType) {
   Promise.all(links.map(link => link.updateComplete)).then(() => { if (!signal.aborted) { measureToc = true; update(); } });
   if (lightboxEnabled) {
     for (const image of body.querySelectorAll('img')) if (!image.closest('a')) {
-      image.tabIndex = 0; image.setAttribute('role', 'button'); image.setAttribute('aria-label', '放大图片：' + (image.alt || image.title || '正文图片')); image.classList.add('lightbox-image');
+      image.tabIndex = 0; image.setAttribute('role', 'button'); image.setAttribute('aria-label', say('lightbox', 'enlarge', { title: image.alt || image.title || say('lightbox', 'image') })); image.classList.add('lightbox-image');
     }
     const openImage = async image => {
       if (opening || viewer || signal.aborted || !image.isConnected || !image.complete || !image.naturalWidth) return;
       opening = true;
       try { const module = await import('./lightbox'); if (!signal.aborted) viewer = module.openLightbox(body, image, signal, () => { viewer = undefined; }); }
-      catch { if (!signal.aborted) site.notify('图片查看器无法加载，请重试。'); }
+      catch { if (!signal.aborted) site.notify(say('lightbox', 'failed')); }
       finally { opening = false; }
     };
     on(body, 'click', event => { if (event.target.matches('img.lightbox-image') && !event.target.closest('a') && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.button) { event.preventDefault(); void openImage(event.target); } });

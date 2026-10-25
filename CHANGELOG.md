@@ -1,5 +1,15 @@
 # 变更记录
 
+## 2026-10-25 · 1.0.0 通用主题个性化审计
+
+- 分类配色改为 content.categoryColors：支持 MD3 / 主题语义角色与经 MDUI 生成浅深完整色组的 HEX，移除特定中文名字和 blossom / sky 专用映射；成功 / 注意色源整理为 appearance.semanticColors。
+- 新增集中 ui 默认文案表、类型与占位符校验，覆盖侧栏名称、首页、搜索 / 错误 / 空状态、阅读、主题、友链、评论外层及 Markdown 交互；复用运行时已解析数据，不重复解析文章索引。SDK 语言和用户正文继续独立管理。
+- 统一日期工具，使用 publishing.language / timeZone；文章日历日期不做时区换算，评论与页脚年份使用显示时区，归档标题本地格式化、机器日期与链接保持稳定。明确 language 不自动翻译整站。
+- 分类 / 归档预览数可配，0 不输出空列表；静态示例评论数量复用 comments.recentLimit。默认分类显示名与内部 categoryKey 解耦，兼容省略 / 空值 / 未分类，不依赖文字判断推荐。
+- 新增独立顶部普通链接行 navigation.topLinks，保留内建 Tabs / Hash / 静态路由；真实链接作为 SSR / 无脚本及组件未加载时的回退。可选 WOFF2 自托管字体入口默认关闭，沿用原字体栈、swap 与适度 preload。
+- 补齐 cards.example / pinned 视觉开关，保持元数据与 SEO 保护；自动摘要复用现有 Markdown 解析，不泄漏 directive 围栏，保留手写摘要和原阅读时间规则。搜索大小写使用站点 locale，slug 不随显示语言变化。
+- 更新 Zod / JSON Schema、完整及中英文配置示例、配置 / 审计文档和回归测试；不升级依赖、不改整体设计、不添加 CMS，不创建 Tag 或 Release。
+
 ## 2026-10-25 · 1.0.0 发布前个性化配置补全
 
 - 新增默认关闭的 appearance.decorations.sidebar / comments，支持本地或 HTTPS 图片、浅深来源、尺寸 / 透明度 / 偏移 / 对齐及可选窄屏显示。侧栏按实际剩余高度缩放或隐藏，不覆盖现有内容、不新增滚动层；评论使用自有独立右栏或上方小图，不修改第三方 DOM、Shadow DOM 或 iframe 内部。

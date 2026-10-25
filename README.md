@@ -95,6 +95,14 @@ public/                  按原路径发布的文件，例如壁纸
 }
 ```
 
+## 通用主题个性化
+
+分类配色不再依赖特定名字。使用 `content.categoryColors` 选择 MD3 角色或 HEX，`content.defaultCategory` 修改默认分类名称，`content.categoryPreviewLimit / archivePreviewLimit` 控制首页预览。常用文案与侧栏 Tab 名称可通过分组 `ui` 覆盖；日期遵循 `publishing.language / timeZone`，其中 language 不会自动翻译整站。
+
+普通顶部入口使用 `navigation.topLinks`，与内容 Tabs 分开；自托管字体通过可选 `appearance.webFonts` 定义并在现有字体栈中引用。默认没有新增字体请求。
+
+[使用说明](docs/PERSONALIZATION.md) · [中文个人站示例](examples/personalized.config.json) · [英文通用站示例](examples/journal.config.json) · [审计记录与保留常量](docs/PERSONALIZATION-AUDIT.md)
+
 ## 可选角色装饰
 
 侧栏和评论区可通过 `appearance.decorations.sidebar / comments` 配置角色图片；默认关闭，无素材时保持原布局。`site.favicon / appleTouchIcon` 设置站点图标，`appearance.wallpaper.mobileLight / mobileDark` 设置窄屏壁纸，`layout.recentPostsLimit / friendsPreviewLimit` 控制侧栏预览数量。[使用说明及安全布局](docs/DECORATIONS.md) · [可复制配置](examples/decorations.config.json)。图片请放入 `public/` 或使用有权使用的 HTTPS 资源。

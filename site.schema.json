@@ -15,6 +15,959 @@
       "type": "string",
       "maxLength": 1000
     },
+    "ui": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "common": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "close": {
+              "default": "关闭",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "viewAll": {
+              "default": "查看全部",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "backToPosts": {
+              "default": "返回文章列表",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "readArticle": {
+              "default": "阅读文章",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "readTitle": {
+              "default": "阅读文章：{title}",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "readMore": {
+              "default": "阅读全文",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "previousPage": {
+              "default": "上一页",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "nextPage": {
+              "default": "下一页",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "page": {
+              "default": "第 {page} 页",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "postCount": {
+              "default": "{count} 篇",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "viewPosts": {
+              "default": "查看 {count} 篇",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "siteCount": {
+              "default": "{count} 个站点",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "totalSites": {
+              "default": "共 {count} 个站点。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "visit": {
+              "default": "访问 {name}",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "navigation": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "siteInfo": {
+              "default": "站点信息",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "content": {
+              "default": "博客内容",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "more": {
+              "default": "更多链接",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "topLinks": {
+              "default": "站点导航",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "openSidebar": {
+              "default": "打开侧栏",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "closeSidebar": {
+              "default": "关闭侧栏",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "sidebar": {
+              "default": "站点侧栏",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "skip": {
+              "default": "跳到主要内容",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "email": {
+              "default": "电子邮件",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "rss": {
+              "default": "RSS 订阅",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "social": {
+              "default": "联系与订阅",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "allFacet": {
+              "default": "全部{label}",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "browse": {
+              "default": "文章浏览",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "facetDescription": {
+              "default": "{title}相关的文章",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "categories": {
+              "default": "分类",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "tags": {
+              "default": "标签",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "archive": {
+              "default": "归档",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "home": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "noCategories": {
+              "default": "暂无分类",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "noTags": {
+              "default": "暂无标签",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "noArchives": {
+              "default": "暂无归档",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "categoriesTitle": {
+              "default": "文章分类",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "tagsTitle": {
+              "default": "所有标签",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "archiveTitle": {
+              "default": "文章归档",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "noArticles": {
+              "default": "暂无文章",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "example": {
+              "default": "示例",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "pinned": {
+              "default": "置顶",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "latest": {
+              "default": "最新一篇",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "sidebar": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "updates": {
+              "default": "最近更新",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "friends": {
+              "default": "友情链接",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "comments": {
+              "default": "最近评论",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "content": {
+              "default": "侧栏内容",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "appearance": {
+              "default": "外观",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "noFriends": {
+              "default": "暂无友链",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "friendsDescription": {
+              "default": "友情链接与推荐站点",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "exampleComments": {
+              "default": "示例留言",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "openComment": {
+              "default": "打开文章，查看这条留言。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "openCommentPost": {
+              "default": "点击阅读留言对应的文章。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "noComments": {
+              "default": "暂无评论",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "search": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "placeholder": {
+              "default": "搜索文章…",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "clear": {
+              "default": "清除搜索",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "title": {
+              "default": "搜索结果",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "results": {
+              "default": "“{query}” · 找到 {count} 篇文章",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "empty": {
+              "default": "没有找到相关文章",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "suggestion": {
+              "default": "请换个关键词，或清除搜索。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "allPosts": {
+              "default": "查看全部文章",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "loadMore": {
+              "default": "加载更多",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "retry": {
+              "default": "重试加载",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "loading": {
+              "default": "正在加载文章…",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "failed": {
+              "default": "文章加载失败，请重试。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "pagination": {
+              "default": "文章分页",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "reading": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "breadcrumb": {
+              "default": "返回导航",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "related": {
+              "default": "相关文章",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "previous": {
+              "default": "上一篇",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "next": {
+              "default": "下一篇",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "noPrevious": {
+              "default": "没有上一篇",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "noNext": {
+              "default": "没有下一篇",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "neighbors": {
+              "default": "相邻文章",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "discuss": {
+              "default": "参与讨论",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "minutes": {
+              "default": "约 {count} 分钟",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "updated": {
+              "default": "更新于",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "toc": {
+              "default": "文章目录",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "tocTitle": {
+              "default": "本文目录",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "tocSummary": {
+              "default": "文章目录 · {count} 个章节",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "tocCollapsed": {
+              "default": "折叠文章目录",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "auxiliary": {
+              "default": "阅读辅助",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "anchor": {
+              "default": "定位到：{title}",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "copy": {
+              "default": "复制",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "copied": {
+              "default": "已复制",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "copySuccess": {
+              "default": "代码已复制",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "copyFailed": {
+              "default": "复制失败，请手动选择代码。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "copyLabel": {
+              "default": "复制 {language} 代码",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "codeRegion": {
+              "default": "{language} 代码，可横向滚动",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "table": {
+              "default": "文章表格",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "tableRegion": {
+              "default": "{title}，可横向滚动",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "missingImage": {
+              "default": "图片暂时无法显示{detail}",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "missingPage": {
+              "default": "页面未找到",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "missingDescription": {
+              "default": "链接可能已失效，请返回文章列表。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "moved": {
+              "default": "文章链接已迁移",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "theme": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "light": {
+              "default": "浅色",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "dark": {
+              "default": "深色",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "auto": {
+              "default": "跟随系统",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "label": {
+              "default": "主题：{mode}，点击切换为{next}",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "title": {
+              "default": "当前{mode}，点击切换为{next}",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "comments": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "title": {
+              "default": "评论",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "frameTitle": {
+              "default": "文章评论",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "idle": {
+              "default": "滚动至此加载评论。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "loading": {
+              "default": "正在加载评论…",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "failed": {
+              "default": "评论暂时无法加载。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "retry": {
+              "default": "重新加载评论",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "noScript": {
+              "default": "评论由独立服务提供，需要启用 JavaScript。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "count": {
+              "default": "{count} 条",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "recentIdle": {
+              "default": "打开此页签加载留言。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "recentLoading": {
+              "default": "正在加载留言…",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "recentUnavailable": {
+              "default": "此评论服务不提供最新评论。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "recentReady": {
+              "default": "最近的留言",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "recentEmpty": {
+              "default": "暂时没有可显示的留言。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "recentFailed": {
+              "default": "留言暂时无法加载。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "recentRetry": {
+              "default": "重试加载留言",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "runtimeFailed": {
+              "default": "评论模块未能加载，请刷新后重试。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "reload": {
+              "default": "刷新后重试",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "guest": {
+              "default": "访客",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "lightbox": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "title": {
+              "default": "图片查看器",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "zoom": {
+              "default": "缩放",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "previous": {
+              "default": "上一张",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "next": {
+              "default": "下一张",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "error": {
+              "default": "图片无法加载，可关闭后查看其他图片。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "original": {
+              "default": "查看原图",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "enlarge": {
+              "default": "放大图片：{title}",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "image": {
+              "default": "正文图片",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "failed": {
+              "default": "图片查看器无法加载，请重试。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        },
+        "markdown": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "note": {
+              "default": "提示",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "info": {
+              "default": "信息",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "success": {
+              "default": "成功",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "warning": {
+              "default": "注意",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "danger": {
+              "default": "警告",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "details": {
+              "default": "详细内容",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "gallery": {
+              "default": "文章图片组",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "tabs": {
+              "default": "内容选项",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "mathRegion": {
+              "default": "数学公式，可横向滚动",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "diagramRegion": {
+              "default": "Mermaid 图表，可滚动",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "diagramIdle": {
+              "default": "图表将在进入阅读区域时加载，源码始终可查看。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "diagramLoading": {
+              "default": "正在渲染图表…",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "diagramFailed": {
+              "default": "图表渲染失败，可查看下方源码。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "diagramModuleFailed": {
+              "default": "图表模块无法加载，可查看源码。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "diagramRetry": {
+              "default": "重试渲染",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "diagramSource": {
+              "default": "图表源码",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "video": {
+              "default": "{provider} 视频",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "videoPrivacy": {
+              "default": "播放器仅在点击后连接 {provider}。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "videoLoad": {
+              "default": "加载 {provider} 视频",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "videoOpen": {
+              "default": "在 {provider} 打开",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "videoClose": {
+              "default": "关闭播放器",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
+            "videoFailed": {
+              "default": "播放器无法加载，请通过原站链接打开。",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "site": {
       "default": {},
       "type": "object",
@@ -122,6 +1075,10 @@
           "default": "zh-CN",
           "type": "string"
         },
+        "timeZone": {
+          "default": "Asia/Shanghai",
+          "type": "string"
+        },
         "indexing": {
           "default": false,
           "type": "boolean"
@@ -218,6 +1175,65 @@
           "minLength": 1,
           "maxLength": 256,
           "pattern": "^[^;{}<>@\\n\\r\\\\]+$"
+        },
+        "webFonts": {
+          "default": [],
+          "maxItems": 6,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "family": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "pattern": "^[\\p{L}\\p{N} ._-]+$"
+              },
+              "src": {
+                "type": "string",
+                "maxLength": 2048
+              },
+              "weight": {
+                "default": "400",
+                "type": "string",
+                "pattern": "^(?:[1-9]\\d{0,2}|1000)(?: (?:[1-9]\\d{0,2}|1000))?$"
+              },
+              "style": {
+                "default": "normal",
+                "type": "string",
+                "enum": [
+                  "normal",
+                  "italic"
+                ]
+              },
+              "preload": {
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "family",
+              "src"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "semanticColors": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "success": {
+              "default": "#357b54",
+              "type": "string",
+              "pattern": "^#[\\da-f]{6}$"
+            },
+            "warning": {
+              "default": "#946b00",
+              "type": "string",
+              "pattern": "^#[\\da-f]{6}$"
+            }
+          },
+          "additionalProperties": false
         },
         "radius": {
           "default": 20,
@@ -586,6 +1602,38 @@
             ],
             "additionalProperties": false
           }
+        },
+        "topLinks": {
+          "default": [],
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "url": {
+                "type": "string",
+                "maxLength": 2048
+              },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
+              "newTab": {
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "label",
+              "url"
+            ],
+            "additionalProperties": false
+          }
         }
       },
       "additionalProperties": false
@@ -621,6 +1669,14 @@
       "default": {},
       "type": "object",
       "properties": {
+        "example": {
+          "default": true,
+          "type": "boolean"
+        },
+        "pinned": {
+          "default": true,
+          "type": "boolean"
+        },
         "cover": {
           "default": "auto",
           "type": "string",
@@ -744,6 +1800,52 @@
       "default": {},
       "type": "object",
       "properties": {
+        "defaultCategory": {
+          "default": "未分类",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "categoryColors": {
+          "default": {},
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "primary",
+                  "secondary",
+                  "tertiary",
+                  "error",
+                  "success",
+                  "warning"
+                ]
+              },
+              {
+                "type": "string",
+                "pattern": "^#[\\da-f]{6}$"
+              }
+            ]
+          }
+        },
+        "categoryPreviewLimit": {
+          "default": 3,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12
+        },
+        "archivePreviewLimit": {
+          "default": 3,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12
+        },
         "infiniteScroll": {
           "default": true,
           "type": "boolean"

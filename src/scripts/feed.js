@@ -1,3 +1,4 @@
+import { say } from './ui';
 import { motion } from './motion';
 
 export function createFeed(site, signal, saved) {
@@ -24,15 +25,16 @@ export function createFeed(site, signal, saved) {
     if (list.dataset.restored !== 'true') list.innerHTML = state.html;
     delete list.dataset.restored;
   }
+  const fold = value => value.toLocaleLowerCase(site.data.publishing.language);
   function find(value) {
-    const needle = value.trim().toLocaleLowerCase();
-    return site.data.posts.filter(post => [post.title, post.excerpt, post.category, ...post.tags].join(' ').toLocaleLowerCase().includes(needle)).map(post => post.id);
+    const needle = fold(value.trim());
+    return site.data.posts.filter(post => fold([post.title, post.excerpt, post.category, ...post.tags].join(' ')).includes(needle)).map(post => post.id);
   }
   function highlight(card) {
     const post = metadata.get(card.dataset.postId);
     card.querySelectorAll('[data-highlight]').forEach(node => {
       const original = node.closest('.post-title') ? post.title : post.excerpt;
-      const index = query.trim() ? original.toLocaleLowerCase().indexOf(query.trim().toLocaleLowerCase()) : -1;
+      const index = query.trim() ? fold(original).indexOf(fold(query.trim())) : -1;
       if (index < 0) { node.textContent = original; return; }
       const mark = document.createElement('mark'); mark.textContent = original.slice(index, index + query.trim().length);
       node.replaceChildren(original.slice(0, index), mark, original.slice(index + query.trim().length));
@@ -41,8 +43,8 @@ export function createFeed(site, signal, saved) {
   function hasMore() { return query.trim() ? shown < matches.length : Boolean(next); }
   function controls() {
     const searching = Boolean(query.trim());
-    title.textContent = searching ? '搜索结果' : initialTitle;
-    summary.textContent = searching ? `“${query.trim()}” · 找到 ${matches.length} 篇文章` : '';
+    title.textContent = searching ? say('search', 'title') : initialTitle;
+    summary.textContent = searching ? say('search', 'results', { query: query.trim(), count: matches.length }) : '';
     summary.classList.toggle('visually-hidden', !searching);
     document.getElementById('search-toolbar').hidden = !searching;
     document.getElementById('search-chip').textContent = query;
@@ -52,8 +54,8 @@ export function createFeed(site, signal, saved) {
     pagination.hidden = searching || ![...pagination.querySelectorAll('a')].some(link => !link.hidden);
     more.hidden = !hasMore() && !failed;
     more.disabled = busy || deferred; more.loading = busy || deferred;
-    more.textContent = failed ? '重试加载' : '加载更多';
-    status.textContent = failed ? '文章加载失败，请重试。' : busy || deferred ? '正在加载文章…' : '';
+    more.textContent = failed ? say('search', 'retry') : say('search', 'loadMore');
+    status.textContent = failed ? say('search', 'failed') : busy || deferred ? say('search', 'loading') : '';
     sentinel.hidden = !hasMore() && !failed && !busy && !deferred;
     root.setAttribute('aria-busy', String(busy || deferred));
     if (focusPending && !busy && !deferred) queueMicrotask(focusResult);

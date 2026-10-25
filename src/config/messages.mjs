@@ -1,0 +1,19 @@
+// Theme-owned copy only. Authored Markdown and vendor SDK languages are separate.
+export const defaultUI = {
+  common: { close: '关闭', viewAll: '查看全部', backToPosts: '返回文章列表', readArticle: '阅读文章', readTitle: '阅读文章：{title}', readMore: '阅读全文', previousPage: '上一页', nextPage: '下一页', page: '第 {page} 页', postCount: '{count} 篇', viewPosts: '查看 {count} 篇', siteCount: '{count} 个站点', totalSites: '共 {count} 个站点。', visit: '访问 {name}' },
+  navigation: { siteInfo: '站点信息', content: '博客内容', more: '更多链接', topLinks: '站点导航', openSidebar: '打开侧栏', closeSidebar: '关闭侧栏', sidebar: '站点侧栏', skip: '跳到主要内容', email: '电子邮件', rss: 'RSS 订阅', social: '联系与订阅', allFacet: '全部{label}', browse: '文章浏览', facetDescription: '{title}相关的文章', categories: '分类', tags: '标签', archive: '归档' },
+  home: { noCategories: '暂无分类', noTags: '暂无标签', noArchives: '暂无归档', categoriesTitle: '文章分类', tagsTitle: '所有标签', archiveTitle: '文章归档', noArticles: '暂无文章', example: '示例', pinned: '置顶', latest: '最新一篇' },
+  sidebar: { updates: '最近更新', friends: '友情链接', comments: '最近评论', content: '侧栏内容', appearance: '外观', noFriends: '暂无友链', friendsDescription: '友情链接与推荐站点', exampleComments: '示例留言', openComment: '打开文章，查看这条留言。', openCommentPost: '点击阅读留言对应的文章。', noComments: '暂无评论' },
+  search: { placeholder: '搜索文章…', clear: '清除搜索', title: '搜索结果', results: '“{query}” · 找到 {count} 篇文章', empty: '没有找到相关文章', suggestion: '请换个关键词，或清除搜索。', allPosts: '查看全部文章', loadMore: '加载更多', retry: '重试加载', loading: '正在加载文章…', failed: '文章加载失败，请重试。', pagination: '文章分页' },
+  reading: { breadcrumb: '返回导航', related: '相关文章', previous: '上一篇', next: '下一篇', noPrevious: '没有上一篇', noNext: '没有下一篇', neighbors: '相邻文章', discuss: '参与讨论', minutes: '约 {count} 分钟', updated: '更新于', toc: '文章目录', tocTitle: '本文目录', tocSummary: '文章目录 · {count} 个章节', tocCollapsed: '折叠文章目录', auxiliary: '阅读辅助', anchor: '定位到：{title}', copy: '复制', copied: '已复制', copySuccess: '代码已复制', copyFailed: '复制失败，请手动选择代码。', copyLabel: '复制 {language} 代码', codeRegion: '{language} 代码，可横向滚动', table: '文章表格', tableRegion: '{title}，可横向滚动', missingImage: '图片暂时无法显示{detail}', missingPage: '页面未找到', missingDescription: '链接可能已失效，请返回文章列表。', moved: '文章链接已迁移' },
+  theme: { light: '浅色', dark: '深色', auto: '跟随系统', label: '主题：{mode}，点击切换为{next}', title: '当前{mode}，点击切换为{next}' },
+  comments: { title: '评论', frameTitle: '文章评论', idle: '滚动至此加载评论。', loading: '正在加载评论…', failed: '评论暂时无法加载。', retry: '重新加载评论', noScript: '评论由独立服务提供，需要启用 JavaScript。', count: '{count} 条', recentIdle: '打开此页签加载留言。', recentLoading: '正在加载留言…', recentUnavailable: '此评论服务不提供最新评论。', recentReady: '最近的留言', recentEmpty: '暂时没有可显示的留言。', recentFailed: '留言暂时无法加载。', recentRetry: '重试加载留言', runtimeFailed: '评论模块未能加载，请刷新后重试。', reload: '刷新后重试', guest: '访客' },
+  lightbox: { title: '图片查看器', zoom: '缩放', previous: '上一张', next: '下一张', error: '图片无法加载，可关闭后查看其他图片。', original: '查看原图', enlarge: '放大图片：{title}', image: '正文图片', failed: '图片查看器无法加载，请重试。' },
+  markdown: { note: '提示', info: '信息', success: '成功', warning: '注意', danger: '警告', details: '详细内容', gallery: '文章图片组', tabs: '内容选项', mathRegion: '数学公式，可横向滚动', diagramRegion: 'Mermaid 图表，可滚动', diagramIdle: '图表将在进入阅读区域时加载，源码始终可查看。', diagramLoading: '正在渲染图表…', diagramFailed: '图表渲染失败，可查看下方源码。', diagramModuleFailed: '图表模块无法加载，可查看源码。', diagramRetry: '重试渲染', diagramSource: '图表源码', video: '{provider} 视频', videoPrivacy: '播放器仅在点击后连接 {provider}。', videoLoad: '加载 {provider} 视频', videoOpen: '在 {provider} 打开', videoClose: '关闭播放器', videoFailed: '播放器无法加载，请通过原站链接打开。' },
+};
+
+// Values are always inserted as text / escaped attributes, never interpreted as HTML.
+/** @param {string} template @param {Record<string, string | number>} [values] @returns {string} */
+export function message(template, values = {}) {
+  return template.replace(/\{(\w+)\}/g, (token, key) => Object.hasOwn(values, key) ? String(values[key]) : token);
+}
