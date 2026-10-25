@@ -7,6 +7,8 @@
     "tagline": "分享技术、日常",
     "intro": "",
     "avatar": "",
+    "favicon": "",
+    "appleTouchIcon": "",
     "avatarAlt": "站点头像",
     "avatarFallback": "N",
     "email": "",
@@ -35,6 +37,8 @@
       "enabled": false,
       "light": "",
       "dark": "",
+      "mobileLight": "",
+      "mobileDark": "",
       "position": "center",
       "fit": "cover",
       "lightOverlay": 0.6,
@@ -44,12 +48,38 @@
       "lightReaderSurface": 0.97,
       "darkReaderSurface": 0.97,
       "cacheHours": 24
+    },
+    "decorations": {
+      "sidebar": {
+        "enabled": false,
+        "light": "",
+        "dark": "",
+        "width": 200,
+        "opacity": 0.85,
+        "offsetX": 0,
+        "offsetY": 0,
+        "align": "right",
+        "mobile": false
+      },
+      "comments": {
+        "enabled": false,
+        "light": "",
+        "dark": "",
+        "width": 144,
+        "opacity": 0.85,
+        "offsetX": 0,
+        "offsetY": 0,
+        "align": "right",
+        "mobile": false
+      }
     }
   },
   "layout": {
     "width": 1440,
     "readerWidth": 760,
     "sidebarWidth": 320,
+    "recentPostsLimit": 5,
+    "friendsPreviewLimit": 5,
     "modules": [
       "profile",
       "social",

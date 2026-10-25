@@ -102,6 +102,8 @@ for (const file of [
   "../examples/site.config.json",
   "../examples/fresh.config.json",
   "../examples/minimal.config.json",
+  "../examples/full.config.json",
+  "../examples/decorations.config.json",
   "../examples/personal/site.config.json",
 ])
   test("valid example " + file, () => assert.ok(resolveConfig(read(file))));
@@ -148,4 +150,32 @@ test('P3.1 reading and Markdown defaults remain separately configurable', () => 
   assert.deepEqual(c.friendsPage, { enabled: true, navigation: true });
   for (const relatedLimit of [-1, 7, 1.5]) assert.throws(() => resolveConfig({ reading: { relatedLimit } }), /reading.relatedLimit/);
   assert.throws(() => resolveConfig({ markdown: { math: 'yes' } }), /markdown.math/);
+});
+
+test('decorations and icon defaults leave the existing layout and network untouched', () => {
+  const c = resolveConfig({});
+  assert.equal(c.site.favicon, '');
+  assert.equal(c.site.appleTouchIcon, '');
+  for (const kind of ['sidebar', 'comments']) {
+    assert.equal(c.appearance.decorations[kind].enabled, false);
+    assert.equal(c.appearance.decorations[kind].mobile, false);
+    assert.equal(c.appearance.decorations[kind].light, '');
+  }
+  assert.equal(c.appearance.wallpaper.mobileLight, '');
+  assert.equal(c.appearance.wallpaper.mobileDark, '');
+  assert.equal(c.layout.recentPostsLimit, 5);
+  assert.equal(c.layout.friendsPreviewLimit, 5);
+});
+
+test('decoration ranges, public sources and preview limits are validated', () => {
+  const c = resolveConfig({ appearance: { decorations: { sidebar: { enabled: true, light: '/images/character.webp', dark: 'https://example.com/dark.png', mobile: true, align: 'center', offsetX: -12, offsetY: 24 } }, wallpaper: { mobileLight: '/images/mobile.jpg' } }, layout: { recentPostsLimit: 0, friendsPreviewLimit: 12 }, site: { favicon: '/favicon.svg', appleTouchIcon: 'https://example.com/touch.png' } });
+  assert.equal(c.appearance.decorations.sidebar.width, 200);
+  assert.equal(c.appearance.decorations.comments.enabled, false);
+  assert.equal(c.layout.recentPostsLimit, 0);
+  for (const [field, value] of Object.entries({ width: 321, opacity: 1.1, offsetX: -65, offsetY: 65, align: 'left', light: 'http://example.com/image.png', dark: 'javascript:alert(1)' })) {
+    assert.throws(() => resolveConfig({ appearance: { decorations: { comments: { [field]: value } } } }), new RegExp('appearance.decorations.comments.' + field));
+  }
+  for (const key of ['recentPostsLimit', 'friendsPreviewLimit']) for (const value of [-1, 13, 1.5]) assert.throws(() => resolveConfig({ layout: { [key]: value } }), new RegExp('layout.' + key));
+  assert.throws(() => resolveConfig({ site: { favicon: 'data:image/svg+xml,bad' } }), /site.favicon/);
+  assert.throws(() => resolveConfig({ appearance: { wallpaper: { mobileDark: '../bad.jpg' } } }), /appearance.wallpaper.mobileDark/);
 });

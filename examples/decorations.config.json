@@ -1,0 +1,18 @@
+{
+  "$schema": "../site.schema.json",
+  "site": {
+    "name": "我的博客",
+    "favicon": "/icons/favicon.png",
+    "appleTouchIcon": "/icons/apple-touch-icon.png"
+  },
+  "appearance": {
+    "preset": "default",
+    "decorations": {
+      "sidebar": { "enabled": true, "light": "/images/sidebar.webp", "dark": "", "width": 200, "opacity": 0.85, "align": "right", "offsetX": 0, "offsetY": 0, "mobile": false },
+      "comments": { "enabled": true, "light": "/images/comments.png", "width": 144, "opacity": 0.85, "mobile": false }
+    },
+    "wallpaper": { "enabled": false, "light": "", "dark": "", "mobileLight": "", "mobileDark": "" }
+  },
+  "layout": { "recentPostsLimit": 5, "friendsPreviewLimit": 5 },
+  "comments": { "provider": "none" }
+}

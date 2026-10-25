@@ -1,5 +1,11 @@
 # 变更记录
 
+## 2026-10-25 · 1.0.0 发布前个性化配置补全
+
+- 新增默认关闭的 appearance.decorations.sidebar / comments，支持本地或 HTTPS 图片、浅深来源、尺寸 / 透明度 / 偏移 / 对齐及可选窄屏显示。侧栏按实际剩余高度缩放或隐藏，不覆盖现有内容、不新增滚动层；评论使用自有独立右栏或上方小图，不修改第三方 DOM、Shadow DOM 或 iframe 内部。
+- 新增 site.favicon / appleTouchIcon、appearance.wallpaper.mobileLight / mobileDark、layout.recentPostsLimit / friendsPreviewLimit；保留旧配置默认行为，空值 / 禁用无占位。移动壁纸复用原持久层与缓存，同时修正子路径图片解析及快速切换主题的待加载请求竞态。
+- 配置类型、Zod / JSON Schema、完整示例同源更新；补充装饰配置说明、实际浏览器截图及默认 / 故障 / 评论适配器回归。没有新增 npm 依赖或默认美术素材，保持 1.0.0，未创建 Tag / Release。
+
 ## 2026-10-24 · 1.0.0 发布前收尾
 
 - 移除文章顶部“示例文章 · 可替换的主题内容”标签及不再使用的专用样式；不改动示例 Markdown、demo Frontmatter 或 SEO / RSS / Sitemap 排除逻辑。

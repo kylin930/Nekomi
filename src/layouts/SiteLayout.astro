@@ -6,6 +6,7 @@ import { base } from '../lib/urls';
 import { pageTransition } from '../lib/transitions';
 import Navigation from '../components/Navigation.astro';
 import Wallpaper from '../components/Wallpaper.astro';
+import Decoration from '../components/Decoration.astro';
 import Sidebar from '../components/Sidebar.astro';
 import ThemeControl from '../components/ThemeControl.astro';
 import Footer from '../components/Footer.astro';
@@ -13,7 +14,7 @@ import Seo from '../components/Seo.astro';
 import { canIndex } from '../lib/seo';
 import { publishing } from '../config/publishing.mjs';
 import type { Post } from '../lib/posts';
-import { withBase } from '../lib/urls';
+import { withBase, assetUrl } from '../lib/urls';
 import { createHash } from 'node:crypto';
 import 'mdui/mdui.css';
 import '../styles/tokens.css';
@@ -21,11 +22,13 @@ import '../styles/main.css';
 import '../styles/home.css';
 import '../styles/article.css';
 import '../styles/transitions.css';
+import '../styles/decorations.css';
 interface Props { title: string; description?: string; page?: 'home' | 'article' | 'error' | 'page'; currentId?: string; post?: Post; noindex?: boolean }
 const { title, description = config.site.tagline, page = 'home', currentId, post } = Astro.props;
 const posts = await getPosts();
 const noindex = Astro.props.noindex ?? (page === 'error' || !canIndex(post ? [post] : posts));
 const a = config.appearance;
+const appleTouchIcon = assetUrl(config.site.appleTouchIcon);
 const themeTokens = `--nekomi-latest-tint:${a.preset === 'minimal' ? '0%' : '18%'};--reader-width:${config.layout.readerWidth}px;--site-width:${config.layout.width}px;--sidebar-width:${config.layout.sidebarWidth}px;--reading-font:${a.font};--identity-font:${a.headingFont};--brand-font:${a.brandFont};--nekomi-shape-card:${a.radius}px;--nekomi-shape-pressed:${Math.max(8, a.radius - 4)}px`;
 const data = { ...config, posts: posts.map(postMetadata), base, pageSize: publishing.pageSize };
 const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest('hex').slice(0, 16);
@@ -43,7 +46,8 @@ const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest(
       html.mdui-theme-dark { background: #19151f; color-scheme: dark; }
       @media (prefers-color-scheme: dark) { html.mdui-theme-auto { background: #19151f; color-scheme: dark; } }
     </style>
-    <link rel="icon" href="data:," />
+    <link rel="icon" href={assetUrl(config.site.favicon) || 'data:,'} />
+    {appleTouchIcon && <link rel="apple-touch-icon" href={appleTouchIcon} />}
     <script is:inline define:vars={{ defaultMode: a.mode }}>
       try {
         var savedTheme = window.NekomiTheme?.getMode() || localStorage.getItem('nekomi-theme');
@@ -66,6 +70,7 @@ const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest(
       <aside class="sidebar" aria-label="站点信息" data-site-sidebar transition:persist="desktop-sidebar" transition:animate="none">
         <Sidebar context="desktop" posts={posts} currentId={currentId} />
         <div class="sidebar-settings"><span>外观</span><ThemeControl /></div>
+        <Decoration kind="sidebar" />
       </aside>
       <main id="main-content" tabindex="-1" aria-busy="false" transition:name="page-content" transition:animate={pageTransition}>
         <slot />

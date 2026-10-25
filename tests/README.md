@@ -123,6 +123,17 @@ python3 tests/reading_edges.py --dist .astro/p25-tests/p31-core-base/dist --base
 `python3 tests/reading_assets.py` 另外验证 src/ 之外的独立 Markdown 目录：与项目资产内容相同但路径不同的图片，在连续两次构建后仍有可访问的全尺寸图片。检查内部构建路径不会写入 HTML，避免资产去重导致原图失效或文件路径泄露。
 
 
+## v1.0 个性化装饰与配置
+
+```sh
+node --test tests/config.test.mjs
+python3 tests/decorations_audit.py --screenshots
+```
+
+使用生产静态构建与真实 Chromium，覆盖五个评论适配器、根 / 子路径、默认关闭 / 空来源 / 坏图 / 拥挤侧栏、预览数量为 0、1440 / 1280 / 1024 / 390 / 320px 与短视口、浅深 / 跟随系统、触控 Drawer、评论故障和重试、减少动态、跨页图片和壁纸 DOM 保持。对评论图片与挂载容器做几何不相交检查，不读取第三方编辑器私有结构。第三方 SDK 使用真实文件，服务 API 为受控回放，不会发出真实评论。
+
+测试 PNG 下载到 `/tmp`，只复制进 `.astro/p25-tests/*/dist/images/`，不会写入 public 或主题默认资源；临时照片同理。素材许可、截图及复现说明见 [screenshots/DECORATIONS.md](../screenshots/DECORATIONS.md)。`--providers waline --skip-edges` 可只运行一种根路径配置；完整验收请使用默认参数。
+
 ## v1.0.0 发布前核心检查
 
 ```sh

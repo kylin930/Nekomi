@@ -1,0 +1,13 @@
+---
+import { config } from '../config/site';
+import { assetUrl } from '../lib/urls';
+interface Props { kind: 'sidebar' | 'comments'; context?: 'desktop' | 'mobile' }
+const { kind, context = 'desktop' } = Astro.props;
+const options = config.appearance.decorations[kind];
+const light = assetUrl(options.light), dark = assetUrl(options.dark);
+const enabled = options.enabled && (light || dark) && (context !== 'mobile' || options.mobile) && options.opacity > 0;
+const style = `--decoration-width:${options.width}px;--decoration-opacity:${options.opacity};--decoration-x:${options.offsetX}px;--decoration-y:${options.offsetY}px;--decoration-inset-x:${Math.min(16, Math.abs(options.offsetX))}px;--decoration-inset-y:${Math.min(32, Math.abs(options.offsetY))}px`;
+---
+{enabled && <div class="decoration" data-decoration={kind} data-context={context} data-mobile={options.mobile} data-align={options.align} data-light={light || dark} data-dark={dark || light} data-width={options.width} data-x={options.offsetX} data-y={options.offsetY} style={style} aria-hidden="true" hidden>
+  <img alt="" draggable="false" decoding="async" fetchpriority="low" />
+</div>}

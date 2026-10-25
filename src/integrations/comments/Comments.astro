@@ -1,6 +1,7 @@
 ---
 import { config } from '../../config/site';
 import type { Post } from '../../lib/posts';
+import Decoration from '../../components/Decoration.astro';
 interface Props { post: Post }
 const { post } = Astro.props;
 const enabled = !['none', 'link'].includes(config.comments.provider) && post.data.comments !== false;
@@ -14,7 +15,10 @@ const enabled = !['none', 'link'].includes(config.comments.provider) && post.dat
     </header>
     <p role="status" aria-live="polite" data-comments-status>滚动至此加载评论。</p>
     <mdui-button variant="tonal" data-comment-retry hidden>重新加载评论</mdui-button>
-    <div class="comments-mount" data-comments-mount aria-busy="false"></div>
+    <div class="comments-body" style={`--decoration-width:${config.appearance.decorations.comments.width}px`}>
+      <div class="comments-mount" data-comments-mount aria-busy="false"></div>
+      <Decoration kind="comments" />
+    </div>
     <noscript><p>评论由独立服务提供，需要启用 JavaScript。</p></noscript>
   </section>
 )}
