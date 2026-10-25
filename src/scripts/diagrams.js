@@ -1,3 +1,4 @@
+import { say } from './ui';
 import { isContentVisible } from './content-target';
 let library;
 let queue = Promise.resolve();
@@ -25,7 +26,7 @@ export function initDiagrams(body, signal) {
       retry = figure.querySelector('[data-mermaid-retry]'),
       details = figure.querySelector('details');
     retry.hidden = true;
-    status.textContent = '正在渲染图表…';
+    status.textContent = say('markdown', 'diagramLoading');
     queue = queue
       .catch(() => {})
       .then(async () => {
@@ -110,7 +111,7 @@ export function initDiagrams(body, signal) {
         } catch {
           if (!signal.aborted && turn === generation) {
             output.hidden = true;
-            status.textContent = '图表渲染失败，可查看下方源码。';
+            status.textContent = say('markdown', 'diagramFailed');
             retry.hidden = false;
             details.open = true;
           }

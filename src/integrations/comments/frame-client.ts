@@ -1,3 +1,4 @@
+import { say } from '../../scripts/ui';
 import type {
   CommentContext,
   CommentInstance,
@@ -23,7 +24,7 @@ export function openFrame(
   return new Promise((resolve, reject) => {
     const frame = document.createElement("iframe");
     frame.className = "comment-frame";
-    frame.title = "文章评论";
+    frame.title = say('comments', 'frameTitle');
     frame.referrerPolicy = "strict-origin-when-cross-origin";
     // Resource/style isolation, not a security boundary against a trusted SDK.
     frame.setAttribute(

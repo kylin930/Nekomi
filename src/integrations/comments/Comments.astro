@@ -1,5 +1,5 @@
 ---
-import { config } from '../../config/site';
+import { config, ui } from '../../config/site';
 import type { Post } from '../../lib/posts';
 import Decoration from '../../components/Decoration.astro';
 interface Props { post: Post }
@@ -10,15 +10,15 @@ const enabled = !['none', 'link'].includes(config.comments.provider) && post.dat
   <section id="comments" class="article-comments" data-comments-section data-comments-id={post.id} data-state="idle" aria-labelledby="comments-heading">
     <mdui-divider></mdui-divider>
     <header class="comments-heading">
-      <h2 id="comments-heading">评论</h2>
+      <h2 id="comments-heading">{ui.comments.title}</h2>
       <span data-comment-count hidden></span>
     </header>
-    <p role="status" aria-live="polite" data-comments-status>滚动至此加载评论。</p>
-    <mdui-button variant="tonal" data-comment-retry hidden>重新加载评论</mdui-button>
+    <p role="status" aria-live="polite" data-comments-status>{ui.comments.idle}</p>
+    <mdui-button variant="tonal" data-comment-retry hidden>{ui.comments.retry}</mdui-button>
     <div class="comments-body" style={`--decoration-width:${config.appearance.decorations.comments.width}px`}>
       <div class="comments-mount" data-comments-mount aria-busy="false"></div>
       <Decoration kind="comments" />
     </div>
-    <noscript><p>评论由独立服务提供，需要启用 JavaScript。</p></noscript>
+    <noscript><p>{ui.comments.noScript}</p></noscript>
   </section>
 )}

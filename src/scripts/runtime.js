@@ -1,3 +1,4 @@
+import { say, configureUI } from './ui';
 import './mdui';
 import { prefetch } from 'astro:prefetch';
 import { navigate, swapFunctions } from 'astro:transitions/client';
@@ -11,6 +12,7 @@ import { beforeListNavigation, prepareListDocument, listWillSwap, listDidSwap, r
 
 // This bundled module executes once. Only page-local enhancements are renewed by page-load.
 const data = JSON.parse(document.getElementById('site-data').textContent);
+configureUI(data);
 let theme;
 let comments;
 let commentRuntimeError = false;
@@ -48,7 +50,7 @@ function imageFailure(image) {
   else if (image.matches('[data-hero]')) image.closest('figure')?.remove();
   else if (image.matches('.prose img')) {
     const note = document.createElement('p'); note.className = 'image-fallback'; note.setAttribute('role', 'note');
-    note.textContent = '图片暂时无法显示' + (image.alt ? '：' + image.alt : ''); image.replaceWith(note);
+    note.textContent = say('reading', 'missingImage', { detail: image.alt ? '：' + image.alt : '' }); image.replaceWith(note);
   }
 }
 function recoverImages(root) {
@@ -162,8 +164,8 @@ function showCommentRuntimeError() {
   if (!commentRuntimeError) return;
   const section = document.querySelector('[data-comments-section]');
   if (section) section.dataset.state = 'error';
-  document.querySelectorAll('[data-comments-status], [data-comments-recent-status]').forEach(node => { node.textContent = '评论模块未能加载，请刷新后重试。'; });
-  document.querySelectorAll('[data-comment-retry], [data-comments-recent-retry]').forEach(button => { button.hidden = false; button.textContent = '刷新后重试'; });
+  document.querySelectorAll('[data-comments-status], [data-comments-recent-status]').forEach(node => { node.textContent = say('comments', 'runtimeFailed'); });
+  document.querySelectorAll('[data-comment-retry], [data-comments-recent-retry]').forEach(button => { button.hidden = false; button.textContent = say('comments', 'reload'); });
 }
 async function initialize() {
   const current = ++generation;

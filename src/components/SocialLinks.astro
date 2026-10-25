@@ -1,5 +1,5 @@
 ---
-import { config } from '../config/site';
+import { config, ui } from '../config/site';
 import { publishing } from '../config/publishing.mjs';
 import { withBase, navigationUrl } from '../lib/urls';
 import { socialIcon } from '../lib/social.mjs';
@@ -11,7 +11,7 @@ const links = config.site.social.map(link => {
   const url = navigationUrl(link.url);
   return { ...link, url, icon: link.icon === 'auto' && isFeed(url) ? 'rss_feed' : socialIcon(link) };
 });
-if (config.site.email && !links.some(link => link.url.toLowerCase() === ('mailto:' + config.site.email).toLowerCase())) links.push({ name: '电子邮件', url: 'mailto:' + config.site.email, icon: 'mail--outlined' });
-if (config.features.rss && !links.some(link => isFeed(link.url))) links.push({ name: 'RSS 订阅', url: rss, icon: 'rss_feed' });
+if (config.site.email && !links.some(link => link.url.toLowerCase() === ('mailto:' + config.site.email).toLowerCase())) links.push({ name: ui.navigation.email, url: 'mailto:' + config.site.email, icon: 'mail--outlined' });
+if (config.features.rss && !links.some(link => isFeed(link.url))) links.push({ name: ui.navigation.rss, url: rss, icon: 'rss_feed' });
 ---
-{links.length > 0 && <nav class="social-links" aria-label="联系与订阅">{links.map(link => <mdui-button-icon href={link.url} title={link.name} aria-label={link.name} data-social-icon={link.icon} data-astro-reload={isFeed(link.url) || undefined}><SocialIcon name={link.icon} /><span class="visually-hidden">{link.name}</span></mdui-button-icon>)}<noscript>{links.map(link => <a href={link.url}>{link.name}</a>)}</noscript></nav>}
+{links.length > 0 && <nav class="social-links" aria-label={ui.navigation.social}>{links.map(link => <mdui-button-icon href={link.url} title={link.name} aria-label={link.name} data-social-icon={link.icon} data-astro-reload={isFeed(link.url) || undefined}><SocialIcon name={link.icon} /><span class="visually-hidden">{link.name}</span></mdui-button-icon>)}<noscript>{links.map(link => <a href={link.url}>{link.name}</a>)}</noscript></nav>}

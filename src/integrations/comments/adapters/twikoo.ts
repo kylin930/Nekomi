@@ -28,7 +28,7 @@ const createTwikoo: CommentAdapterFactory = (settings) => ({
       const normalized = recentComment({
         id: String(c.id ?? ""),
         key: String(c.url ?? ""),
-        author: String(c.nick || "访客"),
+        author: String(c.nick || ""),
         excerpt: String(c.commentText || c.comment || ""),
         createdAt: timestamp(c.created),
         avatar: String(c.avatar || ""),

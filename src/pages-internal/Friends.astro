@@ -1,15 +1,15 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { publishing } from '../config/publishing.mjs';
-import { config } from '../config/site';
+import { config, ui } from '../config/site';
 import FriendItem from '../components/FriendItem.astro';
 import { externalUrl, withBase } from '../lib/urls';
 const friends = config.friends.filter(friend => externalUrl(friend.url));
 ---
-<SiteLayout title={'友情链接 · ' + config.site.name} description="友情链接与推荐站点" page="page" noindex={!publishing.indexing || config.demo || !friends.length}>
+<SiteLayout title={ui.sidebar.friends + ' · ' + config.site.name} description={ui.sidebar.friendsDescription} page="page" noindex={!publishing.indexing || config.demo || !friends.length}>
   <section class="friends-page" aria-labelledby="friends-title">
-    <mdui-button variant="text" href={withBase('') + '#recent'}>返回文章列表</mdui-button>
-    <div class="view-heading"><h1 id="friends-title">友情链接</h1></div>
-    {friends.length ? <mdui-list class="friends-page-list">{friends.map(friend => <FriendItem friend={friend} />)}</mdui-list> : <p class="friend-empty">暂无友链</p>}
+    <mdui-button variant="text" href={withBase('') + '#recent'}>{ui.common.backToPosts}</mdui-button>
+    <div class="view-heading"><h1 id="friends-title">{ui.sidebar.friends}</h1></div>
+    {friends.length ? <mdui-list class="friends-page-list">{friends.map(friend => <FriendItem friend={friend} />)}</mdui-list> : <p class="friend-empty">{ui.sidebar.noFriends}</p>}
   </section>
 </SiteLayout>

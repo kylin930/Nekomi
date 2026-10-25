@@ -1,3 +1,4 @@
+import { say } from './ui';
 import PhotoSwipe from 'photoswipe';
 import photoSwipeCSS from 'photoswipe/style.css?inline';
 import lightboxCSS from '../styles/lightbox.css?inline';
@@ -50,11 +51,11 @@ export function openLightbox(body, image, signal, onDestroy) {
     showAnimationDuration: reduced ? 0 : 250,
     hideAnimationDuration: reduced ? 0 : 200,
     zoomAnimationDuration: reduced ? 0 : 250,
-    closeTitle: '关闭',
-    zoomTitle: '缩放',
-    arrowPrevTitle: '上一张',
-    arrowNextTitle: '下一张',
-    errorMsg: '图片无法加载，可关闭后查看其他图片。',
+    closeTitle: say('common', 'close'),
+    zoomTitle: say('lightbox', 'zoom'),
+    arrowPrevTitle: say('lightbox', 'previous'),
+    arrowNextTitle: say('lightbox', 'next'),
+    errorMsg: say('lightbox', 'error'),
   });
   viewer.on('uiRegister', () => {
     viewer.ui.registerElement({
@@ -66,7 +67,7 @@ export function openLightbox(body, image, signal, onDestroy) {
         element.className += ' nekomi-lightbox-caption';
         const caption = document.createElement('span'),
           original = document.createElement('a');
-        original.textContent = '查看原图';
+        original.textContent = say('lightbox', 'original');
         original.target = '_blank';
         original.rel = 'noopener noreferrer';
         element.append(caption, original);
@@ -89,7 +90,7 @@ export function openLightbox(body, image, signal, onDestroy) {
   });
   viewer.init();
   const root = document.querySelector('.nekomi-lightbox');
-  root?.setAttribute('aria-label', '图片查看器');
+  root?.setAttribute('aria-label', say('lightbox', 'title'));
   root?.setAttribute('aria-modal', 'true');
   return viewer;
 }

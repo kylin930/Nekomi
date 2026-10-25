@@ -1,7 +1,12 @@
+---
+import { config, ui, message } from '../config/site';
+const mode = config.appearance.mode;
+const next = ['light', 'dark', 'auto'][(['light', 'dark', 'auto'].indexOf(mode) + 1) % 3] as 'light' | 'dark' | 'auto';
+---
 <div data-theme-control>
   <mdui-button-icon class="theme-trigger" data-theme-cycle>
-    <mdui-icon data-theme-glyph name="contrast" aria-hidden="true"></mdui-icon>
-    <span class="visually-hidden" data-theme-label>主题：跟随系统</span>
+    <mdui-icon data-theme-glyph name={{light: 'light_mode', dark: 'dark_mode', auto: 'contrast'}[mode]} aria-hidden="true"></mdui-icon>
+    <span class="visually-hidden" data-theme-label>{message(ui.theme.label, { mode: ui.theme[mode], next: ui.theme[next] })}</span>
   </mdui-button-icon>
-  <span class="theme-mode-label" aria-hidden="true">跟随系统</span>
+  <span class="theme-mode-label" aria-hidden="true">{ui.theme[mode]}</span>
 </div>

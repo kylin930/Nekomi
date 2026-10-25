@@ -34,7 +34,7 @@ export function recentComment(
   return {
     id: String(value.id),
     key: String(value.key),
-    author: plainText(String(value.author || "访客")).slice(0, 80),
+    author: plainText(String(value.author || "")).slice(0, 80),
     excerpt: plainText(value.excerpt),
     createdAt: date.toISOString(),
     avatar: publicUrl(value.avatar) || undefined,

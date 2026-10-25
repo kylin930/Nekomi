@@ -1,3 +1,4 @@
+import { message } from '../config/messages.mjs';
 import { rawConfig } from '../config/publishing.mjs';
 import { existsSync } from 'node:fs';
 import { resolve, relative, dirname } from 'node:path';
@@ -70,16 +71,16 @@ export function rehypeArticle() {
         if (child.tagName === 'img') Object.assign(child.properties, { loading: 'lazy', decoding: 'async', ...(lightbox ? { 'data-nekomi-original': true, 'data-original-src': child.properties.src } : {}) });
         if (child.tagName === 'table') {
           const caption = child.children.find(n => n.tagName === 'caption');
-          const label = caption?.children.filter(n => n.type === 'text').map(n => n.value).join('') || '文章表格';
-          return element('div', { className: ['table-scroll'], tabIndex: 0, role: 'region', ariaLabel: label + '，可横向滚动' }, [child]);
+          const label = caption?.children.filter(n => n.type === 'text').map(n => n.value).join('') || rawConfig.ui.reading.table;
+          return element('div', { className: ['table-scroll'], tabIndex: 0, role: 'region', ariaLabel: message(rawConfig.ui.reading.tableRegion, { title: label }) }, [child]);
         }
         if (child.tagName === 'pre') {
           const code = child.children.find(n => n.tagName === 'code');
           const language = child.properties.dataLanguage || child.properties['data-language'] || code?.properties.className?.find(n => n.startsWith('language-'))?.slice(9) || 'text';
-          Object.assign(child.properties, { tabIndex: 0, role: 'region', ariaLabel: language.toUpperCase() + ' 代码，可横向滚动' });
+          Object.assign(child.properties, { tabIndex: 0, role: 'region', ariaLabel: message(rawConfig.ui.reading.codeRegion, { language: language.toUpperCase() }) });
           return element('figure', { className: ['code-block'] }, [
             element('div', { className: ['code-header'] }, [element('span', {}, [text(language.toUpperCase())]),
-              ...(copy ? [element('mdui-button', { variant: 'text', className: ['copy-code'], ariaLabel: '复制 ' + language.toUpperCase() + ' 代码' }, [text('复制')])] : [])]), child,
+              ...(copy ? [element('mdui-button', { variant: 'text', className: ['copy-code'], ariaLabel: message(rawConfig.ui.reading.copyLabel, { language: language.toUpperCase() }) }, [text(rawConfig.ui.reading.copy)])] : [])]), child,
           ]);
         }
         return child;

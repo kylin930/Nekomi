@@ -1,3 +1,4 @@
+import { say } from './ui';
 /* MDUI 2.1.5 未提供完整的 Tabs 键盘/ARIA 和图标按钮 ARIA 转发。
  * 这里只补齐无障碍语义；激活、面板切换和模态焦点仍由组件完成。
  */
@@ -33,7 +34,7 @@ const initializedTabs = new WeakSet();
     tabs.updateComplete.then(function () {
       var container = tabs.shadowRoot.querySelector('[part="container"]');
       container.setAttribute('role', 'tablist');
-      container.setAttribute('aria-label', tabs.getAttribute('aria-label') || '内容导航');
+      container.setAttribute('aria-label', tabs.getAttribute('aria-label') || say('navigation', 'content'));
       sync();
     });
     tabs.addEventListener('change', function (event) {

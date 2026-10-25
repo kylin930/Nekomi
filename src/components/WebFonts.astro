@@ -1,0 +1,9 @@
+---
+import { config } from '../config/site';
+import { assetUrl } from '../lib/urls';
+const fonts = config.appearance.webFonts;
+const quote = (value: string) => '"' + value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/</g, '\\3c ').replace(/[\n\r]/g, '') + '"';
+const css = fonts.map(font => `@font-face{font-family:${quote(font.family)};src:url(${quote(assetUrl(font.src))}) format("woff2");font-weight:${font.weight};font-style:${font.style};font-display:swap;}`).join('\n');
+---
+{fonts.filter(font => font.preload).map(font => <link rel="preload" as="font" type="font/woff2" href={assetUrl(font.src)} crossorigin="anonymous" />)}
+{fonts.length > 0 && <style is:inline data-nekomi-fonts set:html={css} />}

@@ -1,9 +1,10 @@
 ---
+import { ui } from '../config/site';
 import Icon from './Icon.astro';
 ---
 <div class="side-search">
-  <mdui-text-field variant="outlined" type="search" placeholder="搜索文章…" clearable data-search>
+  <mdui-text-field variant="outlined" type="search" placeholder={ui.search.placeholder} clearable data-search>
     <Icon name="search" slot="icon" />
-    <mdui-button-icon slot="clear-button" tabindex="-1"><Icon name="cancel--outlined" /><span class="visually-hidden">清除搜索</span></mdui-button-icon>
+    <mdui-button-icon slot="clear-button" tabindex="-1"><Icon name="cancel--outlined" /><span class="visually-hidden">{ui.search.clear}</span></mdui-button-icon>
   </mdui-text-field>
 </div>

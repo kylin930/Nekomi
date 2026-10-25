@@ -1,0 +1,10 @@
+---
+import { config, ui } from '../config/site';
+import { navigationUrl } from '../lib/urls';
+const links = config.navigation.topLinks.filter(link => link.enabled);
+---
+{links.length > 0 && <nav class="top-links" aria-label={ui.navigation.topLinks}>{links.map(link => {
+  const external = /^https?:/.test(link.url);
+  const href = navigationUrl(link.url);
+  return <><mdui-button variant="text" href={href} target={link.newTab ? '_blank' : undefined} rel={external || link.newTab ? 'noopener noreferrer' : undefined} data-astro-prefetch={link.url.startsWith('/') && !link.newTab ? 'hover' : undefined}>{link.label}</mdui-button><a class="top-link-fallback" href={href} target={link.newTab ? '_blank' : undefined} rel={external || link.newTab ? 'noopener noreferrer' : undefined}>{link.label}</a></>;
+})}</nav>}

@@ -35,7 +35,7 @@ const createArtalk: CommentAdapterFactory = (settings) => ({
       const normalized = recentComment({
         id: String(c.id ?? ""),
         key: String(c.page_key ?? ""),
-        author: String(c.nick || "访客"),
+        author: String(c.nick || ""),
         excerpt: String(c.content || ""),
         createdAt: String(c.date || ""),
       });

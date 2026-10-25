@@ -1,5 +1,5 @@
 ---
-import { config, mainTabs } from '../config/site';
+import { config, ui, mainTabs } from '../config/site';
 import type { Listing } from '../lib/pagination';
 import PostCard from './PostCard.astro';
 import Icon from './Icon.astro';
@@ -9,10 +9,10 @@ const { feed, title = mainTabs.find(t => t.id === 'recent')!.label } = Astro.pro
 <section data-listing data-title={title} data-next={feed.next} data-page={feed.number} data-pages={feed.pages} data-total={feed.total} aria-labelledby="feed-title">
   <div class="view-heading"><h1 id="feed-title" tabindex="-1">{title}</h1></div>
   <p id="feed-summary" class="view-description search-summary visually-hidden" role="status" aria-live="polite"></p>
-  <div id="search-toolbar" class="search-toolbar" hidden><mdui-chip id="search-chip" variant="input" deletable></mdui-chip><mdui-button variant="text" data-clear-search>清除搜索</mdui-button></div>
+  <div id="search-toolbar" class="search-toolbar" hidden><mdui-chip id="search-chip" variant="input" deletable></mdui-chip><mdui-button variant="text" data-clear-search>{ui.search.clear}</mdui-button></div>
   {!feed.total && <mdui-card variant="outlined" class="empty-state" data-content-empty><Icon name="edit_note" /><h2>{config.home.emptyTitle}</h2>{config.home.emptyDescription && <p>{config.home.emptyDescription}</p>}</mdui-card>}
   <div id="post-list" class="post-list">{feed.items.map((post, index) => <PostCard post={post} latest={feed.number === 1 && index === 0} />)}</div>
-  <mdui-card id="search-empty" variant="outlined" class="empty-state" hidden><Icon name="search_off--outlined" /><h2>没有找到相关文章</h2><p>请换个关键词，或清除搜索。</p><mdui-button variant="tonal" data-clear-search>查看全部文章</mdui-button></mdui-card>
-  <div id="feed-sentinel" class="feed-loading" hidden><p id="feed-status" role="status" aria-live="polite"></p><mdui-button id="load-more" variant="tonal" hidden>加载更多</mdui-button></div>
-  <nav id="feed-pagination" class="feed-pagination" aria-label="文章分页" hidden={!feed.previous && !feed.next}>{feed.previous && <a href={feed.previous} rel="prev">上一页</a>}{feed.next && <a href={feed.next} rel="next" data-page-next>下一页</a>}</nav>
+  <mdui-card id="search-empty" variant="outlined" class="empty-state" hidden><Icon name="search_off--outlined" /><h2>{ui.search.empty}</h2><p>{ui.search.suggestion}</p><mdui-button variant="tonal" data-clear-search>{ui.search.allPosts}</mdui-button></mdui-card>
+  <div id="feed-sentinel" class="feed-loading" hidden><p id="feed-status" role="status" aria-live="polite"></p><mdui-button id="load-more" variant="tonal" hidden>{ui.search.loadMore}</mdui-button></div>
+  <nav id="feed-pagination" class="feed-pagination" aria-label={ui.search.pagination} hidden={!feed.previous && !feed.next}>{feed.previous && <a href={feed.previous} rel="prev">{ui.common.previousPage}</a>}{feed.next && <a href={feed.next} rel="next" data-page-next>{ui.common.nextPage}</a>}</nav>
 </section>

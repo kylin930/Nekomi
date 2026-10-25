@@ -1,7 +1,8 @@
 ---
 import { config } from '../config/site';
+import { currentYear } from '../lib/format';
 import { navigationUrl } from '../lib/urls';
-const year = new Date().getUTCFullYear();
+const year = currentYear();
 const range = config.footer.since < year ? `${config.footer.since}–${year}` : String(config.footer.since);
 ---
 {config.footer.enabled && <footer class="site-footer" data-site-footer><p>{config.footer.copyright || `© ${range} ${config.site.name}`}{config.footer.text && <><span class="footer-dot">·</span>{config.footer.text}</>}{config.footer.links.map(link => <><span class="footer-dot">·</span><a href={navigationUrl(link.url)}>{link.label}</a></>)}</p></footer>}

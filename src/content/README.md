@@ -10,7 +10,7 @@
 | description | string，可省略 | 单篇 SEO 描述，缺省使用摘要 |
 | author | string，可省略 | 单篇署名，缺省使用 publishing.author / 站名 |
 | updated | YYYY-MM-DD，可省略 | 真实更新日期；不填写时不编造 |
-| category | string，默认 未分类 | 分类 |
+| category | string / null，可省略 | 分类；缺省显示 content.defaultCategory，默认「未分类」 |
 | tags | string[]，默认 [] | 标签 |
 | pinned | boolean，默认 false | 列表置顶，再按发布日期排序；RSS 保持时间顺序 |
 | draft | boolean，默认 false | 排除所有公开页面、搜索、导航和订阅 |

@@ -1,13 +1,16 @@
 ---
+import { ui, config } from '../../config/site';
+import WebFonts from '../../components/WebFonts.astro';
 // Dedicated static document: no ClientRouter or theme shell inside a vendor widget.
 ---
 <!doctype html>
-<html lang="zh-CN">
+<html lang={config.publishing.language}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>文章评论</title>
+    <title>{ui.comments.frameTitle}</title>
+    <WebFonts />
     <style is:global>
       html { color-scheme: light; }
       body {

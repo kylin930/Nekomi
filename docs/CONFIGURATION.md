@@ -18,7 +18,19 @@
 
 ## publishing
 
-发布与 SEO。url 仅源站，不带路径；base 以 / 开始和结束；环境变量 SITE_URL / SITE_BASE 优先。author 未填时使用站名。
+language 控制 HTML / SEO 语言与 Intl 日期格式，不自动翻译界面或第三方组件；通过 ui 显式覆盖主题文案，SDK 继续使用自己的 lang / locale。timeZone 为显示时间戳的有效时区（默认 Asia/Shanghai）；date / updated 是日历日期，永远不做时区偏移。页脚年份也按配置时区。发布与 SEO。url 仅源站，不带路径；base 以 / 开始和结束；环境变量 SITE_URL / SITE_BASE 优先。author 未填时使用站名。
+
+## ui
+
+集中管理主题自有文案，按 common / navigation / home / sidebar / search / reading / theme / comments / lightbox / markdown 分组。逐字段覆盖、缺省中文；仅纯文本，不解释 HTML。模板必须保留原有 {count} / {title} 等占位符，构建前校验；不会改写文章、评论正文、作者自写指令标题或 SDK 内部语言。ui.sidebar.updates / friends / comments 控制三个侧栏 Tab 名称，内部 ID 与 layout.sidebarTabs 顺序不变；不要用空白文案隐藏模块。参见 PERSONALIZATION.md。
+
+## appearance.webFonts
+
+可选本地 / HTTPS WOFF2 资源数组，默认 [] 不加载。每项 family、src 必填；weight 为 1–1000 或递增区间字符串，默认 400；style normal/italic；preload 默认 false。最多六项，固定 font-display:swap；在 font / brandFont / headingFont 字体栈中引用 family 才会按需使用。建议文件放 public/fonts，部署 base 自动补齐；不要添加不必要的预加载。
+
+## appearance.semanticColors
+
+success / warning 为可复用语义色源，沿用原默认值，交由 MDUI 生成完整浅深色组；用于 Markdown 提示等组件，也可作为分类颜色角色。旧 blossom / sky 专用色源已移除，分类改由 categoryColors 配置。
 
 ## appearance
 
@@ -38,7 +50,7 @@ width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器�
 
 ## navigation
 
-tabs 的 id 为 recent/categories/tags/archive；recent 必须启用，可改名。enabled 控制主导航可见性；分类/标签的直接索引页面由 content 开关控制。links 显示在公共侧栏底部。数组替换，不按位置合并。
+tabs 的 id 为 recent/categories/tags/archive；recent 必须启用，可改名。enabled 控制主导航可见性；分类/标签的直接索引页面由 content 开关控制。links 显示在公共侧栏底部。topLinks 为独立顶部导航行，含 label / url / enabled（默认 true）/ newTab（默认 false），数组顺序即显示顺序；不伪装成 Tab，不生成面板或页面。站内 / 路径补 base 并走 ClientRouter，HTTP(S) 外链正常跳转，新窗口附安全 rel；空数组 / 全禁用不输出占位。数组替换，不按位置合并。
 
 ## home
 
@@ -46,7 +58,7 @@ emptyTitle / emptyDescription 自定义无文章状态，空描述不输出段�
 
 ## cards
 
-cover:auto 为响应式图文，top 始终图在上，none 隐藏。其余开关控制摘要、日期、分类、标签、阅读按钮及首篇强调；标题真实链接始终存在。
+cover:auto 为响应式图文，top 始终图在上，none 隐藏。example / pinned 仅控制示例 / 置顶角标，不改变 demo SEO 保护、pinned 排序。其余开关控制摘要、日期、分类、标签、阅读按钮及首篇强调；标题真实链接始终存在。
 
 ## reading
 
@@ -62,7 +74,7 @@ enabled 默认 true，生成独立 /friends/ 并让侧栏查看全部进入该�
 
 ## content
 
-infiniteScroll=false 禁用观察器自动加载，保留普通分页与手动加载。excerptLength 用于未填写 excerpt 的正文纯文本摘要；手写摘要不截断。categories/tags 同时控制导航、卡片、文章信息和静态分类/标签页面。
+categoryColors 按分类显示名映射 primary / secondary / tertiary / error / success / warning 或六位 HEX；默认 {} 全部回退 primary。HEX 经 MDUI 生成完整色组，最多 64 项、同色去重，不直接作明暗通用颜色。defaultCategory 为未分类文章的显示名称；内部以 null 分类键判断，兼容省略、空分类及旧值未分类，显示名称不参与推荐逻辑。categoryPreviewLimit / archivePreviewLimit 为 0–12，默认各 3；0 不渲染预览列表，静态分类归档链接与全量文章不受影响。infiniteScroll=false 禁用观察器自动加载，保留普通分页与手动加载。excerptLength 用于未填写 excerpt 的正文纯文本摘要；手写摘要不截断。categories/tags 同时控制导航、卡片、文章信息和静态分类/标签页面。
 
 ## features
 
@@ -90,6 +102,152 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | --- | --- | --- | --- |
 | `demo` | boolean | `true` | — |
 | `demoNotice` | string | `"示例内容，请替换为自己的文章。"` | 长度 ≤ 1000 |
+| `ui.common.close` | string | `"关闭"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.viewAll` | string | `"查看全部"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.backToPosts` | string | `"返回文章列表"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.readArticle` | string | `"阅读文章"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.readTitle` | string | `"阅读文章：{title}"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.readMore` | string | `"阅读全文"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.previousPage` | string | `"上一页"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.nextPage` | string | `"下一页"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.page` | string | `"第 {page} 页"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.postCount` | string | `"{count} 篇"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.viewPosts` | string | `"查看 {count} 篇"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.siteCount` | string | `"{count} 个站点"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.totalSites` | string | `"共 {count} 个站点。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.common.visit` | string | `"访问 {name}"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.siteInfo` | string | `"站点信息"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.content` | string | `"博客内容"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.more` | string | `"更多链接"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.topLinks` | string | `"站点导航"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.openSidebar` | string | `"打开侧栏"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.closeSidebar` | string | `"关闭侧栏"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.sidebar` | string | `"站点侧栏"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.skip` | string | `"跳到主要内容"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.email` | string | `"电子邮件"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.rss` | string | `"RSS 订阅"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.social` | string | `"联系与订阅"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.allFacet` | string | `"全部{label}"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.browse` | string | `"文章浏览"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.facetDescription` | string | `"{title}相关的文章"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.categories` | string | `"分类"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.tags` | string | `"标签"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.archive` | string | `"归档"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.home.noCategories` | string | `"暂无分类"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.home.noTags` | string | `"暂无标签"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.home.noArchives` | string | `"暂无归档"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.home.categoriesTitle` | string | `"文章分类"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.home.tagsTitle` | string | `"所有标签"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.home.archiveTitle` | string | `"文章归档"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.home.noArticles` | string | `"暂无文章"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.home.example` | string | `"示例"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.home.pinned` | string | `"置顶"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.home.latest` | string | `"最新一篇"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.sidebar.updates` | string | `"最近更新"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.sidebar.friends` | string | `"友情链接"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.sidebar.comments` | string | `"最近评论"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.sidebar.content` | string | `"侧栏内容"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.sidebar.appearance` | string | `"外观"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.sidebar.noFriends` | string | `"暂无友链"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.sidebar.friendsDescription` | string | `"友情链接与推荐站点"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.sidebar.exampleComments` | string | `"示例留言"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.sidebar.openComment` | string | `"打开文章，查看这条留言。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.sidebar.openCommentPost` | string | `"点击阅读留言对应的文章。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.sidebar.noComments` | string | `"暂无评论"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.placeholder` | string | `"搜索文章…"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.clear` | string | `"清除搜索"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.title` | string | `"搜索结果"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.results` | string | `"“{query}” · 找到 {count} 篇文章"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.empty` | string | `"没有找到相关文章"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.suggestion` | string | `"请换个关键词，或清除搜索。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.allPosts` | string | `"查看全部文章"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.loadMore` | string | `"加载更多"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.retry` | string | `"重试加载"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.loading` | string | `"正在加载文章…"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.failed` | string | `"文章加载失败，请重试。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.search.pagination` | string | `"文章分页"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.breadcrumb` | string | `"返回导航"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.related` | string | `"相关文章"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.previous` | string | `"上一篇"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.next` | string | `"下一篇"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.noPrevious` | string | `"没有上一篇"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.noNext` | string | `"没有下一篇"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.neighbors` | string | `"相邻文章"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.discuss` | string | `"参与讨论"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.minutes` | string | `"约 {count} 分钟"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.updated` | string | `"更新于"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.toc` | string | `"文章目录"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.tocTitle` | string | `"本文目录"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.tocSummary` | string | `"文章目录 · {count} 个章节"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.tocCollapsed` | string | `"折叠文章目录"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.auxiliary` | string | `"阅读辅助"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.anchor` | string | `"定位到：{title}"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.copy` | string | `"复制"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.copied` | string | `"已复制"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.copySuccess` | string | `"代码已复制"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.copyFailed` | string | `"复制失败，请手动选择代码。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.copyLabel` | string | `"复制 {language} 代码"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.codeRegion` | string | `"{language} 代码，可横向滚动"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.table` | string | `"文章表格"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.tableRegion` | string | `"{title}，可横向滚动"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.missingImage` | string | `"图片暂时无法显示{detail}"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.missingPage` | string | `"页面未找到"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.missingDescription` | string | `"链接可能已失效，请返回文章列表。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.reading.moved` | string | `"文章链接已迁移"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.theme.light` | string | `"浅色"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.theme.dark` | string | `"深色"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.theme.auto` | string | `"跟随系统"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.theme.label` | string | `"主题：{mode}，点击切换为{next}"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.theme.title` | string | `"当前{mode}，点击切换为{next}"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.title` | string | `"评论"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.frameTitle` | string | `"文章评论"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.idle` | string | `"滚动至此加载评论。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.loading` | string | `"正在加载评论…"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.failed` | string | `"评论暂时无法加载。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.retry` | string | `"重新加载评论"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.noScript` | string | `"评论由独立服务提供，需要启用 JavaScript。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.count` | string | `"{count} 条"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.recentIdle` | string | `"打开此页签加载留言。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.recentLoading` | string | `"正在加载留言…"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.recentUnavailable` | string | `"此评论服务不提供最新评论。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.recentReady` | string | `"最近的留言"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.recentEmpty` | string | `"暂时没有可显示的留言。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.recentFailed` | string | `"留言暂时无法加载。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.recentRetry` | string | `"重试加载留言"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.runtimeFailed` | string | `"评论模块未能加载，请刷新后重试。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.reload` | string | `"刷新后重试"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.comments.guest` | string | `"访客"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.lightbox.title` | string | `"图片查看器"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.lightbox.zoom` | string | `"缩放"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.lightbox.previous` | string | `"上一张"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.lightbox.next` | string | `"下一张"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.lightbox.error` | string | `"图片无法加载，可关闭后查看其他图片。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.lightbox.original` | string | `"查看原图"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.lightbox.enlarge` | string | `"放大图片：{title}"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.lightbox.image` | string | `"正文图片"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.lightbox.failed` | string | `"图片查看器无法加载，请重试。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.note` | string | `"提示"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.info` | string | `"信息"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.success` | string | `"成功"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.warning` | string | `"注意"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.danger` | string | `"警告"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.details` | string | `"详细内容"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.gallery` | string | `"文章图片组"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.tabs` | string | `"内容选项"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.mathRegion` | string | `"数学公式，可横向滚动"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.diagramRegion` | string | `"Mermaid 图表，可滚动"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.diagramIdle` | string | `"图表将在进入阅读区域时加载，源码始终可查看。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.diagramLoading` | string | `"正在渲染图表…"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.diagramFailed` | string | `"图表渲染失败，可查看下方源码。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.diagramModuleFailed` | string | `"图表模块无法加载，可查看源码。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.diagramRetry` | string | `"重试渲染"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.diagramSource` | string | `"图表源码"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.video` | string | `"{provider} 视频"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.videoPrivacy` | string | `"播放器仅在点击后连接 {provider}。"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.videoLoad` | string | `"加载 {provider} 视频"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.videoOpen` | string | `"在 {provider} 打开"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.videoClose` | string | `"关闭播放器"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.markdown.videoFailed` | string | `"播放器无法加载，请通过原站链接打开。"` | 长度 ≥ 1，长度 ≤ 500 |
 | `site.name` | string | `"Nekomi"` | 长度 ≥ 1，长度 ≤ 80 |
 | `site.tagline` | string | `"分享技术、日常"` | 长度 ≤ 1000 |
 | `site.intro` | string | `""` | 长度 ≤ 1000 |
@@ -103,6 +261,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `publishing.url` | string | `""` | — |
 | `publishing.base` | string | `"/"` | — |
 | `publishing.language` | string | `"zh-CN"` | — |
+| `publishing.timeZone` | string | `"Asia/Shanghai"` | — |
 | `publishing.indexing` | boolean | `false` | — |
 | `publishing.pageSize` | integer | `6` | ≥ 2，≤ 24 |
 | `publishing.author` | string | `""` | 长度 ≤ 1000 |
@@ -115,6 +274,9 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `appearance.font` | string | `"\"Segoe UI\", system-ui, -apple-system, \"PingFang SC\", \"Microsoft YaHei\", sans-serif"` | 长度 ≥ 1，长度 ≤ 256 |
 | `appearance.brandFont` | string | `"\"Avenir Next\", \"Hiragino Sans\", \"PingFang SC\", \"Microsoft YaHei\", system-ui, sans-serif"` | 长度 ≥ 1，长度 ≤ 256 |
 | `appearance.headingFont` | string | `"\"Noto Serif CJK SC\", \"Songti SC\", \"STSong\", ui-serif, serif"` | 长度 ≥ 1，长度 ≤ 256 |
+| `appearance.webFonts` | array | `[]` | — |
+| `appearance.semanticColors.success` | string | `"#357b54"` | — |
+| `appearance.semanticColors.warning` | string | `"#946b00"` | — |
 | `appearance.radius` | integer | `20` | ≥ 8，≤ 28 |
 | `appearance.wallpaper.enabled` | boolean | `false` | — |
 | `appearance.wallpaper.light` | string | `""` | 长度 ≤ 2048 |
@@ -157,10 +319,13 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `layout.sidebarTabs` | array | `["updates","friends","comments"]` | — |
 | `navigation.tabs` | array | `[{"id":"recent","label":"全部文章","enabled":true},{"id":"categories","label":"分类","enabled":true},{"id":"tags","label":"标签","enabled":true},{"id":"archive","label":"归档","enabled":true}]` | — |
 | `navigation.links` | array | `[]` | — |
+| `navigation.topLinks` | array | `[]` | — |
 | `home.eyebrow` | string | `""` | 长度 ≤ 1000 |
 | `home.description` | string | `""` | 长度 ≤ 1000 |
 | `home.emptyTitle` | string | `"暂无文章"` | 长度 ≤ 1000 |
 | `home.emptyDescription` | string | `""` | 长度 ≤ 1000 |
+| `cards.example` | boolean | `true` | — |
+| `cards.pinned` | boolean | `true` | — |
 | `cards.cover` | `auto` / `top` / `none` | `"auto"` | — |
 | `cards.excerpt` | boolean | `true` | — |
 | `cards.date` | boolean | `true` | — |
@@ -183,6 +348,10 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `markdown.components` | boolean | `true` | — |
 | `friendsPage.enabled` | boolean | `true` | — |
 | `friendsPage.navigation` | boolean | `false` | — |
+| `content.defaultCategory` | string | `"未分类"` | 长度 ≥ 1，长度 ≤ 100 |
+| `content.categoryColors` | object | `{}` | — |
+| `content.categoryPreviewLimit` | integer | `3` | ≥ 0，≤ 12 |
+| `content.archivePreviewLimit` | integer | `3` | ≥ 0，≤ 12 |
 | `content.infiniteScroll` | boolean | `true` | — |
 | `content.excerptLength` | integer | `140` | ≥ 40，≤ 400 |
 | `content.categories` | boolean | `true` | — |
