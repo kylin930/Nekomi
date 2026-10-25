@@ -163,3 +163,16 @@ python3 tests/browse_audit.py --fixture
 ```
 
 `release_audit.py` 检查版本与锁文件、Node.js 要求、许可和中文发布说明，并分别在根路径 / 子路径构建临时正式发布配置。三个示例原样复制，另外增加一篇只存在于临时目录的非 demo 文章，验证移除顶部标签后，示例仍 noindex、排除 RSS / Sitemap / BlogPosting，而真实文章仍正常收录；结束时核对源示例字节没有变化。阅读套件同时在真实浏览器确认文章头部没有旧标签。上述操作不创建 Tag、GitHub Release 或部署。
+
+## 全站返回顶部 FAB
+
+```sh
+node --test tests/config.test.mjs
+python3 tests/back_to_top_audit.py --screenshots
+```
+
+使用 MDUI 2.1.5 的实际 npm 构建与 Chromium，依次构建根路径、`/Nekomi/` 和关闭 FAB 的临时配置；`--screenshots` 另构建默认模板，检查首页并采集原有阅读页。检查 400px 阈值、原生 FAB / Ripple / 无障碍名称、键盘回焦、可中断弹簧、原生目录 / Hash、减少动态、主题、移动安全区、平板 / 320px / 短视口，以及 Drawer / Dialog / Snackbar / PhotoSwipe 关闭前的隐藏状态。
+
+临时 14 篇长文验证无限加载后保留批次、浏览器前进 / 后退的准确位置、跨页面同一个 FAB / 壁纸 / 侧栏与单次点击响应。实际点击桌面和手机侧栏“查看全部”进入已有 `/friends/`，核对完整列表、200 静态响应和 ClientRouter；友链页面关闭时仍使用原 Dialog。FAB 关闭时没有按钮、组件注册或对应模块请求，无 JS 时没有失效控件。
+
+所有临时内容、配置、构建和矩阵截图保存在 `.astro/p25-tests/fab-*`，不修改源文章或站点配置。[默认模板实际截图](../screenshots/BACK-TO-TOP.md)。原有 `browse_audit.py` 继续检查恢复首帧、筛选 / 搜索和大量文章分页。

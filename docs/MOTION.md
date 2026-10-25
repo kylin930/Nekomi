@@ -55,3 +55,11 @@ Nekomi 保留衬线标题、中文阅读尺度、融入式侧栏、圆形头像�
 ## P3.1 内容阅读
 
 内容 Tabs 继续使用 MDUI 自带指示器 / Ripple / 键盘交互；折叠采用浏览器原生 details，不另加动画框架。隐藏章节的锚点跳转先等待面板显示，再使用原有目录弹簧与焦点逻辑。PhotoSwipe 管理灯箱缩放 / 手势，减少动态设置下将打开、关闭与缩放时长设为 0；离页销毁实例。Mermaid 主题更新直接换图，不叠加额外弹跳或布局过渡。
+
+## 全站返回顶部
+
+原生 [MDUI FAB](https://www.mdui.org/zh-cn/docs/2/components/fab) 的形状、明暗 Surface、Elevation、Ripple 和按钮键盘行为继续由 MDUI 2.1.5 处理。Nekomi 只在外层使用既有 Fast spatial（350ms）与 Default effects（200ms）参数做小幅位移 / 缩放与淡入淡出，不覆盖组件自身过渡；减少动态时没有显隐动画。
+
+`layout.backToTop` 默认开启，控件随公共布局持久化，仅初始化一次。滚动监听为 passive，通过 requestAnimationFrame 合并可见性更新；不观察正文子树或为无限滚动卡片逐一绑定事件。原生 Drawer / Dialog / Snackbar 关闭完成前及 PhotoSwipe 存在时暂时隐藏，避免抢占浮层；移动端使用 safe-area-inset 留边。
+
+点击将焦点移至 main，再复用可中断的阅读弹簧滚动到文档顶部；减少动态时立即跳转。不会清除文章 Hash、增加历史记录或改写 Astro 原生滚动恢复，导航后从实际 scrollY 同步状态。关闭配置不渲染或请求对应模块，无障碍名称使用 `ui.navigation.backToTop`。

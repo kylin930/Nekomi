@@ -98,7 +98,8 @@
       "categories": "categories",
       "tags": "tags",
       "archive": "archives",
-      "siteInfo": "Site information"
+      "siteInfo": "Site information",
+      "backToTop": "Back to top"
     },
     "home": {
       "categoriesTitle": "Topics",

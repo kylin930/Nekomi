@@ -1,3 +1,20 @@
+# 全站返回顶部 FAB · 2026-10-25
+
+基于 work `59b3574`（包含最新 main `31dee94`），版本保持 1.0.0，MDUI 保持 2.1.5。没有新增依赖、修改文章或重新实现友链页。
+
+- **119 项单测通过**；Astro Check **0 errors / 0 warnings / 1 原有 execCommand hint**。生产构建成功，默认 **16 张静态页面**；示例 noindex / 空 Sitemap 提示仍符合原保护策略。
+- **根路径和 /Nekomi/ × 桌面 / 手机 × 浅深 = 8 组实际浏览器通过**。验证原生 mdui-fab / Ripple / 按钮无障碍名称、400px 隐藏和 401px 显示、Enter 激活及 main 回焦、单次点击仅一次滚动、滚轮中断、减少动态立即回顶。目录跳转后回顶保留原 Hash 和 history.length。
+- **持久化与列表恢复通过**：14 篇临时长文、无限加载后的批次和准确滚动位置、前进 / 后退、首页 / 文章 / 友链页多次往返，FAB、壁纸图像、侧栏和 performance.timeOrigin 保持相同。控件只同步可见性，不接管 Astro 恢复或新增历史项。
+- **安全区域和浮层通过**：Chromium CDP 覆盖真实 env 安全区，手机底部 34px / 右侧 10px 时外层计算偏移为 50px / 26px；另测 960×720、320×700、1440×500，无横向溢出，按钮在窗口内。Drawer / Dialog / Snackbar / 实际 PhotoSwipe 打开及关闭过程中 FAB 不可操作，关闭完成后恢复。
+- **关闭与默认状态通过**：layout.backToTop=false 没有控件、FAB 注册或对应模块请求。默认短首页不足 400px 不强行显示；无 JS 不暴露失效控件。自定义英文名称在实际内部 button 上生效。
+- **既有友链能力通过**：桌面 / 手机侧栏“查看全部”进入原有 /friends/，根 / 子路径 HTTP 200，独立页完整显示六条测试友链，Drawer 关闭且不打开旧 Dialog；friendsPage.enabled=false 时仍使用原 Dialog。Friends / Sidebar / FriendItem 源码未改动。
+- **P2.4 原有回归通过**：42 篇临时文章 / 七页，首五帧准确滚动恢复、全量搜索 / 分类标签、批次、前进后退 / 章节返回、慢请求 / 503 / 重试 / 取消、追加 Prefetch / 共享过渡，无 JS 遍历全部静态分页，SEO / RSS / Sitemap / Robots 保护均正常。
+- 文档 / 锚点 / JSON 示例检查通过；Zod、JSON Schema、完整配置和英文示例同步。两张交付图来自原版默认配置与原有扩展示例，未提交临时文章、测试壁纸或新素材。
+
+[实际截图](../screenshots/BACK-TO-TOP.md) · [配置方式](../docs/CONFIGURATION-GUIDE.md#返回顶部按钮) · [测试复现](README.md#全站返回顶部-fab)。浏览器实测为 Chromium 154，未实测 Firefox / Safari。Google Fonts 沿用保留 TLS 验证的 curl 缓存回放；没有关闭证书验证。新功能不涉及评论 SDK 修改或远端内容发布。
+
+---
+
 # v1.0.0 通用主题个性化审计 · 2026-10-25
 
 基于 main `92170a3`，在 work 分支开发。保持版本 1.0.0、Astro / MDUI 2.1.5 和依赖锁文件。Node.js 24.19.0 / npm 11.9.0、Playwright 1.62.0 / Chromium 154，访问生产静态输出。

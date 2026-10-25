@@ -114,6 +114,12 @@
           "default": {},
           "type": "object",
           "properties": {
+            "backToTop": {
+              "default": "返回顶部",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
             "siteInfo": {
               "default": "站点信息",
               "type": "string",
@@ -1456,6 +1462,10 @@
       "default": {},
       "type": "object",
       "properties": {
+        "backToTop": {
+          "default": true,
+          "type": "boolean"
+        },
         "width": {
           "default": 1440,
           "type": "integer",

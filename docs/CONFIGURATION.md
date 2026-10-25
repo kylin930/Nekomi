@@ -61,7 +61,7 @@ sidebar / comments 各自独立，默认 enabled=false。light / dark 是 public
 
 ## layout
 
-width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。recentPostsLimit / friendsPreviewLimit 为预览数量，0–12，默认 5；0 隐藏相应 Tab，友链独立页不受影响。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。
+backToTop 默认 true，启用全站原生 mdui-fab 返回顶部；滚动超过 400px 显示，模态 / 灯箱 / 提示条打开时暂时隐藏，减少动态时立即回顶。ui.navigation.backToTop 设置无障碍名称；false 不渲染按钮或加载对应脚本。width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。recentPostsLimit / friendsPreviewLimit 为预览数量，0–12，默认 5；0 隐藏相应 Tab，友链独立页不受影响。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。
 
 ## navigation
 
@@ -131,6 +131,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `ui.common.siteCount` | string | `"{count} 个站点"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.common.totalSites` | string | `"共 {count} 个站点。"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.common.visit` | string | `"访问 {name}"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.backToTop` | string | `"返回顶部"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.navigation.siteInfo` | string | `"站点信息"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.navigation.content` | string | `"博客内容"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.navigation.more` | string | `"更多链接"` | 长度 ≥ 1，长度 ≤ 500 |
@@ -325,6 +326,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `appearance.decorations.comments.offsetY` | integer | `0` | ≥ -64，≤ 64 |
 | `appearance.decorations.comments.align` | `right` / `center` | `"right"` | — |
 | `appearance.decorations.comments.mobile` | boolean | `false` | — |
+| `layout.backToTop` | boolean | `true` | — |
 | `layout.width` | integer | `1440` | ≥ 1360，≤ 1600 |
 | `layout.readerWidth` | integer | `760` | ≥ 680，≤ 800 |
 | `layout.sidebarWidth` | integer | `320` | ≥ 280，≤ 320 |

@@ -20,6 +20,7 @@
       "visit": "访问 {name}"
     },
     "navigation": {
+      "backToTop": "返回顶部",
       "siteInfo": "站点信息",
       "content": "博客内容",
       "more": "更多链接",
@@ -249,6 +250,7 @@
     }
   },
   "layout": {
+    "backToTop": true,
     "width": 1440,
     "readerWidth": 760,
     "sidebarWidth": 320,

@@ -15,6 +15,7 @@
 - 可复用 Astro 组件与 Content Collections；Markdown、Shiki 双主题高亮、本地响应式图片、原生 MDUI 目录与代码复制。
 - 构建时 KaTeX 与阅读时间、按需 Mermaid / 图片灯箱、原生 MDUI 内容 Tabs；提示、折叠、图片组、链接卡片和点击加载视频，直接写在 `.md` 中。
 - ClientRouter 无刷新导航、标题 / 封面共享过渡、轻量弹簧目录；尊重减少动态效果。
+- 可选全站原生 MDUI 返回顶部 FAB，滚动超过 400px 显示；支持键盘、减少动态及浮层避让，`layout.backToTop` 默认开启。
 - 壁纸可选、默认关闭。启用后跨页面保留相同 DOM 与已解码图片，Service Worker 缓存仅辅助刷新。
 - 静态分页 + 可选无限滚动，全量文章搜索，分类 / 标签 / 月份独立 URL；返回列表恢复条件、批次和位置。
 - 可配置预设、侧栏模块 / Tabs、导航、卡片、阅读、页脚；Zod 校验、类型与编辑器 JSON Schema 同源。

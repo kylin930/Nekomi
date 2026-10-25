@@ -21,6 +21,13 @@ test("partial nested values retain validated defaults", () => {
   assert.equal(c.appearance.wallpaper.darkSurface, 0.88);
   assert.equal(c.site.name, "新站点");
 });
+test("back-to-top defaults on, can be disabled, and uses configurable accessible copy", () => {
+  assert.equal(resolveConfig({}).layout.backToTop, true);
+  const config = resolveConfig({ layout: { backToTop: false }, ui: { navigation: { backToTop: 'Back to top' } } });
+  assert.equal(config.layout.backToTop, false);
+  assert.equal(config.ui.navigation.backToTop, 'Back to top');
+  assert.throws(() => resolveConfig({ layout: { backToTop: 'false' } }), /layout.backToTop/);
+});
 test("brand typography is independent of body and heading fonts", () => {
   const c = resolveConfig({ appearance: { brandFont: 'Verdana, sans-serif', font: 'Arial, sans-serif', headingFont: 'Georgia, serif' } });
   assert.equal(c.appearance.brandFont, 'Verdana, sans-serif');

@@ -12,6 +12,7 @@ import Decoration from '../components/Decoration.astro';
 import Sidebar from '../components/Sidebar.astro';
 import ThemeControl from '../components/ThemeControl.astro';
 import Footer from '../components/Footer.astro';
+import BackToTop from '../components/BackToTop.astro';
 import Seo from '../components/Seo.astro';
 import { canIndex } from '../lib/seo';
 import { publishing } from '../config/publishing.mjs';
@@ -82,6 +83,7 @@ const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest(
       </main>
       <slot name="toc" />
     </div>
+    {config.layout.backToTop && <BackToTop />}
     <script id="site-data" type="application/json" data-version={contentVersion} set:html={JSON.stringify(data).replace(/</g, '\\u003c')}></script>
     <script>import '../scripts/runtime.js';</script>
   </body>

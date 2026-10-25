@@ -227,6 +227,7 @@ export const configSchema = section({
     decorations: section({ sidebar: decoration(200), comments: decoration(144) }),
   }),
   layout: section({
+    backToTop: flag(),
     width: z.number().int().min(1360).max(1600).default(1440),
     readerWidth: z.number().int().min(680).max(800).default(760),
     sidebarWidth: z.number().int().min(280).max(320).default(320),
