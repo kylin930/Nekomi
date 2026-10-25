@@ -4,6 +4,10 @@
 
 一个基于 **Astro 静态生成、MDUI 2.1.5 与 Material Design 3** 的原创个人博客主题。融入页面的 Stellar 式侧栏、日系个人站气质、舒适的中文排版；配置和 Markdown 就是日常使用入口，不需要 React、Vue 或常驻 Node.js 服务。
 
+**文档导航：** [快速开始](#开始使用) · **[配置说明](docs/CONFIGURATION.md)** · [写作指南](docs/MARKDOWN.md) · [评论接入](docs/COMMENTS.md) · [部署指南](docs/PUBLISHING.md)
+
+第一次配置站点？先看 **[简明配置指南](docs/CONFIGURATION-GUIDE.md)**：修改名称、头像、配色、壁纸、侧栏和页脚，或接入评论。[完整配置示例](examples/full.config.json)与 [JSON Schema](site.schema.json) 供复制查阅和编辑器补全。
+
 ![Nekomi 默认首页](screenshots/p30-default-home-light-1440.png)
 
 [手机阅读](screenshots/p30-default-reader-light-390.png) · [深色模式](screenshots/p30-default-home-dark-1440.png) · [Fresh 预设](screenshots/p30-fresh-home-light-1440.png) · [Minimal 预设](screenshots/p30-minimal-home-light-1440.png) · [P3 实际截图](screenshots/P30.md)
@@ -43,6 +47,8 @@ public/                  按原路径发布的文件，例如壁纸
 不要修改主题内部的 `src/config/schema.mjs` 来配置站点。默认值由主题维护，用户配置只写需要覆盖的部分。配置修改后重新构建；开发服务器未反映配置时重启。
 
 ## 配置你的站点
+
+从 [简明配置指南](docs/CONFIGURATION-GUIDE.md) 按需求复制示例；查找某个字段的类型、默认值或范围，直接打开 [完整配置参考](docs/CONFIGURATION.md)。
 
 ```json
 {

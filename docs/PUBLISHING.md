@@ -1,5 +1,7 @@
 # 发布、索引与文章浏览
 
+部署操作：[GitHub Pages](../README.md#github-pages) · [Cloudflare Pages](../README.md#cloudflare-pages)。本文说明发布前的域名、子路径、SEO 和订阅设置；日常修改站点外观见 [简明配置指南](CONFIGURATION-GUIDE.md)，字段查询见 [完整配置参考](CONFIGURATION.md)。
+
 ## 先配置站点地址与内容性质
 
 默认配置仍是主题预览：`demo: true`、`publishing.indexing: false`，没有假定正式域名。标题、摘要和分享文案始终生成；没有站点地址时省略 Canonical / `og:url`，不输出虚构的分享图片。RSS 保留有效的空订阅源，Sitemap 不生成，robots 不引用不存在的文件。构建时 sitemap 集成提示没有可收录页面是预期行为。
@@ -57,7 +59,7 @@ SITE_URL=https://username.github.io SITE_BASE=/Nekomi/ npm run build
 - 单个加载任务、取消信号与查询序号防止重复追加和过期响应。手动加载后焦点到新文章标题，使用 `preventScroll`；加载区不参与滚动锚定，追加不会把视口拖到底部。
 - 搜索查完整文章元数据（标题、摘要、分类、标签），不是只查当前 DOM。只读取下一批匹配结果所需的分页；输入立即更新计数，缺失卡片的网络请求合并 120ms。取消或离页后不会追加旧结果。
 - `/categories/`、`/tags/`、`/archive/` 是独立索引页；例如 `/categories/前端/`、`/tags/javascript/`、`/archive/2026-10/` 为独立列表，超过每页数量时继续静态分页。复用原 Card、布局、侧栏与 ClientRouter。无脚本时 Tabs / Chip 的普通链接替代入口仍可访问。
-- 原 `#recent` / `#categories` / `#tags` / `#archive` 保持兼容，主导航标签和列表标题改为“全部文章”；侧栏“最近更新”不变。Tabs 容器使用原生 CSS Part、柔和圆角和半透明 Surface；仅 3px 背景模糊减轻滚动内容透字，不改变导航尺寸、原生指示器或壁纸。分类和月份保留最多三篇最近文章预览，其余由“查看全部”进入静态分页。
+- 原 `#recent` / `#categories` / `#tags` / `#archive` 保持兼容，主导航标签默认“全部文章”，侧栏默认“最近更新”；名称分别由 `navigation.tabs` 与 `ui.sidebar` 配置。Tabs 保留原生指示器和半透明 Surface，仅上方两角为圆角。分类和月份预览分别由 `content.categoryPreviewLimit`、`content.archivePreviewLimit` 控制，默认各三篇，设 0 隐藏预览；其余由“查看全部”进入静态分页。
 
 ## 返回列表与生命周期
 

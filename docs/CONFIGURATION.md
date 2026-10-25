@@ -1,8 +1,23 @@
 # 配置参考
 
-修改 `site.config.json` 后重新构建。未填写字段使用主题默认值；嵌套对象逐字段补全，数组整体替换。未知字段、重复模块、危险 URL、越界数值会在构建前报出完整字段路径。编辑器使用根目录 `site.schema.json` 补全；下面的默认值由同一 Zod schema 生成（`npm run config:docs`）。
+**第一次配置？先看 [简明配置指南](CONFIGURATION-GUIDE.md)**，按需求修改名称、头像、主题色、壁纸、侧栏、页脚和评论；分类配色、文案、日期、导航和字体的进阶示例见 [个性化配置](PERSONALIZATION.md)。[返回 README](../README.md)。
+
+修改 `site.config.json` 后重新构建。未填写字段使用主题默认值；嵌套对象逐字段补全，数组整体替换。未知字段、重复模块、危险 URL、越界数值会在构建前报出完整字段路径。编辑器使用根目录 [site.schema.json](../site.schema.json) 补全；下面的默认值由同一 Zod schema 生成（`npm run config:docs`），无需手动维护参数表。
 
 最小起点见 [site.config.json](../site.config.json)，完整可复制配置见 [full.config.json](../examples/full.config.json)，另外提供 [Fresh](../examples/fresh.config.json)、[Minimal](../examples/minimal.config.json) 与 [原站个人配置](../examples/personal/site.config.json)。
+
+## 目录
+
+- [站点信息](#site) · [界面文案](#ui)
+- [外观与预设](#appearance) · [字体](#appearancewebfonts) · [语义色](#appearancesemanticcolors) · [壁纸](#appearancewallpaper) · [角色装饰](#appearancedecorations)
+- [侧栏与布局](#layout) · [友链数据](#friends) · [友链页面](#friendspage)
+- [导航](#navigation)
+- [文章与分类](#content) · [首页](#home) · [文章卡片](#cards) · [阅读](#reading) · [Markdown](#markdown)
+- [评论](#comments) · [第三方统计](#analytics)
+- [页脚与版权](#footer)
+- [发布与 SEO](#publishing) · [示例保护](#demo) · [兼容说明](#demonotice) · [搜索与 RSS / Sitemap 开关](#features)
+- [全部字段、默认值与范围](#字段默认值与范围)
+- [接口与依赖](#接口与依赖)
 
 ## demo
 
@@ -82,7 +97,7 @@ RSS 入口位于 social 侧栏模块（含 Drawer），features.rss=false 时不
 
 ## footer
 
-页脚开关、起始年份、纯文字说明、自定义版权（留空自动 © 年份 站名）、附加链接。默认 text 为空；自定义内容照常保留。RSS 自动入口不再放在页脚。
+enabled 控制整个页脚；since 为创站年份，自动版权按配置时区的构建年份生成单年或年份范围。copyright 留空自动显示 © 年份 站名，非空完整替换自动版权，不做模板插值；text 与 links 依次追加。默认 text 为空、links 为 []，RSS 自动入口在侧栏。实际效果与可复制示例见 [简明指南的页脚与版权](CONFIGURATION-GUIDE.md#页脚与版权)。
 
 ## friends
 
