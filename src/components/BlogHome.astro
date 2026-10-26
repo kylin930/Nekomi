@@ -9,22 +9,33 @@ import Icon from './Icon.astro';
 import { monthLabel, shortDate } from '../lib/format';
 import { facetUrl, withBase, dateLabel } from '../lib/urls';
 import { canIndex } from '../lib/seo';
+import { getPages, standaloneUrl } from '../lib/pages';
+import { pageTabId } from '../lib/page-rules.mjs';
+import { render } from 'astro:content';
+import PageReader from './PageReader.astro';
+import contentCSS from '../styles/markdown.css?inline';
+import katexCSS from 'katex/dist/katex.min.css?inline';
 interface Props { feed: Listing; initialTab?: string }
 const { feed } = Astro.props;
 const initialTab = Astro.props.initialTab || 'recent';
 const visibleTabs = [...mainTabs];
 if (!visibleTabs.some(t => t.id === initialTab)) visibleTabs.push({ id: initialTab as 'categories' | 'tags' | 'archive', label: config.navigation.tabs.find(tab => tab.id === initialTab)?.label || ({ categories: ui.navigation.categories, tags: ui.navigation.tags, archive: ui.navigation.archive } as Record<string, string>)[initialTab], enabled: true });
+const pages = await getPages();
+const pageTabs = await Promise.all(config.navigation.pageTabs.filter(tab => tab.enabled).map(async tab => { const page = pages.find(page => page.slug === tab.slug)!; return { ...tab, id: pageTabId(page.slug), page, rendered: await render(page) }; }));
+const pageFeatures = pageTabs.map(tab => tab.rendered.remarkPluginFrontmatter.nekomiFeatures as Record<string, boolean> || {});
 const posts = await getPosts();
 const categories = facets(posts, 'categories');
 const tags = facets(posts, 'tags');
 const months = facets(posts, 'archive');
 const icons = { recent: 'view_agenda--outlined', categories: 'category--outlined', tags: 'sell--outlined', archive: 'inventory_2--outlined' };
-const navigation = visibleTabs.map(t => [t.id, t.label, icons[t.id]]);
+const navigation = [...visibleTabs.map(t => [t.id, t.label, icons[t.id]]), ...pageTabs.map(t => [t.id, t.label, 'description--outlined'])];
 const label = navigation.find(item => item[0] === initialTab)![1];
 const title = (initialTab === 'recent' && feed.number === 1 ? [config.site.name, config.site.tagline].filter(Boolean).join(' · ') : (initialTab === 'recent' ? mainTabs.find(t => t.id === 'recent')!.label + ' · ' + message(ui.common.page, { page: feed.number }) : label) + ' · ' + config.site.name);
 ---
 <SiteLayout title={title} description={initialTab === 'recent' ? config.home.description || undefined : undefined} page="home" noindex={!canIndex(initialTab === 'recent' ? feed.items : posts)}>
-  <noscript><nav class="browse-links" aria-label={ui.navigation.content}>{navigation.map(([value, text]) => <a href={value === 'recent' ? withBase('') : facetUrl(value)}>{text}</a>)}</nav></noscript>
+  {pageFeatures.some(f => f.math || f.mermaid || f.components) && <style slot="head" is:inline set:html={contentCSS} data-nekomi-content />}
+  {pageFeatures.some(f => f.math) && <style slot="head" is:inline set:html={katexCSS} data-nekomi-math />}
+  <noscript><nav class="browse-links" aria-label={ui.navigation.content}>{navigation.map(([value, text]) => <a href={pageTabs.find(tab => tab.id === value) ? standaloneUrl(pageTabs.find(tab => tab.id === value)!.page.slug) : value === 'recent' ? withBase('') : facetUrl(value as 'categories' | 'tags' | 'archive')}>{text}</a>)}</nav></noscript>
   <mdui-tabs id="content-tabs" value={initialTab} data-initial-tab={initialTab} variant="secondary" aria-label={ui.navigation.content}>
     {navigation.map(([value, text, icon]) => <mdui-tab id={'tab-' + value} value={value} role="tab" aria-controls={'panel-' + value} inline><Icon name={icon} slot="icon" />{text}</mdui-tab>)}
     <mdui-tab-panel slot="panel" value="recent" id="panel-recent" role="tabpanel" aria-labelledby="tab-recent" tabindex="0" hidden={initialTab !== 'recent' || undefined}><ArticleFeed feed={feed} /></mdui-tab-panel>
@@ -42,5 +53,6 @@ const title = (initialTab === 'recent' && feed.number === 1 ? [config.site.name,
       {!months.length && <p class="friend-empty">{ui.home.noArchives}</p>}
       <div id="archive-list" class="collection-list">{months.map(group => <mdui-card variant="outlined" class="collection-card"><section><div class="collection-heading"><h2><a href={facetUrl('archive', group.slug)}>{monthLabel(group.name)}</a></h2><span class="collection-count">{message(ui.common.postCount, { count: group.posts.length })}</span></div>{config.content.archivePreviewLimit > 0 && <mdui-list>{group.posts.slice(0, config.content.archivePreviewLimit).map(post => <PostListItem post={post} description={shortDate(post.data.date) + ' · ' + post.data.category} />)}</mdui-list>}</section></mdui-card>)}</div>
     </mdui-tab-panel>}
+    {pageTabs.map(tab => <mdui-tab-panel slot="panel" value={tab.id} id={'panel-' + tab.id} role="tabpanel" aria-labelledby={'tab-' + tab.id} data-page-tab hidden><PageReader page={tab.page} rendered={tab.rendered} inline /></mdui-tab-panel>)}
   </mdui-tabs>
 </SiteLayout>

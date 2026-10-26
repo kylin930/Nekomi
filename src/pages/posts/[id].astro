@@ -12,6 +12,7 @@ import { assetUrl, dateLabel, facetUrl, postUrl, withBase } from '../../lib/urls
 import Icon from '../../components/Icon.astro';
 import TocTree from '../../components/TocTree.astro';
 import SiteImage from '../../components/SiteImage.astro';
+import { commentKey } from '../../integrations/comments/identity';
 export async function getStaticPaths() { return (await getPosts()).map(post => ({ params: { id: post.id }, props: { post } })); }
 interface Props { post: Post }
 const { post } = Astro.props;
@@ -42,7 +43,7 @@ const tagGroups = facets(posts, 'tags');
     {options.toc && headings.length > 0 && <mdui-card variant="outlined" class="toc-inline"><mdui-collapse id="inline-toc" accordion><mdui-collapse-item value="contents" id="inline-toc-item"><mdui-button slot="header" variant="text" class="toc-toggle" id="toc-toggle"><span id="toc-toggle-label">{message(ui.reading.tocSummary, { count: headings.length })}</span><Icon slot="end-icon" id="toc-toggle-icon" name="expand_more" /></mdui-button><nav id="toc-inline-list" class="toc-content" aria-label={ui.reading.tocCollapsed}><TocTree headings={headings} /></nav></mdui-collapse-item></mdui-collapse></mdui-card>}
     <div id="article-body" class="prose"><Content /></div>
     <footer class="reader-footer">{recommendations.length > 0 && <section class="related-posts" aria-labelledby="related-title"><h2 id="related-title">{ui.reading.related}</h2><mdui-list>{recommendations.map(item => <PostListItem post={item} description={item.data.category + ' · ' + dateLabel(item.data.date)} />)}</mdui-list></section>}<mdui-divider></mdui-divider>{options.neighbors && <nav id="article-neighbors" class="article-neighbors" aria-label={ui.reading.neighbors}>{neighbors.map(({ item, label, direction }) => item ? <mdui-card variant="outlined" clickable class="article-neighbor" data-direction={direction} href={postUrl(item.id)} data-astro-prefetch="hover"><span class="neighbor-label">{label}</span><strong>{item.data.title}</strong></mdui-card> : <div class="neighbor-boundary"><span>{label}</span><p>{direction === 'previous' ? ui.reading.noPrevious : ui.reading.noNext}</p></div>)}</nav>}{config.comments.provider === 'link' && post.data.comments !== false && post.data.commentsUrl && <mdui-button variant="text" href={post.data.commentsUrl}>{ui.reading.discuss}<Icon name="open_in_new" slot="end-icon" /></mdui-button>}<mdui-button variant="tonal" data-return-list href={withBase('') + '#recent'}>{ui.common.backToPosts}</mdui-button></footer>
-    <Comments post={post} />
+    <Comments content={{ id: post.id, kind: 'post', title: post.data.title, url: postUrl(post.id), key: commentKey(post, config.comments.keyPrefix), comments: post.data.comments }} />
   </article>
   {options.toc && <aside slot="toc" class="reading-toc" id="reading-toc" aria-label={ui.reading.auxiliary} hidden={!headings.length}><p class="toc-label">{ui.reading.tocTitle}</p><nav id="toc-desktop-list" aria-label={ui.reading.toc}><TocTree headings={headings} /></nav></aside>}
 </SiteLayout>

@@ -4,13 +4,16 @@ export type CommentTheme = {
   dark: boolean;
   tokens?: { color: string; primary: string; font: string };
 };
-export interface CommentPost {
+export interface CommentContent {
   id: string;
   key: string;
   url: string;
   title: string;
   comments?: boolean;
+  kind?: 'post' | 'page';
 }
+/** Backward-compatible name used by existing adapters; this is not an Astro Post. */
+export type CommentPost = CommentContent;
 export interface RecentComment {
   id: string;
   key: string;
@@ -29,6 +32,8 @@ export interface CommentCapabilities {
 export interface CommentContext {
   container: HTMLElement;
   post: CommentPost;
+  /** Content-neutral alias; post remains supported for existing adapters. */
+  content?: CommentContent;
   theme: CommentTheme;
   signal: AbortSignal;
   base: string;

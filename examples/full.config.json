@@ -20,6 +20,7 @@
       "visit": "访问 {name}"
     },
     "navigation": {
+      "openPage": "独立打开",
       "backToTop": "返回顶部",
       "siteInfo": "站点信息",
       "content": "博客内容",
@@ -251,6 +252,7 @@
   },
   "layout": {
     "backToTop": true,
+    "sidebarSections": null,
     "width": 1440,
     "readerWidth": 760,
     "sidebarWidth": 320,
@@ -268,7 +270,12 @@
       "comments"
     ]
   },
+  "scripts": {
+    "global": [],
+    "byPage": []
+  },
   "navigation": {
+    "pageTabs": [],
     "tabs": [
       {
         "id": "recent",
@@ -363,6 +370,7 @@
     "recentLimit": 4,
     "timeout": 15000,
     "keyPrefix": "/posts/",
+    "pageKeyPrefix": "/pages/",
     "waline": {
       "serverURL": "",
       "lang": "zh-CN",

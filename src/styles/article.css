@@ -1,5 +1,5 @@
 /* 阅读排版复用站点语义令牌；不影响首页卡片和原生组件。 */
-html:has(body[data-page="article"]) { scroll-padding-top: 0; }
+html:has(body:is([data-page="article"], [data-page="content"])) { scroll-padding-top: 0; }
 .reading-layout { column-gap: var(--space-4); }
 .reading-layout #main-content { width: 100%; max-width: var(--reader-width); justify-self: start; }
 .reader { display: grid; gap: var(--space-3); max-width: var(--reader-width); min-width: 0; padding: var(--space-3) var(--space-4); border-radius: var(--nekomi-shape-card); background: var(--site-reader-paper); transition: background-color var(--nekomi-duration-background) var(--nekomi-easing-feedback); }
@@ -144,3 +144,5 @@ html.mdui-theme-dark .astro-code, html.mdui-theme-dark .astro-code span { color:
 
 @media(max-width:600px){.friends-page-list{grid-template-columns:minmax(0,1fr)}}
 .lightbox-image { cursor: zoom-in; }
+
+.page-inline-toc { display: block !important; }

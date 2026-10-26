@@ -12,6 +12,7 @@
 
 [手机阅读](screenshots/p30-default-reader-light-390.png) · [深色模式](screenshots/p30-default-home-dark-1440.png) · [Fresh 预设](screenshots/p30-fresh-home-light-1440.png) · [Minimal 预设](screenshots/p30-minimal-home-light-1440.png) · [P3 实际截图](screenshots/P30.md)
 
+- 独立 Markdown 页面与可选首页内容 Tabs、侧栏模块可拆为常驻区；支持有清理生命周期的自定义 JS，默认不加载。
 - 可复用 Astro 组件与 Content Collections；Markdown、Shiki 双主题高亮、本地响应式图片、原生 MDUI 目录与代码复制。
 - 构建时 KaTeX 与阅读时间、按需 Mermaid / 图片灯箱、原生 MDUI 内容 Tabs；提示、折叠、图片组、链接卡片和点击加载视频，直接写在 `.md` 中。
 - ClientRouter 无刷新导航、标题 / 封面共享过渡、轻量弹簧目录；尊重减少动态效果。
@@ -113,6 +114,10 @@ public/                  按原路径发布的文件，例如壁纸
 ## 可选角色装饰
 
 侧栏和评论区可通过 `appearance.decorations.sidebar / comments` 配置角色图片；默认关闭，无素材时保持原布局。`site.favicon / appleTouchIcon` 设置站点图标，`appearance.wallpaper.mobileLight / mobileDark` 设置窄屏壁纸，`layout.recentPostsLimit / friendsPreviewLimit` 控制侧栏预览数量。[使用说明及安全布局](docs/DECORATIONS.md) · [可复制配置](examples/decorations.config.json)。图片请放入 `public/` 或使用有权使用的 HTTPS 资源。
+
+## 独立页面与扩展
+
+[独立 Markdown 页面](docs/PAGES.md) · [侧栏常驻模块](docs/SIDEBAR.md) · [自定义 JS 生命周期](docs/SCRIPTS.md) · [组合示例配置](examples/site-features.config.json)。示例使用仓库已有的关于 / 项目页：关于进入首页真实 Tab，项目保留独立链接；友链常驻于 Tabs 下方。示例 JS 默认关闭，HTTPS WOFF2 仅在显式使用该示例配置时加载，根配置保持原首页和旧侧栏。
 
 ## 写第一篇文章
 

@@ -1,5 +1,7 @@
 import { z } from "astro/zod";
 import { defaultUI } from './messages.mjs';
+import { validPageSlug } from '../lib/page-rules.mjs';
+import { validScriptSource, validScriptPath, scriptSourceKey } from '../integrations/scripts/urls.mjs';
 // Shared by astro.config, Content Collections and server components. No browser bundle.
 const text = (fallback = "") => z.string().max(1000).default(fallback);
 const flag = (fallback = true) => z.boolean().default(fallback);
@@ -64,6 +66,13 @@ const unique = (schema) =>
   });
 const tab = z.enum(["recent", "categories", "tags", "archive"]);
 const sidebarTab = z.enum(["updates", "friends", "comments"]);
+const scriptFields = {
+  src: z.string().refine(validScriptSource, 'Use a public local .js/.mjs file or a credential-free HTTPS JavaScript URL.'),
+  type: z.enum(['module', 'classic']).default('module'),
+  position: z.enum(['head', 'body-end']).default('body-end'),
+  enabled: flag(),
+  integrity: z.string().regex(/^(?:|sha(?:256|384|512)-[A-Za-z0-9+/=]+)$/).default(''),
+};
 // Decorations are optional public resources; remote sources must use HTTPS.
 const decorationImage = image.refine(
   (value) => !value.startsWith("http:"),
@@ -228,6 +237,10 @@ export const configSchema = section({
   }),
   layout: section({
     backToTop: flag(),
+    sidebarSections: z.array(z.discriminatedUnion('display', [
+      z.strictObject({ id: sidebarTab, display: z.literal('tab') }),
+      z.strictObject({ id: sidebarTab, display: z.literal('standalone'), position: z.enum(['above', 'below']).default('below') }),
+    ])).max(3).refine(items => new Set(items.map(item => item.id)).size === items.length, 'Each sidebar section must have a unique id.').nullable().default(null),
     width: z.number().int().min(1360).max(1600).default(1440),
     readerWidth: z.number().int().min(680).max(800).default(760),
     sidebarWidth: z.number().int().min(280).max(320).default(320),
@@ -241,7 +254,12 @@ export const configSchema = section({
     ]),
     sidebarTabs: unique(sidebarTab).default(["updates", "friends", "comments"]),
   }),
+  scripts: section({
+    global: z.array(z.strictObject(scriptFields)).max(16).default([]),
+    byPage: z.array(z.strictObject({ path: z.string().refine(validScriptPath, 'Use a site-root path with trailing slash, without deployment base/query/hash.'), ...scriptFields })).max(32).default([]),
+  }),
   navigation: section({
+    pageTabs: z.array(z.strictObject({ slug: z.string().refine(validPageSlug, 'Use a non-reserved page slug without leading/trailing slashes.'), label: z.string().trim().min(1).max(20), enabled: flag() })).max(8).refine(items => new Set(items.map(item => item.slug)).size === items.length, 'Page tabs must have unique slugs/IDs.').default([]),
     tabs: unique(
       z.strictObject({
         id: tab,
@@ -330,6 +348,7 @@ export const configSchema = section({
     recentLimit: z.number().int().min(1).max(10).default(4),
     timeout: z.number().int().min(3000).max(60000).default(15000),
     keyPrefix: baseSchema.default("/posts/"),
+    pageKeyPrefix: baseSchema.default('/pages/'),
     waline: section({
       serverURL: z.union([z.literal(""), serviceUrl]).default(""),
       lang: text("zh-CN"),
@@ -404,6 +423,17 @@ export const configSchema = section({
       .default(""),
   }),
 }).superRefine((value, ctx) => {
+  const sources = new Map();
+  const targets = new Set();
+  for (const [scope, entries] of Object.entries(value.scripts)) for (const [index, entry] of entries.entries()) {
+    if (!validScriptSource(entry.src)) continue;
+    const key = scriptSourceKey(entry.src);
+    const path = scope === 'global' ? '*' : entry.path;
+    const target = path + '\n' + key;
+    const previous = sources.get(key);
+    if (targets.has(target) || previous && (previous.scope !== scope || previous.type !== entry.type || previous.integrity !== entry.integrity || previous.position !== entry.position)) ctx.addIssue({ code: 'custom', path: ['scripts', scope, index], message: 'Duplicate/conflicting script resource or global/page scope. Reuse one declaration with consistent type, position and integrity.' });
+    targets.add(target); sources.set(key, { ...entry, scope });
+  }
   const required = {
     waline: ["serverURL"],
     twikoo: ["envId"],

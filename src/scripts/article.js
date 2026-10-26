@@ -4,23 +4,24 @@ import { a11y } from './a11y';
 import { motion } from './motion';
 import { pushArticleHash } from './list-state';
 
-export function initArticle(site, signal, navigationType) {
-  const body = document.getElementById('article-body');
+export function initArticle(site, signal, navigationType, root = document, pushHash = pushArticleHash) {
+  const byId = id => root.querySelector(`[data-reader-id="${id}"]`) || root.querySelector(`[id="${id}"]`) || root.querySelector(`[id$="-${id}"]`);
+  const body = byId('article-body');
   const headings = [...body.querySelectorAll('h2, h3, h4, h5, h6')];
-  const copyEnabled = document.getElementById('reader').dataset.copyCode !== 'false';
+  const copyEnabled = (root.matches?.('[data-content-reader]') ? root : byId('reader')).dataset.copyCode !== 'false';
   if (!copyEnabled) body.querySelectorAll('.copy-code').forEach(button => button.remove());
-  const links = [...document.querySelectorAll('.toc-list mdui-list-item')];
-  const lists = [...document.querySelectorAll('.toc-list')];
+  const links = [...root.querySelectorAll('.toc-list mdui-list-item')];
+  const lists = [...root.querySelectorAll('.toc-list')];
   let hashTurn = 0;
   let viewer, opening = false;
-  const lightboxEnabled = document.getElementById('reader').dataset.lightbox !== 'false';
+  const lightboxEnabled = (root.matches?.('[data-content-reader]') ? root : byId('reader')).dataset.lightbox !== 'false';
   initContentTabs(body, signal);
   if (body.querySelector('[data-md-video]')) import('./markdown-content').then(module => { if (!signal.aborted) module.initMarkdownContent(body, signal); }).catch(() => {});
   if (body.querySelector('[data-md-mermaid]')) import('./diagrams').then(module => { if (!signal.aborted) module.initDiagrams(body, signal); }).catch(() => { if (!signal.aborted) body.querySelectorAll('[data-mermaid-status]').forEach(node => { node.textContent = say('markdown', 'diagramModuleFailed'); }); });
   let previousSection;
   let measureToc = true;
   const path = location.pathname;
-  const inlineToc = document.getElementById('inline-toc-item');
+  const inlineToc = byId('inline-toc-item');
   let frame = 0;
   let tocMoving = false;
   let pending = null;
@@ -64,7 +65,7 @@ export function initArticle(site, signal, navigationType) {
   function scrollHash(smooth) {
     const turn = ++hashTurn;
     if (location.pathname !== path) return;
-    if (tocMoving && document.querySelector('.toc-inline')?.getClientRects().length) { pending = smooth; return; }
+    if (tocMoving && root.querySelector('.toc-inline')?.getClientRects().length) { pending = smooth; return; }
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
     const target = document.getElementById(id);
@@ -114,18 +115,18 @@ export function initArticle(site, signal, navigationType) {
     anchor.textContent = '#';
     heading.append(anchor);
   });
-  document.querySelectorAll('.copy-code').forEach(button => a11y.buttonState(button, { 'aria-label': button.getAttribute('aria-label') }));
-  const toggle = document.getElementById('toc-toggle');
-  if (toggle) a11y.buttonState(toggle, { 'aria-expanded': 'false', 'aria-controls': 'toc-inline-list' });
+  body.querySelectorAll('.copy-code').forEach(button => a11y.buttonState(button, { 'aria-label': button.getAttribute('aria-label') }));
+  const toggle = byId('toc-toggle');
+  if (toggle) a11y.buttonState(toggle, { 'aria-expanded': 'false', 'aria-controls': byId('toc-inline-list').id });
   ['open', 'close'].forEach(type => on(inlineToc, type, () => {
     tocMoving = true;
     a11y.buttonState(toggle, { 'aria-expanded': String(type === 'open') });
-    document.getElementById('toc-toggle-icon').name = type === 'open' ? 'expand_less' : 'expand_more';
+    byId('toc-toggle-icon').name = type === 'open' ? 'expand_less' : 'expand_more';
   }));
   ['opened', 'closed'].forEach(type => on(inlineToc, type, settle));
   on(document, 'click', event => {
     const button = event.target.closest('.copy-code');
-    if (button && copyEnabled) { copyCode(button); return; }
+    if (button && body.contains(button) && copyEnabled) { copyCode(button); return; }
     const anchor = event.target.closest('.toc-list mdui-list-item, .heading-anchor, .prose a[href^="#"]');
     if (!anchor || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || event.button) return;
     const hash = new URL(anchor.getAttribute('href'), location.href).hash;
@@ -134,12 +135,12 @@ export function initArticle(site, signal, navigationType) {
     if (!target || !body.contains(target)) return;
     // Capture precedes ClientRouter's default same-document anchor handling.
     event.preventDefault();
-    if (location.hash !== hash) pushArticleHash(hash);
+    if (location.hash !== hash) pushHash(hash);
     // Set pending first: Collapse closes on the next Lit update, before the final
     // offset is known. Its native closed event starts the spring at stable layout.
-    if (anchor.closest('#toc-inline-list') && inlineToc.active) {
+    if (anchor.closest('#toc-inline-list, [data-reader-id="toc-inline-list"]') && inlineToc.active) {
       pending = true;
-      document.getElementById('inline-toc').value = '';
+      byId('inline-toc').value = '';
     } else scrollHash(true);
   }, { capture: true });
   on(window, 'hashchange', () => scrollHash(false));
@@ -149,7 +150,7 @@ export function initArticle(site, signal, navigationType) {
   on(document, 'nekomi:content-change', () => { measureToc = true; update(); });
   on(body, 'toggle', () => { measureToc = true; update(); }, { capture: true });
   if (links.length) on(window, 'scroll', update, { passive: true });
-  if (links.length) on(window, 'resize', () => { motion.cancelScroll(); if (tocMoving && !document.querySelector('.toc-inline').getClientRects().length) settle(); update(); });
+  if (links.length) on(window, 'resize', () => { motion.cancelScroll(); if (tocMoving && !root.querySelector('.toc-inline').getClientRects().length) settle(); update(); });
   // Let ClientRouter restore a traversed page's actual scroll position, rather than forcing its previous hash.
   if (navigationType !== 'traverse') scrollHash(false);
   const observer = links.length ? new ResizeObserver(() => { measureToc = true; update(); }) : null;
@@ -170,5 +171,6 @@ export function initArticle(site, signal, navigationType) {
     on(body, 'click', event => { if (event.target.matches('img.lightbox-image') && !event.target.closest('a') && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.button) { event.preventDefault(); void openImage(event.target); } });
     on(body, 'keydown', event => { if (event.target.matches('img.lightbox-image') && ['Enter', ' '].includes(event.key)) { event.preventDefault(); void openImage(event.target); } });
   }
+  site.enterComments?.(root, signal, navigationType);
   return () => { if (!signal.aborted) viewer?.destroy(); observer?.disconnect(); cancelAnimationFrame(frame); timers.forEach(clearTimeout); motion.cancelScroll(); };
 }

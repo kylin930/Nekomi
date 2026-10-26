@@ -150,3 +150,9 @@ API 密钥、管理密码、数据库连接串、PAT / GitHub App 私钥**不能
 iframe 可能受服务端 frame-ancestors / X-Frame-Options、第三方登录、弹窗与移动浏览器策略限制。请在自己的真实部署验证这些流程；不可用时检查服务端允许域名和嵌入策略。当前自动化使用真实 SDK 资源、受控 API 响应及 Giscus 消息对端，没有实际部署服务或操作真实账号、OAuth、邮件、审核和腾讯云资源。
 
 开发扩展见 [CommentAdapter 开发说明](COMMENT-ADAPTERS.md)，验证范围见 [测试结果](../tests/RESULTS.md)。
+
+## 独立页面与侧栏常驻
+
+独立 Markdown 页面默认关闭评论，显式 `comments:true` 后使用相同适配器；身份来自 `CommentContent`，并使用独立的 `comments.pageKeyPrefix`（默认 `/pages/`），不伪造文章字段。[页面写作与身份迁移](PAGES.md#页面评论)。原 `CommentPost` 类型名称和 `context.post` 参数为向后兼容保留；挂载上下文也提供 `content` 别名，kind 可为 page。
+
+最新版查询可同时包含已启用评论的文章和页面，链接使用各自真实 URL。草稿、关闭评论和未知内容仍过滤。把最近评论设为 standalone 后按可见性加载，未打开的手机 Drawer 不查询；重复进入复用同一查询缓存，页面评论实例则随活动阅读区清理。[侧栏配置](SIDEBAR.md)。

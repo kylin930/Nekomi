@@ -1,13 +1,14 @@
+import { initArticle } from './article';
 import { a11y } from './a11y';
 import { motion } from './motion';
 import { createFeed } from './feed';
 import { currentList, registerList, listURL, prepareInitialList } from './list-state';
 
-export function initHome(site, signal) {
+export function initHome(site, signal, navigationType) {
   const tabs = document.getElementById('content-tabs');
   const title = document.getElementById('feed-title');
   const path = location.pathname;
-  const tabIds = tabs ? [...tabs.querySelectorAll('mdui-tab')].map(tab => tab.getAttribute('value')) : ['recent'];
+  const tabIds = tabs ? [...tabs.querySelectorAll(':scope > mdui-tab')].map(tab => tab.getAttribute('value')) : ['recent'];
   prepareInitialList();
   const snapshot = currentList();
   const feed = createFeed(site, signal, snapshot?.feed);
@@ -15,13 +16,32 @@ export function initHome(site, signal) {
   let booting = true, changing = false;
   let previousTab = snapshot?.tab || tabs?.getAttribute('value') || 'recent';
   let searchMotion;
+  let readingNavigation = navigationType;
+  let readerController, disposeReader, activeReader;
+  function syncReader() {
+    const panel = [...(tabs?.querySelectorAll('[data-page-tab]') || [])].find(panel => panel.value === tabs.value);
+    if (activeReader === panel) return;
+    readerController?.abort(); disposeReader?.();
+    activeReader = panel; disposeReader = undefined;
+    if (!panel) return;
+    const controller = readerController = new AbortController();
+    const stop = () => controller.abort();
+    signal.addEventListener('abort', stop, { once: true });
+    controller.signal.addEventListener('abort', () => signal.removeEventListener('abort', stop), { once: true });
+    disposeReader = initArticle(site, controller.signal, readingNavigation, panel, hash => {
+      const url = new URL(location.href); url.hash = hash;
+      listURL(url, true, tabs.value);
+    });
+  }
   const on = (element, event, listener) => element?.addEventListener(event, listener, { signal });
   function showTab(value) {
     if (!tabs) return;
     tabs.value = value;
-    tabs.querySelectorAll('mdui-tab-panel').forEach(panel => { panel.hidden = panel.value !== value; });
+    tabs.querySelectorAll(':scope > mdui-tab-panel').forEach(panel => { panel.hidden = panel.value !== value; });
+    syncReader();
   }
   function navigateTab(value, push = true) {
+    readingNavigation = undefined;
     const url = new URL(location.href);
     url.hash = value;
     if (value !== 'recent') url.searchParams.delete('q');
@@ -49,17 +69,19 @@ export function initHome(site, signal) {
     () => ({ tab: tabs?.value || 'recent', query, feed: feed.snapshot() }),
     saved => { changing = true; query = saved.query; feed.restore(saved.feed); showTab(saved.tab); previousTab = saved.tab; site.setSearch(query); changing = false; },
   );
-  function readLocation() {
+  function readLocation(event) {
+    readingNavigation = event?.type === 'popstate' ? 'traverse' : booting ? navigationType : undefined;
     if (location.pathname !== path) return;
     changing = true;
-    const raw = location.hash.slice(1);
+    let raw; try { raw = decodeURIComponent(location.hash.slice(1)); } catch { raw = ''; }
     if (raw.startsWith('preview/')) {
       try { const id = decodeURIComponent(raw.slice(8)); if (site.data.posts.some(post => post.id === id)) { site.go(site.postUrl(id), { history: 'replace' }); return; } } catch { /* Keep malformed legacy fragments readable. */ }
     }
-    const value = tabIds.includes(raw) ? raw : tabs?.dataset.initialTab || 'recent';
+    const headingPanel = document.getElementById(raw)?.closest('[data-page-tab]');
+    const value = tabIds.includes(raw) ? raw : headingPanel?.value || tabs?.dataset.initialTab || 'recent';
     showTab(value); previousTab = value;
     setQuery(value === 'recent' ? new URLSearchParams(location.search).get('q') || '' : '', false, true);
-    if (tabs && !tabIds.includes(raw)) { const url = new URL(location.href); url.hash = value; listURL(url); }
+    if (tabs && !tabIds.includes(raw) && !headingPanel) { const url = new URL(location.href); url.hash = value; listURL(url); }
     changing = false;
   }
   if (tabs) a11y.tabs(tabs, signal);
@@ -89,8 +111,12 @@ export function initHome(site, signal) {
   readLocation();
   const main = document.getElementById('main-content');
   Promise.all([...main.querySelectorAll('*')].map(element => element.updateComplete)).then(() => {
-    requestAnimationFrame(() => { if (!signal.aborted) main.style.removeProperty('min-height'); });
+    requestAnimationFrame(() => {
+      if (signal.aborted) return;
+      main.style.removeProperty('min-height');
+      requestAnimationFrame(() => { if (!signal.aborted) main.style.removeProperty('overflow-anchor'); });
+    });
   });
   requestAnimationFrame(() => { if (!signal.aborted) booting = false; });
-  return unregister;
+  return () => { readerController?.abort(); disposeReader?.(); unregister(); };
 }

@@ -110,3 +110,11 @@
 将有使用权限的 WOFF2 放入 `public/fonts/`。`family / src` 必填；`weight` 为 1–1000 或递增范围字符串，默认 `400`；`style` 为 normal / italic。最多六项，`font-display` 固定为 swap。没有内置新字体，默认数组为空。
 
 定义字体不会强行覆盖现有字体栈，请在 `font / brandFont / headingFont` 中引用其 family，并保留系统字体回退。`preload` 默认关闭，仅必要的首屏字体建议开启；未使用的 family 不主动加载。外部 HTTPS WOFF2 须由来源服务器提供正确 CORS。加载失败时使用回退字体。第三方服务内部的字体仍受其官方样式和 iframe 边界限制。
+
+## 字体文件 URL 与跨域
+
+webFonts.src 支持直接指向本地或 HTTPS **WOFF2 文件**，不接受 Google Fonts 等返回 CSS 的 URL。外部服务器必须允许本站 CORS；失败时按现有 font / headingFont / brandFont 栈回退，不阻塞正文。字体声明和预加载由公共 WebFonts 组件生成，ClientRouter 导航使用相同资源缓存，不另建字体加载器。
+
+weight 支持单个字重或变量字体的递增范围；style 为 normal / italic。请匹配实际字体文件，不要把静态字体当作完整变量字重资源。preload 默认 false，只为需要的首屏字体开启；本地 public/fonts 路径自动补部署 base。
+
+[组合配置](../examples/site-features.config.json)提供可用的 Noto Sans Latin WOFF2 URL（Fontsource / jsDelivr，OFL），只覆盖拉丁字形，中文仍回退系统字体。主题默认不请求它；请按来源许可和隐私需求选择自己的资源。

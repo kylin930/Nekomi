@@ -1,0 +1,34 @@
+---
+import { config, ui, message } from '../config/site';
+import { dateLabel, postUrl, withBase } from '../lib/urls';
+import { commentTime } from '../lib/format';
+import type { sidebarModel } from '../lib/sidebar';
+import PostListItem from './PostListItem.astro';
+import FriendItem from './FriendItem.astro';
+import Avatar from './Avatar.astro';
+import Icon from './Icon.astro';
+interface Props { id: 'updates' | 'friends' | 'comments'; model: ReturnType<typeof sidebarModel>; currentId?: string }
+const { id, model, currentId } = Astro.props;
+const { posts, updates, friends, comments, liveRecent } = model;
+---
+{id === 'updates' && <><div class="side-panel-content">{!updates.length && <p class="friend-empty">{ui.home.noArticles}</p>}
+        <mdui-list>{updates.slice(0, config.layout.recentPostsLimit).map(post => <PostListItem post={post} description={dateLabel(post.data.date)} active={post.id === currentId} />)}</mdui-list>
+      </div></>}
+{id === 'friends' && <><div class="side-panel-content">{friends.length > 0 && <div class="side-panel-heading"><span>{message(ui.common.siteCount, { count: friends.length })}</span><mdui-button variant="text" href={config.friendsPage.enabled ? withBase('friends/') : undefined} data-friends-all={!config.friendsPage.enabled || undefined}>{ui.common.viewAll}<Icon name="arrow_forward" slot="end-icon" /></mdui-button></div>}
+        {friends.length ? <mdui-list class="friend-list">{friends.slice(0, config.layout.friendsPreviewLimit).map(friend => <FriendItem friend={friend} />)}</mdui-list> : <p class="friend-empty">{ui.sidebar.noFriends}</p>}
+      </div></>}
+{id === 'comments' && <>{liveRecent ? <div class="side-panel-content" data-comments-recent><p class="comments-note" role="status" aria-live="polite" data-comments-recent-status>{ui.comments.recentIdle}</p><mdui-list class="comment-list" data-comments-recent-list></mdui-list><mdui-button variant="text" data-comments-recent-retry hidden>{ui.comments.recentRetry}</mdui-button></div> : <>
+      <div class="side-panel-content"><div class="side-panel-heading"><span>{ui.sidebar.exampleComments}</span><span>{message(ui.comments.count, { count: comments.length })}</span></div>
+        {comments.length ? <>
+          <p class="comments-note">{config.comments.anchorsEnabled ? ui.sidebar.openComment : ui.sidebar.openCommentPost}</p>
+          <mdui-list class="comment-list">{comments.slice(0, config.comments.recentLimit).map(comment => {
+            const post = posts.find(p => p.id === comment.postId)!;
+            const href = postUrl(post.id) + (config.comments.anchorsEnabled && comment.anchor ? '#' + encodeURIComponent(comment.anchor) : '');
+            return <mdui-list-item rounded href={href} data-demo-comment={comment.demo || undefined}>
+              <Avatar class="comment-avatar" slot="icon" src={comment.avatar} fallback={Array.from(comment.author)[0]} label={comment.author} />
+              <div class="comment-copy"><div class="comment-byline"><strong>{comment.author}</strong><time datetime={comment.createdAt}>{commentTime(comment.createdAt)}</time></div><p class="comment-excerpt">{comment.excerpt}</p><p class="comment-post">{post.data.title}</p></div>
+            </mdui-list-item>;
+          })}</mdui-list>
+        </> : <p class="friend-empty">{ui.sidebar.noComments}</p>}
+      </div>
+      </>}</>}

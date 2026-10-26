@@ -10,13 +10,13 @@ import type {
   CommentTheme,
 } from "./types";
 interface Site {
-  data: { comments: CommentSettings; posts: CommentPost[]; base: string };
+  data: { comments: CommentSettings; posts: CommentPost[]; pages?: CommentPost[]; base: string };
   drawer: HTMLElement & { open: boolean };
 }
 export function createComments(site: Site) {
   const settings = site.data.comments,
     posts = Object.freeze(
-      site.data.posts
+      [...site.data.posts, ...(site.data.pages || [])]
         .filter((post) => post.comments !== false)
         .map((post) =>
           Object.freeze({
@@ -25,6 +25,7 @@ export function createComments(site: Site) {
             title: post.title,
             url: post.url,
             comments: post.comments,
+            kind: post.kind,
           }),
         ),
     );
@@ -161,19 +162,30 @@ export function createComments(site: Site) {
         !failed;
     }
   }
+  const intersecting = new WeakMap<Element, boolean>();
   function recentVisible() {
-    const mobile = matchMedia("(max-width: 1119px)").matches;
-    const root = document.querySelector(
-      `[data-sidebar=${mobile ? "mobile" : "desktop"}]`,
-    );
-    return (
-      (!mobile || site.drawer.open) &&
-      (
-        root?.querySelector("mdui-tabs") as
-          | (HTMLElement & { value: string })
-          | null
-      )?.value === "comments"
-    );
+    if (document.visibilityState === 'hidden') return false;
+    const mobile = matchMedia('(max-width: 1119px)').matches;
+    const root = document.querySelector(`[data-sidebar=${mobile ? 'mobile' : 'desktop'}]`);
+    if (mobile && !site.drawer.open) return false;
+    return [...(root?.querySelectorAll<HTMLElement>('[data-comments-recent]') || [])].some(panel => {
+      const section = panel.closest<HTMLElement>('[data-sidebar-section]');
+      if (section?.dataset.display === 'tab') return (section.closest('mdui-tabs') as HTMLElement & { value: string })?.value === 'comments';
+      return !settings.lazy || !('IntersectionObserver' in window) || intersecting.get(panel) === true;
+    });
+  }
+  function hideUnsupportedRecent() {
+    for (const panel of panels()) {
+      const section = panel.closest('[data-sidebar-section]');
+      const tabs = section?.closest('mdui-tabs') as (HTMLElement & { value: string }) | null;
+      section?.remove();
+      if (tabs) {
+        tabs.querySelector('mdui-tab[value="comments"]')?.remove();
+        const remaining = tabs.querySelector('mdui-tab');
+        if (!remaining) tabs.remove();
+        else if (tabs.value === 'comments') tabs.value = remaining.getAttribute('value')!;
+      }
+    }
   }
   async function loadRecent(force = false) {
     if (
@@ -189,7 +201,7 @@ export function createComments(site: Site) {
       const service = await task(request.signal, async () => adapter());
       request.signal.throwIfAborted();
       if (!service.capabilities.recent || !service.getRecent) {
-        recentState(say('comments', 'recentUnavailable'));
+        hideUnsupportedRecent();
         return;
       }
       const items = await task(request.signal, (signal) =>
@@ -278,6 +290,14 @@ export function createComments(site: Site) {
     }
   }
   if (panels().length) {
+    if ('IntersectionObserver' in window) {
+      const visibility = new IntersectionObserver(entries => {
+        for (const entry of entries) intersecting.set(entry.target, entry.isIntersecting);
+        checkRecent();
+      }, { rootMargin: settings.lazy ? '180px 0px' : '0px' });
+      panels().filter(panel => panel.closest<HTMLElement>('[data-sidebar-section]')?.dataset.display === 'standalone').forEach(panel => visibility.observe(panel));
+    }
+    document.addEventListener('visibilitychange', checkRecent);
     document
       .querySelectorAll(".sidebar-tabs")
       .forEach((tabs) => tabs.addEventListener("change", checkRecent));
@@ -290,13 +310,13 @@ export function createComments(site: Site) {
     });
     requestAnimationFrame(checkRecent);
   }
-  function enterPage(signal: AbortSignal, navigationType?: string) {
-    const section = document.querySelector<HTMLElement>(
+  function enterPage(signal: AbortSignal, navigationType?: string, root: ParentNode = document) {
+    const section = root.querySelector<HTMLElement>(
       "[data-comments-section]",
     );
     if (!section) return;
     const path = location.pathname;
-    const post = posts.find((post) => post.id === section.dataset.commentsId);
+    const post = posts.find((post) => post.key === section.dataset.commentsKey);
     if (!post) return;
     const mount = section.querySelector<HTMLElement>("[data-comments-mount]")!,
       status = section.querySelector<HTMLElement>("[data-comments-status]")!,
@@ -313,6 +333,8 @@ export function createComments(site: Site) {
       retry.hidden = state !== "error";
       mount.setAttribute("aria-busy", String(state === "loading"));
     };
+    count.hidden = true;
+    setStatus('idle', say('comments', 'idle'));
     const publishCount = (value: number) => {
       if (
         !settings.counts ||
@@ -368,6 +390,7 @@ export function createComments(site: Site) {
             const result = await service.mount({
               container: mount,
               post: post!,
+              content: post!,
               theme: theme(),
               base: site.data.base,
               signal: scoped,

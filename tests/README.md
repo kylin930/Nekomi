@@ -176,3 +176,16 @@ python3 tests/back_to_top_audit.py --screenshots
 临时 14 篇长文验证无限加载后保留批次、浏览器前进 / 后退的准确位置、跨页面同一个 FAB / 壁纸 / 侧栏与单次点击响应。实际点击桌面和手机侧栏“查看全部”进入已有 `/friends/`，核对完整列表、200 静态响应和 ClientRouter；友链页面关闭时仍使用原 Dialog。FAB 关闭时没有按钮、组件注册或对应模块请求，无 JS 时没有失效控件。
 
 所有临时内容、配置、构建和矩阵截图保存在 `.astro/p25-tests/fab-*`，不修改源文章或站点配置。[默认模板实际截图](../screenshots/BACK-TO-TOP.md)。原有 `browse_audit.py` 继续检查恢复首帧、筛选 / 搜索和大量文章分页。
+
+## 独立页面、侧栏与脚本
+
+```sh
+node --test tests/site-features.test.mjs
+python3 tests/site_features_audit.py --screenshots
+```
+
+该脚本只构建两套临时组合：根路径为常驻友链 + 评论 Tabs，子路径为全部常驻模块；各检查桌面 / 手机和明暗。临时 pages 集合包含多面板、嵌套 slug、草稿、评论开关和同名正文标题，复用现有扩展示例验证内容 Tabs / KaTeX、身份、真实链接、历史和全局公共 DOM。不会把临时内容写入默认页面。
+
+外部 WOFF2 的原始字节由保留 TLS 验证的 curl 获取（/tmp/nekomi-noto-font.woff2）；浏览器响应保留正确 CORS，另以错误 Origin 验证回退。脚本服务响应为受控 ESM / classic，检查原生 SRI、加载失败、一次求值 / 全局挂载、重复页面挂载、异步清理和 AbortSignal 事件释放。不是远端账户、真实第三方挂件或用户脚本安全沙箱验证。
+
+`--reuse` 仅用于产物与源码一致、只改测试时复用 .astro/p25-tests/site-features-*；源码变更后应正常重建。实际交付停止扩大全量回归，已完成的组合与最后一次定向位置恢复结果见 [RESULTS.md](RESULTS.md)。

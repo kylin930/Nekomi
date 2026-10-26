@@ -10,14 +10,26 @@
 
 - [站点信息](#site) · [界面文案](#ui)
 - [外观与预设](#appearance) · [字体](#appearancewebfonts) · [语义色](#appearancesemanticcolors) · [壁纸](#appearancewallpaper) · [角色装饰](#appearancedecorations)
-- [侧栏与布局](#layout) · [友链数据](#friends) · [友链页面](#friendspage)
-- [导航](#navigation)
+- [侧栏与布局](#layout) · [常驻模块](#layoutsidebarsections) · [友链数据](#friends) · [友链页面](#friendspage)
+- [导航](#navigation) · [独立页面 Tabs](#navigationpagetabs)
 - [文章与分类](#content) · [首页](#home) · [文章卡片](#cards) · [阅读](#reading) · [Markdown](#markdown)
-- [评论](#comments) · [第三方统计](#analytics)
+- [评论](#comments) · [自定义脚本](#scripts) · [第三方统计](#analytics)
 - [页脚与版权](#footer)
 - [发布与 SEO](#publishing) · [示例保护](#demo) · [兼容说明](#demonotice) · [搜索与 RSS / Sitemap 开关](#features)
 - [全部字段、默认值与范围](#字段默认值与范围)
 - [接口与依赖](#接口与依赖)
+
+## scripts
+
+默认 global / byPage 均为 []；支持 public/ 内 JS/MJS 和可信 HTTPS 资源，type 为 module/classic，position 为 head/body-end，enabled 默认 true、integrity 默认空。资源只执行一次，页面生命周期重新 mount / 清理；不支持 JSON 内联代码。head/body-end 是运行时异步插入位置，不阻塞 HTML 解析。资源重复、选项冲突及启用的本地文件缺失会报错。接口、安全与完整示例见 [自定义脚本](SCRIPTS.md)。
+
+## layout.sidebarSections
+
+默认 null，沿用旧 sidebarTabs；非 null 数组完整替代它。每项 id 为 updates/friends/comments，display 为 tab 或 standalone；standalone 的 position 为 above/below，默认 below，tab 不接受 position。各组按数组顺序排列，模块不可重复；[] 隐藏补充区域，全 standalone 不渲染空 Tabs。仍位于 layout.modules 的 tabs 插槽内，名称/预览限制沿用原配置。最新评论按活动 Tab 或独立模块可见性加载，关闭 Drawer 不查询。见 [侧栏布局](SIDEBAR.md)。
+
+## navigation.pageTabs
+
+默认 []，最多 8 项，slug/label 必填、enabled 默认 true。引用 pages 集合的非草稿页面，启用的引用不存在/为草稿时构建报错；重复引用/路由冲突报错。数组顺序决定四个内建 Tabs 后的追加顺序；是真实 Markdown 面板，页面仍有独立 URL。项目未启用不影响原首页，普通链接继续使用 topLinks/links。见 [独立页面](PAGES.md)。
 
 ## demo
 
@@ -105,7 +117,7 @@ enabled 控制整个页脚；since 为创站年份，自动版权按配置时区
 
 ## comments
 
-provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/giscus/artalk 为动态 SDK，custom 在构建时选择浏览器模块。lazy 控制视口懒加载，counts/recent 分别控制额外计数与侧栏查询，recentLimit 为 1–10，timeout 为 3000–60000ms。keyPrefix 为不带域名及部署 base 的稳定线程前缀。服务字段只能填写公开连接参数，不能放管理凭据。详见 COMMENTS.md / COMMENT-ADAPTERS.md。
+provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/giscus/artalk 为动态 SDK，custom 在构建时选择浏览器模块。lazy 控制视口懒加载，counts/recent 分别控制额外计数与侧栏查询，recentLimit 为 1–10，timeout 为 3000–60000ms。keyPrefix 为文章稳定线程前缀，pageKeyPrefix 为独立页面前缀（默认 /pages/），均不带域名及部署 base。页面评论默认关闭，启用后与文章身份校验冲突。服务字段只能填写公开连接参数，不能放管理凭据。详见 COMMENTS.md / COMMENT-ADAPTERS.md。
 
 ## analytics
 
@@ -131,6 +143,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `ui.common.siteCount` | string | `"{count} 个站点"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.common.totalSites` | string | `"共 {count} 个站点。"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.common.visit` | string | `"访问 {name}"` | 长度 ≥ 1，长度 ≤ 500 |
+| `ui.navigation.openPage` | string | `"独立打开"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.navigation.backToTop` | string | `"返回顶部"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.navigation.siteInfo` | string | `"站点信息"` | 长度 ≥ 1，长度 ≤ 500 |
 | `ui.navigation.content` | string | `"博客内容"` | 长度 ≥ 1，长度 ≤ 500 |
@@ -327,6 +340,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `appearance.decorations.comments.align` | `right` / `center` | `"right"` | — |
 | `appearance.decorations.comments.mobile` | boolean | `false` | — |
 | `layout.backToTop` | boolean | `true` | — |
+| `layout.sidebarSections` | array / null | `null` | — |
 | `layout.width` | integer | `1440` | ≥ 1360，≤ 1600 |
 | `layout.readerWidth` | integer | `760` | ≥ 680，≤ 800 |
 | `layout.sidebarWidth` | integer | `320` | ≥ 280，≤ 320 |
@@ -334,6 +348,9 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `layout.friendsPreviewLimit` | integer | `5` | ≥ 0，≤ 12 |
 | `layout.modules` | array | `["profile","social","search","tabs"]` | — |
 | `layout.sidebarTabs` | array | `["updates","friends","comments"]` | — |
+| `scripts.global` | array | `[]` | — |
+| `scripts.byPage` | array | `[]` | — |
+| `navigation.pageTabs` | array | `[]` | — |
 | `navigation.tabs` | array | `[{"id":"recent","label":"全部文章","enabled":true},{"id":"categories","label":"分类","enabled":true},{"id":"tags","label":"标签","enabled":true},{"id":"archive","label":"归档","enabled":true}]` | — |
 | `navigation.links` | array | `[]` | — |
 | `navigation.topLinks` | array | `[]` | — |
@@ -389,6 +406,7 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 | `comments.recentLimit` | integer | `4` | ≥ 1，≤ 10 |
 | `comments.timeout` | integer | `15000` | ≥ 3000，≤ 60000 |
 | `comments.keyPrefix` | string | `"/posts/"` | — |
+| `comments.pageKeyPrefix` | string | `"/pages/"` | — |
 | `comments.waline.serverURL` | string / string | `""` | — |
 | `comments.waline.lang` | string | `"zh-CN"` | 长度 ≤ 1000 |
 | `comments.waline.login` | `enable` / `disable` / `force` | `"enable"` | — |
@@ -429,4 +447,4 @@ provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/gi
 - 搜索覆盖全部公开文章元数据；分页大小在 publishing.pageSize 配置，2–24，默认 6。置顶优先，再按日期倒序；RSS 始终按日期。关闭 JS 仍有真实分页与分类链接。
 - layout.modules 不包含 search 时也不安装 / 搜索快捷键；features.search=false 还会关闭查询搜索。侧栏为空仍保留手机 App Bar 与主题控制。
 - reading.motion=false 控制阅读扩展动画；系统 prefers-reduced-motion 对全站所有自定义及 MDUI 动画优先。
-- NEKOMI_CONFIG 指向一份完整用户配置（相对于主题默认值，不继承 site.config.json）；NEKOMI_CONTENT_DIR 指向 Markdown 目录。两者可用于独立维护个人配置/文章。只使用受信任的 Markdown，支持原始 HTML，不将其作为不可信投稿接口。
+- NEKOMI_CONFIG 指向一份完整用户配置（相对于主题默认值，不继承 site.config.json）；NEKOMI_CONTENT_DIR 指向文章 Markdown 目录，NEKOMI_PAGES_DIR 指向独立页面目录。两者可用于独立维护个人配置/文章。只使用受信任的 Markdown，支持原始 HTML，不将其作为不可信投稿接口。

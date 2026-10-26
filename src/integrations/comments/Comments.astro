@@ -1,16 +1,16 @@
 ---
 import { config, ui } from '../../config/site';
-import type { Post } from '../../lib/posts';
+import type { CommentContent } from './types';
 import Decoration from '../../components/Decoration.astro';
-interface Props { post: Post }
-const { post } = Astro.props;
-const enabled = !['none', 'link'].includes(config.comments.provider) && post.data.comments !== false;
+interface Props { content: CommentContent; prefix?: string }
+const { content, prefix = '' } = Astro.props;
+const enabled = !['none', 'link'].includes(config.comments.provider) && content.comments !== false;
 ---
 {enabled && (
-  <section id="comments" class="article-comments" data-comments-section data-comments-id={post.id} data-state="idle" aria-labelledby="comments-heading">
+  <section id={prefix + 'comments'} class="article-comments" data-comments-section data-comments-id={content.id} data-comments-key={content.key} data-state="idle" aria-labelledby={prefix + 'comments-heading'}>
     <mdui-divider></mdui-divider>
     <header class="comments-heading">
-      <h2 id="comments-heading">{ui.comments.title}</h2>
+      <h2 id={prefix + 'comments-heading'}>{ui.comments.title}</h2>
       <span data-comment-count hidden></span>
     </header>
     <p role="status" aria-live="polite" data-comments-status>{ui.comments.idle}</p>

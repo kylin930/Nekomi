@@ -114,6 +114,12 @@
           "default": {},
           "type": "object",
           "properties": {
+            "openPage": {
+              "default": "独立打开",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500
+            },
             "backToTop": {
               "default": "返回顶部",
               "type": "string",
@@ -1466,6 +1472,74 @@
           "default": true,
           "type": "boolean"
         },
+        "sidebarSections": {
+          "default": null,
+          "anyOf": [
+            {
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "enum": [
+                          "updates",
+                          "friends",
+                          "comments"
+                        ]
+                      },
+                      "display": {
+                        "type": "string",
+                        "const": "tab"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "display"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "enum": [
+                          "updates",
+                          "friends",
+                          "comments"
+                        ]
+                      },
+                      "display": {
+                        "type": "string",
+                        "const": "standalone"
+                      },
+                      "position": {
+                        "default": "below",
+                        "type": "string",
+                        "enum": [
+                          "above",
+                          "below"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "display"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "width": {
           "default": 1440,
           "type": "integer",
@@ -1533,10 +1607,132 @@
       },
       "additionalProperties": false
     },
+    "scripts": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "global": {
+          "default": [],
+          "maxItems": 16,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "src": {
+                "type": "string"
+              },
+              "type": {
+                "default": "module",
+                "type": "string",
+                "enum": [
+                  "module",
+                  "classic"
+                ]
+              },
+              "position": {
+                "default": "body-end",
+                "type": "string",
+                "enum": [
+                  "head",
+                  "body-end"
+                ]
+              },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
+              "integrity": {
+                "default": "",
+                "type": "string",
+                "pattern": "^(?:|sha(?:256|384|512)-[A-Za-z0-9+/=]+)$"
+              }
+            },
+            "required": [
+              "src"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "byPage": {
+          "default": [],
+          "maxItems": 32,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "src": {
+                "type": "string"
+              },
+              "type": {
+                "default": "module",
+                "type": "string",
+                "enum": [
+                  "module",
+                  "classic"
+                ]
+              },
+              "position": {
+                "default": "body-end",
+                "type": "string",
+                "enum": [
+                  "head",
+                  "body-end"
+                ]
+              },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              },
+              "integrity": {
+                "default": "",
+                "type": "string",
+                "pattern": "^(?:|sha(?:256|384|512)-[A-Za-z0-9+/=]+)$"
+              }
+            },
+            "required": [
+              "path",
+              "src"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "navigation": {
       "default": {},
       "type": "object",
       "properties": {
+        "pageTabs": {
+          "default": [],
+          "maxItems": 8,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "slug": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 20
+              },
+              "enabled": {
+                "default": true,
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "slug",
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        },
         "tabs": {
           "default": [
             {
@@ -2021,6 +2217,11 @@
         },
         "keyPrefix": {
           "default": "/posts/",
+          "type": "string",
+          "pattern": "^\\/(?:[\\w.~\\-]+\\/)*$"
+        },
+        "pageKeyPrefix": {
+          "default": "/pages/",
           "type": "string",
           "pattern": "^\\/(?:[\\w.~\\-]+\\/)*$"
         },

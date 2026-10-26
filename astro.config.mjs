@@ -11,6 +11,8 @@ import { resolve } from 'node:path';
 import { publishing, rawConfig } from './src/config/publishing.mjs';
 import { commentsIntegration } from './src/integrations/comments/build.mjs';
 import { remarkPost, rehypeLocalImages, rehypeArticle } from './src/plugins/markdown.mjs';
+import { rehypePageIds } from './src/plugins/page-ids.mjs';
+import { scriptsIntegration } from './src/integrations/scripts/build.mjs';
 
 const base = publishing.base;
 const output = resolve(process.env.ASTRO_OUT_DIR || './dist');
@@ -28,7 +30,7 @@ export default defineConfig({
   site: publishing.url || 'http://localhost:4321',
   base,
   image: { service: { entrypoint: './src/lib/image-service.ts' } },
-  integrations: [markdownPages(rawConfig.friendsPage), commentsIntegration(rawConfig.comments), ...(rawConfig.features.sitemap ? [sitemap({
+  integrations: [markdownPages(rawConfig.friendsPage), commentsIntegration(rawConfig.comments), scriptsIntegration(rawConfig.scripts), ...(rawConfig.features.sitemap ? [sitemap({
     filter: url => publishing.indexing && Boolean(builtPage(url)) && !/name="robots" content="noindex/.test(builtPage(url)),
     serialize(item) {
       const updated = builtPage(item.url).match(/property="article:modified_time" content="([^"]+)"/);
@@ -48,6 +50,6 @@ export default defineConfig({
       defaultColor: false,
       transformers: [{ pre(node) { node.properties['data-language'] = this.options.lang; } }],
     },
-    processor: unified({ smartypants: false, remarkPlugins: [remarkDirective, remarkMath, [remarkComponents, { base }], [remarkPost, { base }]], rehypePlugins: [rehypeRaw, rehypeFeatures, [rehypeLocalImages, { base }], rehypeArticle] }),
+    processor: unified({ smartypants: false, remarkPlugins: [remarkDirective, remarkMath, [remarkComponents, { base }], [remarkPost, { base }]], rehypePlugins: [rehypeRaw, rehypeFeatures, [rehypeLocalImages, { base }], rehypeArticle, rehypePageIds] }),
   },
 });
