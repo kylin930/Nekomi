@@ -1,0 +1,23 @@
+---
+import { render } from 'astro:content';
+import { getPages, type ContentPage } from '../lib/pages';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import PageReader from '../components/PageReader.astro';
+import TocTree from '../components/TocTree.astro';
+import { config, readingOptions, ui } from '../config/site';
+import { publishing } from '../config/publishing.mjs';
+import contentCSS from '../styles/markdown.css?inline';
+import katexCSS from 'katex/dist/katex.min.css?inline';
+export async function getStaticPaths() { return (await getPages()).map(page => ({ params: { slug: page.slug }, props: { page } })); }
+interface Props { page: ContentPage }
+const { page } = Astro.props;
+const rendered = await render(page);
+const features = rendered.remarkPluginFrontmatter.nekomiFeatures as Record<string, boolean> || {};
+const options = readingOptions(page.data.reading);
+---
+<SiteLayout title={page.data.title + ' · ' + config.site.name} description={page.data.description || undefined} page="content" pageContent={page} noindex={!publishing.indexing || page.data.demo}>
+  {(features.math || features.mermaid || features.components) && <style slot="head" is:inline set:html={contentCSS} data-nekomi-content />}
+  {features.math && <style slot="head" is:inline set:html={katexCSS} data-nekomi-math />}
+  <PageReader page={page} rendered={rendered} />
+  {options.toc && <aside slot="toc" class="reading-toc" id="reading-toc" aria-label={ui.reading.auxiliary} hidden={!rendered.headings.length}><p class="toc-label">{ui.reading.tocTitle}</p><nav id="toc-desktop-list" aria-label={ui.reading.toc}><TocTree headings={rendered.headings} /></nav></aside>}
+</SiteLayout>

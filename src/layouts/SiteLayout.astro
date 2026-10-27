@@ -17,6 +17,7 @@ import Seo from '../components/Seo.astro';
 import { canIndex } from '../lib/seo';
 import { publishing } from '../config/publishing.mjs';
 import type { Post } from '../lib/posts';
+import { getPages, pageMetadata, type ContentPage } from '../lib/pages';
 import { withBase, assetUrl } from '../lib/urls';
 import { createHash } from 'node:crypto';
 import 'mdui/mdui.css';
@@ -26,14 +27,14 @@ import '../styles/home.css';
 import '../styles/article.css';
 import '../styles/transitions.css';
 import '../styles/decorations.css';
-interface Props { title: string; description?: string; page?: 'home' | 'article' | 'error' | 'page'; currentId?: string; post?: Post; noindex?: boolean }
+interface Props { title: string; description?: string; page?: 'home' | 'article' | 'error' | 'page' | 'content'; currentId?: string; post?: Post; pageContent?: ContentPage; noindex?: boolean }
 const { title, description = config.site.tagline || config.site.intro || config.site.name, page = 'home', currentId, post } = Astro.props;
 const posts = await getPosts();
 const noindex = Astro.props.noindex ?? (page === 'error' || !canIndex(post ? [post] : posts));
 const a = config.appearance;
 const appleTouchIcon = assetUrl(config.site.appleTouchIcon);
 const themeTokens = `--nekomi-latest-tint:${a.preset === 'minimal' ? '0%' : '18%'};--reader-width:${config.layout.readerWidth}px;--site-width:${config.layout.width}px;--sidebar-width:${config.layout.sidebarWidth}px;--reading-font:${a.font};--identity-font:${a.headingFont};--brand-font:${a.brandFont};--nekomi-shape-card:${a.radius}px;--nekomi-shape-pressed:${Math.max(8, a.radius - 4)}px`;
-const data = { ...config, posts: posts.map(postMetadata), base, pageSize: publishing.pageSize };
+const data = { ...config, posts: posts.map(postMetadata), pages: (await getPages()).map(pageMetadata), base, pageSize: publishing.pageSize };
 const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest('hex').slice(0, 16);
 ---
 <!doctype html>
@@ -41,7 +42,7 @@ const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest(
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <Seo title={title} description={description} noindex={noindex} post={post} />
+    <Seo title={title} description={description} noindex={noindex} post={post} pageContent={Astro.props.pageContent} />
     <WebFonts />
     {config.features.rss && <link rel="alternate" type="application/rss+xml" title={config.site.name + ' RSS'} href={withBase('rss.xml')} />}
     <meta name="color-scheme" content="light dark" />
@@ -70,7 +71,7 @@ const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest(
     <Wallpaper />
     <a class="skip-link" href="#main-content">{ui.navigation.skip}</a>
     <Navigation posts={posts} currentId={currentId} />
-    <div class:list={['site-layout', { 'reading-layout': page === 'article' }]}>
+    <div class:list={['site-layout', { 'reading-layout': page === 'article' || page === 'content' }]}>
       <aside class="sidebar" aria-label={ui.navigation.siteInfo} data-site-sidebar transition:persist="desktop-sidebar" transition:animate="none">
         <Sidebar context="desktop" posts={posts} currentId={currentId} />
         <div class="sidebar-settings"><span>{ui.sidebar.appearance}</span><ThemeControl /></div>
@@ -84,6 +85,7 @@ const contentVersion = createHash('sha256').update(JSON.stringify(data)).digest(
       <slot name="toc" />
     </div>
     {config.layout.backToTop && <BackToTop />}
+    {config.scripts.global.some(script => script.enabled) && <div data-user-script-host style="display:contents" transition:persist="user-script-host" transition:animate="none"></div>}
     <script id="site-data" type="application/json" data-version={contentVersion} set:html={JSON.stringify(data).replace(/</g, '\\u003c')}></script>
     <script>import '../scripts/runtime.js';</script>
   </body>

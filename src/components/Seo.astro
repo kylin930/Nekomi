@@ -1,13 +1,14 @@
 ---
 import type { Post } from '../lib/posts';
+import { standaloneUrl, type ContentPage } from '../lib/pages';
 import { config } from '../config/site';
 import { publishing } from '../config/publishing.mjs';
 import { canonicalUrl, sharingImage, structuredSite, structuredArticle } from '../lib/seo';
-interface Props { title: string; description: string; noindex: boolean; post?: Post }
-const { title, description, noindex, post } = Astro.props;
+interface Props { title: string; description: string; noindex: boolean; post?: Post; pageContent?: ContentPage }
+const { title, description, noindex, post, pageContent } = Astro.props;
 const canonical = canonicalUrl(Astro.url.pathname);
-const image = await sharingImage(post?.data.cover || publishing.socialImage);
-const graph = [...structuredSite(config.site.name, config.site.tagline), ...(post ? structuredArticle(post, image) : [])];
+const image = await sharingImage(post?.data.cover || pageContent?.data.cover || publishing.socialImage);
+const graph = [...structuredSite(config.site.name, config.site.tagline), ...(post ? structuredArticle(post, image) : []), ...(pageContent && !noindex ? [{ '@type': 'WebPage', name: pageContent.data.title, description, url: canonicalUrl(standaloneUrl(pageContent.slug)), inLanguage: publishing.language, ...(image ? { image } : {}) }] : [])];
 ---
 <title>{title}</title>
 <meta name="description" content={description} />

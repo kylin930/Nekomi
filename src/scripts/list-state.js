@@ -48,11 +48,14 @@ function applySnapshot(doc, snapshot) {
   // New MDUI slots render asynchronously. Reserve the previous content height
   // until they settle, so Astro's own scrollTo is not clamped to a short page.
   doc.getElementById('main-content').style.minHeight = snapshot.height + 'px';
+  // Native tab-panel activation can move an initially visible footer by a full
+  // page. Exclude the restoring subtree from CSS scroll anchoring until slots settle.
+  doc.getElementById('main-content').style.overflowAnchor = 'none';
   const tabs = doc.getElementById('content-tabs');
   if (tabs) {
     tabs.setAttribute('value', snapshot.tab);
     if ('value' in tabs) tabs.value = snapshot.tab;
-    tabs.querySelectorAll('mdui-tab-panel').forEach(panel => { panel.hidden = panel.getAttribute('value') !== snapshot.tab; });
+    tabs.querySelectorAll(':scope > mdui-tab-panel').forEach(panel => { panel.hidden = panel.getAttribute('value') !== snapshot.tab; });
   }
   doc.getElementById('feed-title').textContent = snapshot.feed.title;
   doc.getElementById('feed-summary').textContent = snapshot.feed.summary;

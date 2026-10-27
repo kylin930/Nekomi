@@ -248,3 +248,7 @@ mdui-tab[active]::part(container) { background: rgba(var(--mdui-color-primary-co
 
 .site-appbar mdui-top-app-bar-title, .drawer-toolbar > span { font-family: var(--brand-font); font-weight: 650; letter-spacing: .015em; }
 .social-icon { width: 24px; height: 24px; display: block; fill: currentColor; }
+
+/* Optional standalone sidebar sections reuse the existing list surfaces. */
+.sidebar-section { margin-block: 24px; min-width: 0; }
+.sidebar-section > h2 { margin: 0 12px 12px; font-size: 13px; font-weight: 600; color: rgb(var(--mdui-color-on-surface-variant)); }

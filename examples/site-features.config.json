@@ -1,0 +1,28 @@
+{
+  "$schema": "../site.schema.json",
+  "site": { "name": "我的博客" },
+  "navigation": {
+    "pageTabs": [
+      { "slug": "about", "label": "关于", "enabled": true },
+      { "slug": "projects", "label": "项目", "enabled": false }
+    ],
+    "topLinks": [{ "label": "项目", "url": "/projects/" }]
+  },
+  "layout": {
+    "sidebarSections": [
+      { "id": "updates", "display": "tab" },
+      { "id": "comments", "display": "tab" },
+      { "id": "friends", "display": "standalone", "position": "below" }
+    ]
+  },
+  "friends": [{ "name": "Astro 文档", "url": "https://docs.astro.build/", "description": "静态站点开发参考资料" }],
+  "comments": { "provider": "none" },
+  "scripts": {
+    "global": [{ "src": "/js/nekomi-widget-demo.js", "type": "module", "position": "body-end", "enabled": false }],
+    "byPage": [{ "path": "/about/", "src": "/js/nekomi-page-demo.js", "type": "module", "position": "head", "enabled": false }]
+  },
+  "appearance": {
+    "webFonts": [{ "family": "Noto Sans Latin", "src": "https://cdn.jsdelivr.net/npm/@fontsource/noto-sans@5.2.6/files/noto-sans-latin-400-normal.woff2", "weight": "400", "style": "normal", "preload": true }],
+    "brandFont": "\"Noto Sans Latin\", system-ui, \"PingFang SC\", sans-serif"
+  }
+}

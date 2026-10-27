@@ -1,5 +1,14 @@
 # 变更记录
 
+## 2026-10-26 · 独立页面、侧栏布局与用户脚本
+
+- 新增 pages Content Collection、独立静态 URL、slug / 草稿 / SEO / 封面 / 目录 / 默认关闭的评论；复用 Markdown 扩展与阅读增强。校验保留路径、重复 slug、同名静态文件及启用的无效导航引用，页面不进入文章搜索、分类、归档或 RSS。
+- navigation.pageTabs 提供真实首页 Markdown 面板，保留独立 URL、原有四个内容 Tab 与 Hash。页面正文 ID / ARIA 加命名空间，阅读增强按活动面板清理；返回含锚点的页面面板时暂时关闭恢复区域的 CSS scroll anchoring，保留 Astro 原生恢复坐标。
+- layout.sidebarSections 支持 tab / standalone、above / below 和顺序；默认 null 沿用旧 sidebarTabs，全常驻不生成空 Tabs。共用列表组件、不添加背景卡片；最近评论按活动 Tab 或独立模块可见性加载，关闭 Drawer 不请求。
+- 评论抽象为 CommentContent，原适配器 post 接口兼容；新增 pageKeyPrefix、页面默认关闭，启用后校验与文章的稳定键冲突，计数 / 最新查询可映射实际页面。
+- 新增默认空的 scripts.global / byPage：本地 public / HTTPS、module / classic、head / body-end、可选原生 SRI。资源执行一次，页面 mount / cleanup 与 AbortSignal 随导航管理，异步返回晚到仍清理，错误不阻塞核心。
+- 保留 WebFonts 加载器；核对外部 WOFF2、CORS 回退、字重 / italic / preload、子路径及跨页请求复用。补充组合配置、关于 / 项目 / 留言示例、页面 / 侧栏 / 脚本文档与有针对性的测试，无新增依赖或后端。
+
 ## 2026-10-25 · 全站返回顶部 FAB
 
 - 新增默认开启的 layout.backToTop，使用 MDUI 2.1.5 原生 mdui-fab；滚动超过 400px 显示，复用现有弹簧滚动与 Expressive 参数，减少动态时立即跳转。ui.navigation.backToTop 提供可覆盖的无障碍名称。

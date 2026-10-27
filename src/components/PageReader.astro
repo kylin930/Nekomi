@@ -1,0 +1,26 @@
+---
+import { render } from 'astro:content';
+import type { ContentPage } from '../lib/pages';
+import { pageMetadata, standaloneUrl } from '../lib/pages';
+import { readingOptions, ui, message, config } from '../config/site';
+import { withBase, assetUrl } from '../lib/urls';
+import TocTree from './TocTree.astro';
+import SiteImage from './SiteImage.astro';
+import Icon from './Icon.astro';
+import Comments from '../integrations/comments/Comments.astro';
+interface Props { page: ContentPage; inline?: boolean; rendered: Awaited<ReturnType<typeof render>> }
+const { page, inline = false, rendered } = Astro.props;
+const { Content, headings } = rendered;
+const options = readingOptions(page.data.reading);
+const prefix = inline ? 'sheet-' + encodeURIComponent(page.slug) + '-' : '';
+const id = (name: string) => prefix + name;
+---
+<article id={id('reader')} class="reader" data-content-reader data-inline-page={inline || undefined} data-reader-motion={String(options.motion)} data-copy-code={String(options.copyCode)} data-lightbox={String(options.lightbox)}>
+  <nav class="reader-breadcrumb" aria-label={ui.reading.breadcrumb}><mdui-button variant="text" href={inline ? standaloneUrl(page.slug) : withBase('') + '#recent'}><Icon name={inline ? 'open_in_new' : 'arrow_back'} slot="icon" />{inline ? ui.navigation.openPage : ui.common.backToPosts}</mdui-button></nav>
+  <header class="reader-header"><h1 id={id('article-title')}>{page.data.title}</h1></header>
+  {options.cover && assetUrl(page.data.cover) && <figure class="article-hero"><SiteImage src={page.data.cover} alt={page.data.coverAlt} kind="hero" /></figure>}
+  {(inline || options.toc) && options.toc && headings.length > 0 && <mdui-card variant="outlined" class:list={['toc-inline', { 'page-inline-toc': inline }]}><mdui-collapse id={id('inline-toc')} data-reader-id="inline-toc" accordion><mdui-collapse-item value="contents" id={id('inline-toc-item')} data-reader-id="inline-toc-item"><mdui-button slot="header" variant="text" class="toc-toggle" id={id('toc-toggle')} data-reader-id="toc-toggle"><span>{message(ui.reading.tocSummary, { count: headings.length })}</span><Icon slot="end-icon" id={id('toc-toggle-icon')} name="expand_more" /></mdui-button><nav id={id('toc-inline-list')} data-reader-id="toc-inline-list" class="toc-content" aria-label={ui.reading.tocCollapsed}><TocTree headings={headings} /></nav></mdui-collapse-item></mdui-collapse></mdui-card>}
+  <div id={id('article-body')} data-reader-id="article-body" class="prose"><Content /></div>
+  {config.comments.provider === 'link' && page.data.comments && page.data.commentsUrl && <mdui-button variant="text" href={page.data.commentsUrl}>{ui.reading.discuss}</mdui-button>}
+  <Comments content={pageMetadata(page)} prefix={prefix} />
+</article>

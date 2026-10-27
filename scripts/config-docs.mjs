@@ -12,6 +12,9 @@ writeFileSync(
   ) + "\n",
 );
 const descriptions = {
+  scripts: "默认 global / byPage 均为 []；支持 public/ 内 JS/MJS 和可信 HTTPS 资源，type 为 module/classic，position 为 head/body-end，enabled 默认 true、integrity 默认空。资源只执行一次，页面生命周期重新 mount / 清理；不支持 JSON 内联代码。head/body-end 是运行时异步插入位置，不阻塞 HTML 解析。资源重复、选项冲突及启用的本地文件缺失会报错。接口、安全与完整示例见 [自定义脚本](SCRIPTS.md)。",
+  'layout.sidebarSections': "默认 null，沿用旧 sidebarTabs；非 null 数组完整替代它。每项 id 为 updates/friends/comments，display 为 tab 或 standalone；standalone 的 position 为 above/below，默认 below，tab 不接受 position。各组按数组顺序排列，模块不可重复；[] 隐藏补充区域，全 standalone 不渲染空 Tabs。仍位于 layout.modules 的 tabs 插槽内，名称/预览限制沿用原配置。最新评论按活动 Tab 或独立模块可见性加载，关闭 Drawer 不查询。见 [侧栏布局](SIDEBAR.md)。",
+  'navigation.pageTabs': "默认 []，最多 8 项，slug/label 必填、enabled 默认 true。引用 pages 集合的非草稿页面，启用的引用不存在/为草稿时构建报错；重复引用/路由冲突报错。数组顺序决定四个内建 Tabs 后的追加顺序；是真实 Markdown 面板，页面仍有独立 URL。项目未启用不影响原首页，普通链接继续使用 topLinks/links。见 [独立页面](PAGES.md)。",
   demo: "全站示例保护；true 时禁止公开索引、RSS 条目与 Sitemap 条目。",
   demoNotice: "供导入方使用的示例说明，主题不渲染开发提示。",
   site: "站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。favicon / appleTouchIcon 使用 public/ 内路径或公开 HTTP(S) URL，自动补部署 base；留空保留空 favicon、不输出 Apple 图标。Apple 图标建议提供 180×180 PNG。",
@@ -46,7 +49,7 @@ const descriptions = {
   friends:
     "友链数组：name、HTTP(S) url、可选 avatar、description。为空时没有可点击的查看全部操作。",
   comments:
-    "provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/giscus/artalk 为动态 SDK，custom 在构建时选择浏览器模块。lazy 控制视口懒加载，counts/recent 分别控制额外计数与侧栏查询，recentLimit 为 1–10，timeout 为 3000–60000ms。keyPrefix 为不带域名及部署 base 的稳定线程前缀。服务字段只能填写公开连接参数，不能放管理凭据。详见 COMMENTS.md / COMMENT-ADAPTERS.md。",
+    "provider:none 默认关闭；link 为单篇站外讨论链接；waline/twikoo/giscus/artalk 为动态 SDK，custom 在构建时选择浏览器模块。lazy 控制视口懒加载，counts/recent 分别控制额外计数与侧栏查询，recentLimit 为 1–10，timeout 为 3000–60000ms。keyPrefix 为文章稳定线程前缀，pageKeyPrefix 为独立页面前缀（默认 /pages/），均不带域名及部署 base。页面评论默认关闭，启用后与文章身份校验冲突。服务字段只能填写公开连接参数，不能放管理凭据。详见 COMMENTS.md / COMMENT-ADAPTERS.md。",
   analytics:
     "仅支持可选 Umami 外部脚本。默认不输出脚本；enabled=true 必须同时提供 scriptUrl 和 websiteId。脚本只载入一次，SPA 计数交由 Umami。不能把私密密钥写入配置。",
 };
@@ -86,10 +89,10 @@ const contents = `## 目录
 
 - [站点信息](#site) · [界面文案](#ui)
 - [外观与预设](#appearance) · [字体](#appearancewebfonts) · [语义色](#appearancesemanticcolors) · [壁纸](#appearancewallpaper) · [角色装饰](#appearancedecorations)
-- [侧栏与布局](#layout) · [友链数据](#friends) · [友链页面](#friendspage)
-- [导航](#navigation)
+- [侧栏与布局](#layout) · [常驻模块](#layoutsidebarsections) · [友链数据](#friends) · [友链页面](#friendspage)
+- [导航](#navigation) · [独立页面 Tabs](#navigationpagetabs)
 - [文章与分类](#content) · [首页](#home) · [文章卡片](#cards) · [阅读](#reading) · [Markdown](#markdown)
-- [评论](#comments) · [第三方统计](#analytics)
+- [评论](#comments) · [自定义脚本](#scripts) · [第三方统计](#analytics)
 - [页脚与版权](#footer)
 - [发布与 SEO](#publishing) · [示例保护](#demo) · [兼容说明](#demonotice) · [搜索与 RSS / Sitemap 开关](#features)
 - [全部字段、默认值与范围](#字段默认值与范围)
@@ -99,7 +102,7 @@ const contents = `## 目录
 const sections = Object.entries(descriptions)
   .map(([name, desc]) => `## ${name}\n\n${desc}\n`)
   .join("\n");
-const tail = `\n## 接口与依赖\n\n- social: \`{ name, url, icon? }\`；icon 默认 auto，自动识别 github.com、bilibili.com / b23.tv、mailto；其他链接使用 link。可显式填 github / bilibili / link / mail--outlined 或原有 MDUI 图标名。链接不接受 javascript: / data:。\n- friends: \`{ name, url, avatar?, description? }\`，没有头像仍保留文字回退。\n- navigation.tabs: \`{ id, label, enabled? }\`；links/footer.links: \`{ label, url }\`。\n- comments.items / anchorsEnabled 为旧预览兼容：仅 provider=none/link 且 demo:true 的行会显示“示例留言”，非 demo 行不再作为正常数据源。动态服务忽略该数组。\n- comments.provider=link 仅在文章填写有效 HTTP(S) commentsUrl 时显示“参与讨论”。动态适配器通过统一 CommentAdapter 管理生命周期；assets 可显式覆盖可信的 SDK / CSS 地址与 SRI。custom.module 必须是项目内已有 TS/JS/MJS 文件，custom.options 仅接受可公开的 JSON。具体服务最小配置、能力差异、稳定键迁移和安全说明见 [评论接入](COMMENTS.md)；自建模块见 [适配器开发](COMMENT-ADAPTERS.md)。\n- 头像/封面使用 images/name.jpg 对应 src/assets/images/name.jpg，可由 Astro 优化；public/images/name.jpg 使用 /images/name.jpg。壁纸必须使用 public 路径或 HTTP(S) 地址。图片缺失沿用回退。\n- 全站预览的 demo:true、publishing.indexing:false 默认保护示例。发布真实内容需要 demo:false、indexing:true 和真实 url；每篇 demo:true 仍被排除。draft:true 始终不生成文章页、列表、搜索、RSS。\n- 搜索覆盖全部公开文章元数据；分页大小在 publishing.pageSize 配置，2–24，默认 6。置顶优先，再按日期倒序；RSS 始终按日期。关闭 JS 仍有真实分页与分类链接。\n- layout.modules 不包含 search 时也不安装 / 搜索快捷键；features.search=false 还会关闭查询搜索。侧栏为空仍保留手机 App Bar 与主题控制。\n- reading.motion=false 控制阅读扩展动画；系统 prefers-reduced-motion 对全站所有自定义及 MDUI 动画优先。\n- NEKOMI_CONFIG 指向一份完整用户配置（相对于主题默认值，不继承 site.config.json）；NEKOMI_CONTENT_DIR 指向 Markdown 目录。两者可用于独立维护个人配置/文章。只使用受信任的 Markdown，支持原始 HTML，不将其作为不可信投稿接口。\n`;
+const tail = `\n## 接口与依赖\n\n- social: \`{ name, url, icon? }\`；icon 默认 auto，自动识别 github.com、bilibili.com / b23.tv、mailto；其他链接使用 link。可显式填 github / bilibili / link / mail--outlined 或原有 MDUI 图标名。链接不接受 javascript: / data:。\n- friends: \`{ name, url, avatar?, description? }\`，没有头像仍保留文字回退。\n- navigation.tabs: \`{ id, label, enabled? }\`；links/footer.links: \`{ label, url }\`。\n- comments.items / anchorsEnabled 为旧预览兼容：仅 provider=none/link 且 demo:true 的行会显示“示例留言”，非 demo 行不再作为正常数据源。动态服务忽略该数组。\n- comments.provider=link 仅在文章填写有效 HTTP(S) commentsUrl 时显示“参与讨论”。动态适配器通过统一 CommentAdapter 管理生命周期；assets 可显式覆盖可信的 SDK / CSS 地址与 SRI。custom.module 必须是项目内已有 TS/JS/MJS 文件，custom.options 仅接受可公开的 JSON。具体服务最小配置、能力差异、稳定键迁移和安全说明见 [评论接入](COMMENTS.md)；自建模块见 [适配器开发](COMMENT-ADAPTERS.md)。\n- 头像/封面使用 images/name.jpg 对应 src/assets/images/name.jpg，可由 Astro 优化；public/images/name.jpg 使用 /images/name.jpg。壁纸必须使用 public 路径或 HTTP(S) 地址。图片缺失沿用回退。\n- 全站预览的 demo:true、publishing.indexing:false 默认保护示例。发布真实内容需要 demo:false、indexing:true 和真实 url；每篇 demo:true 仍被排除。draft:true 始终不生成文章页、列表、搜索、RSS。\n- 搜索覆盖全部公开文章元数据；分页大小在 publishing.pageSize 配置，2–24，默认 6。置顶优先，再按日期倒序；RSS 始终按日期。关闭 JS 仍有真实分页与分类链接。\n- layout.modules 不包含 search 时也不安装 / 搜索快捷键；features.search=false 还会关闭查询搜索。侧栏为空仍保留手机 App Bar 与主题控制。\n- reading.motion=false 控制阅读扩展动画；系统 prefers-reduced-motion 对全站所有自定义及 MDUI 动画优先。\n- NEKOMI_CONFIG 指向一份完整用户配置（相对于主题默认值，不继承 site.config.json）；NEKOMI_CONTENT_DIR 指向文章 Markdown 目录，NEKOMI_PAGES_DIR 指向独立页面目录。两者可用于独立维护个人配置/文章。只使用受信任的 Markdown，支持原始 HTML，不将其作为不可信投稿接口。\n`;
 writeFileSync(
   "docs/CONFIGURATION.md",
   intro +

@@ -24,6 +24,7 @@ let generation = 0;
 let visited = false;
 let navigationType;
 let decorations;
+let userScripts;
 const base = new URL(data.base, location.origin);
 const postUrl = id => new URL('posts/' + encodeURIComponent(id) + '/', base).href;
 const filterUrl = query => new URL('?q=' + encodeURIComponent(query) + '#recent', base).href;
@@ -158,7 +159,12 @@ function createSite() {
   };
   ['pointerover', 'focusin'].forEach(type => document.addEventListener(type, hoverPrefetch, { passive: true }));
   ['pointerout', 'focusout', 'astro:before-preparation'].forEach(type => document.addEventListener(type, cancelPrefetch, { passive: true }));
-  return { data, drawer, setSearch, notify, postUrl, closeModal, go: navigate, recoverImages };
+  return { data, drawer, setSearch, notify, postUrl, closeModal, go: navigate, recoverImages,
+    enterComments(root, signal, navigationType) {
+      this.commentContext = { root, signal, navigationType };
+      comments?.enterPage(signal, navigationType, root);
+    },
+  };
 }
 function showCommentRuntimeError() {
   if (!commentRuntimeError) return;
@@ -183,7 +189,8 @@ async function initialize() {
       // Optional comments must not block the site's search, navigation or theme boot.
       import('../integrations/comments/controller').then(({ createComments }) => {
         comments = createComments(site);
-        if (pageController && !pageController.signal.aborted && document.getElementById('main-content').dataset.enhanced === 'true') comments.enterPage(pageController.signal, navigationType);
+        const context = site.commentContext;
+        if (context && !context.signal.aborted) comments.enterPage(context.signal, context.navigationType, context.root);
       }).catch(() => { commentRuntimeError = true; showCommentRuntimeError(); });
     }
   });
@@ -197,14 +204,16 @@ async function initialize() {
   disposePage?.();
   pageController = new AbortController();
   const signal = pageController.signal;
+  if (!userScripts && [...data.scripts.global, ...data.scripts.byPage].some(entry => entry.enabled)) userScripts = import('../integrations/scripts/client').then(module => module.createUserScripts(data.scripts, data.base));
+  userScripts?.then(manager => { if (!signal.aborted) manager.enterPage(signal); });
   // Comments may first appear after a home-page visit with no sidebar decoration.
   if (!decorations && document.querySelector('[data-decoration]')) decorations = import('./decorations').then(module => module.initDecorations);
   if (decorations) decorations.then(init => { if (!signal.aborted) init(document.getElementById('main-content'), signal); });
   document.querySelectorAll('[data-site-sidebar] [data-post], [data-sidebar=mobile] [data-post]').forEach(item => { item.active = item.dataset.post === document.body.dataset.postId; });
-  if (document.body.dataset.page === 'home') disposePage = initHome(site, signal);
-  else if (document.body.dataset.page === 'article') disposePage = initArticle(site, signal, navigationType);
+  if (document.body.dataset.page === 'home') disposePage = initHome(site, signal, navigationType);
+  else if (['article', 'content'].includes(document.body.dataset.page)) disposePage = initArticle(site, signal, navigationType);
   else disposePage = undefined;
-  comments?.enterPage(signal, navigationType);
+
   showCommentRuntimeError();
   document.getElementById('main-content').dataset.enhanced = 'true';
   if (!visited) motion.enter(document.getElementById('main-content'));

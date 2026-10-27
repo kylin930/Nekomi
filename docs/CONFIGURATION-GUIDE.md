@@ -13,6 +13,7 @@
 - [分类颜色](#分类颜色)
 - [侧栏模块与名称](#侧栏模块与名称)
 - [返回顶部按钮](#返回顶部按钮)
+- [独立页面、侧栏常驻与自定义脚本](#独立页面侧栏常驻与自定义脚本)
 - [顶部导航链接](#顶部导航链接)
 - [页脚与版权](#页脚与版权)
 - [接入评论](#接入评论)
@@ -144,6 +145,16 @@
 ```
 
 不需要时将 `layout.backToTop` 设为 `false`，不渲染按钮或加载对应脚本。按钮避开移动端安全区域，Drawer、Dialog、提示条和图片灯箱打开时暂时隐藏；返回列表仍使用原有位置恢复，不修改 Hash 或浏览器历史。
+
+## 独立页面、侧栏常驻与自定义脚本
+
+在 `src/content/pages/` 写普通 Markdown，可生成 `/about/` 等独立 URL。`navigation.pageTabs` 可把它加入真正的首页内容面板；默认空数组不改变首页。[编写页面与评论](PAGES.md)。
+
+`layout.sidebarSections` 可把 updates / friends / comments 设为 tab 或 standalone，并放在 Tabs 上下方。不填写时继续使用旧 sidebarTabs；全部常驻时不会出现空 Tab 栏。[侧栏配置示例](SIDEBAR.md)。
+
+自有 JS 使用 `scripts.global / byPage`，支持 public/ 资源和可信 HTTPS；默认均为空，示例配置也关闭了挂件。需要按生命周期挂载和清理，不要靠重复 script 标签启动页面挂件。[接口与可复制代码](SCRIPTS.md)。
+
+[完整组合示例](../examples/site-features.config.json)可直接作为 NEKOMI_CONFIG 使用，不覆盖根配置；其中关于进入 Tab、项目只保留普通链接、友链常驻在下方，并给出 HTTPS WOFF2 示例。最新评论在真正接入支持该能力的评论服务后才显示。
 
 ## 顶部导航链接
 
