@@ -1,7 +1,4 @@
-<h1 align="center">
-  <img src="public/favicon.svg" width="60" height="60" alt="" /><br />
-  Nekomi
-</h1>
+<h1 align="center"><img src="public/favicon.svg" width="60" height="60" alt="" /><br />Nekomi</h1>
 
 <p align="center">基于 Astro、MDUI 2 与 Material Design 3 的开源博客主题。<br />通过配置和 Markdown，搭建自己的静态博客。</p>
 
