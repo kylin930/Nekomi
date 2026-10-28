@@ -64,7 +64,7 @@
 
 ## 站点图标
 
-`site.favicon` 和 `site.appleTouchIcon` 可留空。前者未设置时沿用空 favicon，后者不输出标签。PNG / ICO / SVG 可用于 favicon；Apple 图标建议 180×180 PNG。资源在 `public/` 中按原样发布，不会构建时抓取外链。浏览器可能缓存图标，替换后可改文件名。
+`site.favicon` 和 `site.appleTouchIcon` 可省略或留空，分别自动使用主题内置的正式 `/favicon.svg` 与 180×180 `/apple-touch-icon.png`，不需要手动写入默认路径。两项均可通过本地文件或 HTTPS URL 单独覆盖，自动适配部署 base；PNG / ICO / SVG 可用于 Favicon，Apple 图标建议 180×180 PNG。资源按原样发布，不在构建时抓取外链。图标与 `site.avatar` 独立，不会替换用户头像。[配置与缓存说明](CONFIGURATION-GUIDE.md#浏览器与设备图标) · [正式品牌资源](BRANDING.md)
 
 ## 移动端壁纸
 

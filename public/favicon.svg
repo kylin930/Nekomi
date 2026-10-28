@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1536 1536" role="img" aria-labelledby="title desc">
+  <title id="title">Nekomi</title>
+  <desc id="desc">Soft purple rounded-square icon with a white cat peeking from the bottom left and a subtle page-turn shape.</desc>
+  <defs>
+    <clipPath id="app-shape">
+      <rect x="35" y="35" width="1466" height="1466" rx="367"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#app-shape)">
+    <!-- MD3-inspired lavender base -->
+    <rect x="35" y="35" width="1466" height="1466" fill="#C8B4F4"/>
+
+    <!-- The soft page fold is a single quiet accent, not another illustration -->
+    <path d="M 942 35 H 1501 V 559
+             C 1390 643 1246 653 1127 600
+             C 941 518 850 317 942 35 Z"
+          fill="#E4D9FC"/>
+
+    <!-- One flowing, open-page curve to give the icon its own identity -->
+    <path d="M 35 570
+             C 356 458 624 519 844 670
+             C 1034 801 1220 1030 1501 1064
+             V 1501 H 35 Z"
+          fill="#A78CE6"/>
+
+    <!-- White cat; preserve the original peeking-from-left composition -->
+    <path d="M -32 1006
+             C 8 1000 52 961 87 933
+             C 131 796 219 627 272 626
+             C 322 618 412 762 463 838
+             C 578 843 700 889 764 962
+             C 877 921 984 889 1026 918
+             C 1078 952 1043 1075 1013 1137
+             C 991 1191 970 1231 963 1244
+             C 985 1348 977 1454 947 1539
+             L -35 1539 Z"
+          fill="#FFFFFF"/>
+
+    <!-- Facial elements deliberately remain large and simple for favicons -->
+    <circle cx="291" cy="1115" r="52" fill="#7354BD"/>
+    <circle cx="691" cy="1267" r="52" fill="#7354BD"/>
+    <path d="M 412 1236
+             C 427 1260 445 1257 459 1243
+             C 475 1226 476 1264 498 1277
+             Q 509 1284 529 1282"
+          fill="none" stroke="#7354BD" stroke-width="29" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

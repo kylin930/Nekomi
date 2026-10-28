@@ -1,0 +1,7 @@
+{
+  "$schema": "../site.schema.json",
+  "site": {
+    "favicon": "/icons/my-icon.svg",
+    "appleTouchIcon": "/icons/my-touch-icon.png"
+  }
+}

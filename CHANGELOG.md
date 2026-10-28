@@ -1,5 +1,11 @@
 # 变更记录
 
+## 2026-10-28 · 正式 Logo 与默认站点图标
+
+- 原样接入维护者提供的正式 SVG 至 public/favicon.svg；从同一源生成 180×180 Apple 图标、16 / 32 / 48px ICO 和仓库社交预览 PNG，没有重绘或改变主题配色。
+- 未配置或留空 site.favicon / appleTouchIcon 时自动使用主题内置资源；自定义本地 / HTTPS 图标优先，SVG MIME 与部署 base 正确，头像配置不变。
+- README 展示正式 Logo，更新配置指南、Schema 字段说明、示例和定向回归。Social Preview 图片只准备资源，仍需维护者在 GitHub 设置手动上传；未创建官网或修改其他主题功能。
+
 ## 2026-10-26 · 独立页面、侧栏布局与用户脚本
 
 - 新增 pages Content Collection、独立静态 URL、slug / 草稿 / SEO / 封面 / 目录 / 默认关闭的评论；复用 Markdown 扩展与阅读增强。校验保留路径、重复 slug、同名静态文件及启用的无效导航引用，页面不进入文章搜索、分类、归档或 RSS。

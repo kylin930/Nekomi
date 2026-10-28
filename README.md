@@ -1,3 +1,5 @@
+<img src="public/favicon.svg" width="80" height="80" alt="Nekomi Logo" />
+
 # Nekomi
 
 **代码版本：1.0.0** · [中文发布说明](docs/releases/v1.0.0.md)
@@ -7,6 +9,8 @@
 **文档导航：** [快速开始](#开始使用) · **[配置说明](docs/CONFIGURATION.md)** · [写作指南](docs/MARKDOWN.md) · [评论接入](docs/COMMENTS.md) · [部署指南](docs/PUBLISHING.md)
 
 第一次配置站点？先看 **[简明配置指南](docs/CONFIGURATION-GUIDE.md)**：修改名称、头像、配色、壁纸、侧栏和页脚，或接入评论。[完整配置示例](examples/full.config.json)与 [JSON Schema](site.schema.json) 供复制查阅和编辑器补全。
+
+主题自带正式 SVG Favicon 和 Apple 设备图标，无需配置；`site.favicon`、`site.appleTouchIcon` 可覆盖，留空恢复内置图标，与 `site.avatar` 独立。[图标配置](docs/CONFIGURATION-GUIDE.md#浏览器与设备图标) · [品牌资源与 GitHub Social Preview](docs/BRANDING.md)
 
 ![Nekomi 默认首页](screenshots/p30-default-home-light-1440.png)
 

@@ -159,7 +159,7 @@ test('P3.1 reading and Markdown defaults remain separately configurable', () => 
   assert.throws(() => resolveConfig({ markdown: { math: 'yes' } }), /markdown.math/);
 });
 
-test('decorations and icon defaults leave the existing layout and network untouched', () => {
+test('decorations stay off; empty icon configuration delegates to bundled layout defaults', () => {
   const c = resolveConfig({});
   assert.equal(c.site.favicon, '');
   assert.equal(c.site.appleTouchIcon, '');
@@ -172,6 +172,20 @@ test('decorations and icon defaults leave the existing layout and network untouc
   assert.equal(c.appearance.wallpaper.mobileDark, '');
   assert.equal(c.layout.recentPostsLimit, 5);
   assert.equal(c.layout.friendsPreviewLimit, 5);
+});
+
+test('icons accept omitted, blank, public and HTTPS sources without changing the avatar', () => {
+  for (const value of ['', ' ', '/icons/mine.svg?v=2', 'icons/mine.png', 'https://icons.example/mine.svg?v=2']) {
+    const c = resolveConfig({ site: { favicon: value, appleTouchIcon: value, avatar: '/images/my-avatar.webp' } });
+    assert.equal(c.site.favicon, value);
+    assert.equal(c.site.appleTouchIcon, value);
+    assert.equal(c.site.avatar, '/images/my-avatar.webp');
+  }
+  for (const field of ['favicon', 'appleTouchIcon']) {
+    for (const value of ['javascript:alert(1)', 'data:image/svg+xml,bad', '//icons.example/a.svg', '../secret.svg', 'https://user:pass@icons.example/a.svg', null]) {
+      assert.throws(() => resolveConfig({ site: { [field]: value } }), new RegExp('site.' + field));
+    }
+  }
 });
 
 test('decoration ranges, public sources and preview limits are validated', () => {

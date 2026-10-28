@@ -1,3 +1,18 @@
+# 正式 Logo 与默认图标 · 2026-10-28
+
+基于最新 main `fde845b`，在 work 分支接入维护者提供的唯一 SVG，版本仍为 1.0.0；无新增依赖。源文件与附件逐字节相同，SHA-256 为 `ff1f48cd17f0812baa7ae3651ab25b05e0c4ededd966c9625442ab5c99a87ef3`。
+
+- **40 项配置单测通过**；Astro Check **0 errors / 0 warnings / 1 原有 execCommand hint**。
+- **五套生产静态构建通过**：真实默认配置、空图标加 `/Nekomi/` 配置 base、本地图标加 `SITE_BASE=/Theme/` 覆盖、HTTPS 图标、PNG Favicon。配置与产物均在忽略的 `.astro/brand-tests/` 中，默认配置不需要填写任何图标路径。
+- **20 组 Chromium 浏览器通过**：五套 × 桌面 1440 / 手机 390 × 浅深。核对唯一 Favicon、SVG MIME（含 URL 查询参数）、Apple 链接与真实图像解码；本地同源资源返回 200、正确 MIME 和原始字节；已包含 base 的路径不重复拼接，自定义 HTTPS 不被改写。PNG 图标没有错误的 SVG MIME。
+- 首页 → 文章 → 后退保留文档 timeOrigin，各次导航后图标正确，无失败资源或页面错误；图标没有变成站点头像。默认没有 ICO 竞争请求，没有新增第三方资源依赖。
+- SVG 无外部依赖；Apple PNG 为 180×180 RGBA，ICO 为 16 / 32 / 48px PNG 条目，社交预览为 1280×640。README 引用本地正式 SVG，原有主题截图保留；浏览器实际检查 16 / 32 / 64px 与浅深背景，未改变 Logo 配色或路径。
+- Zod 与生成的 JSON Schema / 配置文档同步，图标省略或留空仍保留空配置默认值，由布局回退到主题内置资源；危险 URL / null 继续明确报错，用户头像和个性化资源未改动。
+
+[品牌资源 / 社交预览](../docs/BRANDING.md) · [实际图标对照](../docs/brand/browser-icons.png) · [自定义图标示例](../examples/icons.config.json)。浏览器为 Chromium 154；既有 Google Fonts 在本专项中隔离为空 CSS，HTTPS 自定义图标使用正式资源的受控响应，不声称验证任意远端服务。未实测 Apple 真机“添加到主屏幕”，也未重新运行与本次无关的 Markdown / 评论 / 全量视觉矩阵。GitHub Social Preview 仅生成图片、未上传设置；工作区未包含独立官网。
+
+---
+
 # 独立页面、侧栏布局与自定义脚本 · 2026-10-26
 
 基于最新 main f8e44c5，在 work 分支开发；保持 1.0.0、Astro / MDUI 2.1.5 和依赖锁文件。用户要求停止扩大测试后，没有再运行完整矩阵，只完成已发现问题的定向核对。
