@@ -30,7 +30,7 @@
 - **数组整体替换**：`layout.modules`、`site.social`、`navigation.tabs`、`footer.links` 等不会按位置合并。调整顺序时写出想保留的全部项；`[]` 表示空列表。
 - **显式值优先**：选择预设后，自己写的配色、字体和圆角会覆盖预设对应值。想恢复默认值，应删除对应字段；`false` 是关闭，`""` 是空字符串，不等于“恢复默认”。是否允许留空取决于字段，不要用 `null` 代替省略。
 
-示例中的图片路径和服务地址需要换成自己的资源。缺省评论、壁纸和角色装饰均关闭。使用 `NEKOMI_CONFIG` 指向其他配置文件时，该文件继承主题默认值，**不叠加**仓库根配置；维护个人文件的方法见 [升级与保留个人配置](../README.md#从-p24-迁移与保留个人配置)。
+示例中的图片路径和服务地址需要换成自己的资源。缺省评论、壁纸和角色装饰均关闭。使用 `NEKOMI_CONFIG` 指向其他配置文件时，该文件继承主题默认值，**不叠加**仓库根配置；维护自己的文件见[升级指南](UPDATING.md)。
 
 ## 站点名称与头像
 
@@ -279,4 +279,4 @@ npm run preview
 
 构建会校验配置，错误信息包含具体字段路径。编辑器的 [JSON Schema](../site.schema.json) 提供补全，但不能代替构建时的跨字段检查。
 
-首次发布前再设置真实域名、部署路径、`demo` 和索引开关；不要为移除界面提示而修改示例文章的 `demo: true`。操作步骤见 [发布与 SEO](PUBLISHING.md)，托管设置见 [GitHub Pages](../README.md#github-pages) / [Cloudflare Pages](../README.md#cloudflare-pages)。
+首次发布前再设置真实域名、部署路径、`demo` 和索引开关；不要为移除界面提示而修改示例文章的 `demo: true`。操作步骤见 [发布与 SEO](PUBLISHING.md)，托管设置见 [GitHub Pages](PUBLISHING.md#github-pages) / [Cloudflare Pages](PUBLISHING.md#cloudflare-pages)。

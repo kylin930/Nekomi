@@ -15,7 +15,7 @@
 
 随机 `nekopara.uk/pic_api` 始终由现有运行时图片加载器 / Service Worker 处理，不能放进 Astro Image 或远程图片白名单。内部导航保留相同壁纸 DOM、图像与加载任务。所有图片保留失败回退：头像文字、封面 / 头图收起、正文说明。
 
-## 正文灯箱（P3.1）
+## 正文灯箱
 
 正文 `![替代文字](images/photo.webp "说明")` 中的 images/ 对应 src/assets/images/；Astro 保留响应式优化、srcset 与宽高，灯箱使用原始本地资产。src/ 之外的相对文章资源由公开 getImage API 额外输出同格式的全分辨率版本。public/ 与外部图片仍使用其原地址，不在构建时抓取随机资源。
 

@@ -33,7 +33,7 @@ Waline / Twikoo / Artalk 的 npm 客户端资源固定版本并带 SRI。Giscus 
 }
 ```
 
-示例地址不是已部署服务。`lazy` 在评论区接近视口时挂载；`counts:false` 不发起 Nekomi 的额外计数查询，不显示顶部计数（SDK 自身列表仍可能显示其自带计数）。`recent:false` 隐藏侧栏最新评论；模块顺序仍由 `layout.sidebarTabs` 决定。最近列表只在实际打开页签时查询，成功结果在本次文档内缓存 60 秒；切走会取消未完成请求。不会轮询，也不会预读所有文章的评论。
+示例地址不是已部署服务。`lazy` 在评论区接近视口时挂载；`counts:false` 不发起 Nekomi 的额外计数查询，不显示顶部计数（SDK 自身列表仍可能显示其自带计数）。`recent:false` 隐藏侧栏最新评论；模块顺序和展示方式由 `layout.sidebarSections` 决定，未配置时使用 `layout.sidebarTabs`。Tab 模式在实际激活时查询，常驻模块按可见性与懒加载设置查询，手机 Drawer 关闭时不查询；成功结果在本次文档内缓存 60 秒，不可见时取消未完成请求。不会轮询，也不会预读所有文章的评论。详见[侧栏说明](SIDEBAR.md#最新评论的加载)。
 
 `timeout` 为 3000–60000ms，每个初始化 / 查询任务的时间预算；失败显示重试。普通网络请求使用 AbortSignal；不支持取消的 SDK 请求在独立浏览上下文销毁时终止。正常空列表显示空状态；不支持最近查询的自定义适配器显示能力说明。
 
@@ -43,7 +43,7 @@ Waline / Twikoo / Artalk 的 npm 客户端资源固定版本并带 SRI。Giscus 
 comments: false
 ```
 
-该文章不输出评论容器，不初始化评论实例；最新评论也不会链接到已关闭评论的文章。`provider:none` 关闭整站，`provider:link` 保留 P2.5 早期的单篇 `commentsUrl` 站外讨论链接方式。
+该文章不输出评论容器，不初始化评论实例；最新评论也不会链接到已关闭评论的文章。`provider:none` 关闭整站，`provider:link` 使用单篇 `commentsUrl` 提供站外讨论链接。
 
 ## Waline
 
@@ -135,7 +135,7 @@ Waline / Artalk 也可显式保存旧的完整 HTTP(S) URL；Twikoo 官方要求
 
 部分服务把 path / pageKey 同时作为服务端通知链接来源。配置服务端 SITE_URL / 站点 URL 时考虑项目子路径；修改文章 URL 后保留主机重定向或旧路由，并按服务的迁移工具处理旧链接。Nekomi 能保持线程标识和本站列表映射，不能自动重写远程数据库中的邮件链接或历史讨论内容。
 
-P2.5 早期 `comments.items` 只保留**明确 demo:true 的静态预览兼容**，显示“示例留言”；动态服务完全忽略该数组。非 demo 旧数据会给出迁移提示，应导入相应服务。它不再是正常站点最近评论的数据来源。anchorsEnabled 只用于旧预览，不控制动态适配器能力。
+`comments.items` 只保留**明确 demo:true 的静态预览兼容**，显示“示例留言”；动态服务完全忽略该数组。非 demo 旧数据会给出迁移提示，应导入相应服务。它不是正常站点最近评论的数据来源。anchorsEnabled 只用于旧预览，不控制动态适配器能力。
 
 ## 生命周期、隐私与资源
 
