@@ -1,29 +1,18 @@
-<img src="public/favicon.svg" width="80" height="80" alt="Nekomi Logo" />
+<h1 align="center">
+  <img src="public/favicon.svg" width="60" height="60" alt="" /><br />
+  Nekomi
+</h1>
 
-# Nekomi
+<p align="center">基于 Astro、MDUI 2 与 Material Design 3 的开源博客主题。<br />通过配置和 Markdown，搭建自己的静态博客。</p>
 
-一个基于 Astro、MDUI 2 与 Material Design 3 的开源博客主题，通过配置和 Markdown 搭建自己的静态博客。
-
-**[配置指南](docs/CONFIGURATION-GUIDE.md)** · [快速开始](#快速开始) · [文档](#文档) · [GitHub](https://github.com/kylin930/Nekomi) · [MIT 许可证](LICENSE)
-
-## 主题预览
-
-![Nekomi 默认主题桌面首页](screenshots/p30-default-home-light-1440.png)
-
-[手机阅读](screenshots/p30-default-reader-light-390.png) · [深色模式](screenshots/p30-default-home-dark-1440.png)
-
-## 主要特性
-
-- **外观与个性化**：Default、Fresh、Minimal 三种预设，支持自定义配色、字体、头像、壁纸与可选角色装饰，适配浅色、深色和手机布局。
-- **阅读与 Markdown**：代码高亮、目录、代码复制、图片灯箱、数学公式与 Mermaid 图表，以及提示块、折叠、内容 Tabs 等写作组件。
-- **内容组织**：文章与独立 Markdown 页面，分类、标签、归档、搜索、静态分页和可选无限滚动。
-- **导航与交互**：可配置导航和侧栏模块，无刷新切换、跨页壁纸保留与列表位置恢复；动效尊重系统的减少动态效果设置。
-- **评论与扩展**：可选 Waline、Twikoo、Giscus、Artalk，支持自建评论适配器与自定义脚本；第三方评论和统计默认关闭。
-- **SEO 与部署**：分享元数据、RSS、Sitemap 和索引控制，构建后输出纯静态文件，无需运行博客后端。
+<p align="center">
+  <a href="docs/CONFIGURATION-GUIDE.md">配置指南</a> ·
+  <a href="#快速开始">快速开始</a> ·
+  <a href="#文档">文档</a> ·
+  <a href="LICENSE">MIT 许可证</a>
+</p>
 
 ## 快速开始
-
-### 运行项目
 
 推荐 **Node.js 24 LTS**，最低版本为 **22.23.4**，使用 npm 安装依赖。
 
@@ -34,7 +23,31 @@ npm ci
 npm run dev
 ```
 
-打开 `http://localhost:4321`。将项目推送到自己的仓库前，请先修改 Git 远程地址。
+打开 `http://localhost:4321`，接着[修改配置与编写文章](#配置与写作)。将项目推送到自己的仓库前，请先修改 Git 远程地址。
+
+## 主题预览
+
+<p align="center">
+  <img src="screenshots/p30-default-home-light-1440.png" width="72%" alt="Nekomi 默认主题桌面首页" />
+  <img src="screenshots/p30-default-reader-light-390.png" width="16%" alt="Nekomi 手机文章阅读页" />
+</p>
+
+<p align="center">
+  <a href="screenshots/p30-default-home-light-1440.png">桌面原图</a> ·
+  <a href="screenshots/p30-default-reader-light-390.png">手机原图</a> ·
+  <a href="screenshots/p30-default-home-dark-1440.png">深色模式</a>
+</p>
+
+## 主要特性
+
+- **外观与个性化**：三种预设，自定义配色、字体、壁纸与装饰，适配深浅主题。
+- **阅读与 Markdown**：代码高亮、目录、灯箱、公式与图表，适合长文阅读。
+- **内容组织**：文章、独立页面、分类与标签，支持搜索、分页和自动加载。
+- **导航与交互**：灵活的导航和侧栏，无刷新切换与壁纸保留，返回列表恢复位置。
+- **评论与扩展**：按需接入评论、统计和自定义脚本，也支持自建评论适配器。
+- **SEO 与部署**：分享信息、RSS 与站点地图，输出可直接托管的静态文件。
+
+## 配置与写作
 
 ### 修改站点配置
 
@@ -87,19 +100,10 @@ public/                按原路径发布的文件
 
 ## 文档
 
-| 需求 | 文档 |
-| --- | --- |
-| 修改常用设置 | **[简明配置指南](docs/CONFIGURATION-GUIDE.md)** |
-| 查询全部配置项 | [完整配置参考](docs/CONFIGURATION.md) · [完整配置示例](examples/full.config.json) |
-| 写文章与使用扩展组件 | [Markdown 写作](docs/MARKDOWN.md) · [文章信息](src/content/README.md) |
-| 添加关于、项目等页面 | [独立页面](docs/PAGES.md) |
-| 调整侧栏与导航 | [侧栏布局](docs/SIDEBAR.md) · [导航配置](docs/CONFIGURATION.md#navigation) |
-| 更换配色、字体与图片 | [个性化配置](docs/PERSONALIZATION.md) · [图片接入](docs/IMAGES.md) |
-| 使用角色装饰或品牌图标 | [可选装饰](docs/DECORATIONS.md) · [品牌资源](docs/BRANDING.md) |
-| 接入评论服务 | [评论接入](docs/COMMENTS.md) · [自建适配器](docs/COMMENT-ADAPTERS.md) |
-| 加载自己的 JavaScript | [自定义脚本](docs/SCRIPTS.md) |
-| 配置域名、SEO 与托管 | [部署指南](docs/PUBLISHING.md) |
-| 更新主题并保留内容 | [升级指南](docs/UPDATING.md) |
+- **配置与外观**：**[配置指南](docs/CONFIGURATION-GUIDE.md)** · [完整参考](docs/CONFIGURATION.md) · [配置示例](examples/full.config.json) · [个性化](docs/PERSONALIZATION.md) · [图片](docs/IMAGES.md) · [装饰](docs/DECORATIONS.md) · [品牌资源](docs/BRANDING.md)
+- **写作与页面**：[Markdown 写作](docs/MARKDOWN.md) · [文章信息](src/content/README.md) · [独立页面](docs/PAGES.md)
+- **导航与扩展**：[侧栏](docs/SIDEBAR.md) · [导航](docs/CONFIGURATION.md#navigation) · [评论接入](docs/COMMENTS.md) · [自建适配器](docs/COMMENT-ADAPTERS.md) · [自定义脚本](docs/SCRIPTS.md)
+- **发布与维护**：[部署指南](docs/PUBLISHING.md) · [升级指南](docs/UPDATING.md)
 
 ## 部署
 
