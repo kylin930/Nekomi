@@ -1007,11 +1007,13 @@
         },
         "favicon": {
           "default": "",
+          "description": "Browser icon. Omitted or blank uses the bundled Nekomi favicon.svg; a public/ path or HTTP(S) URL overrides it. Independent of site.avatar.",
           "type": "string",
           "maxLength": 2048
         },
         "appleTouchIcon": {
           "default": "",
+          "description": "Apple home screen icon. Omitted or blank uses the bundled 180×180 apple-touch-icon.png; a public/ path or HTTP(S) URL overrides it.",
           "type": "string",
           "maxLength": 2048
         },

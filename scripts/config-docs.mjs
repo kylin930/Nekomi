@@ -17,7 +17,7 @@ const descriptions = {
   'navigation.pageTabs': "默认 []，最多 8 项，slug/label 必填、enabled 默认 true。引用 pages 集合的非草稿页面，启用的引用不存在/为草稿时构建报错；重复引用/路由冲突报错。数组顺序决定四个内建 Tabs 后的追加顺序；是真实 Markdown 面板，页面仍有独立 URL。项目未启用不影响原首页，普通链接继续使用 topLinks/links。见 [独立页面](PAGES.md)。",
   demo: "全站示例保护；true 时禁止公开索引、RSS 条目与 Sitemap 条目。",
   demoNotice: "供导入方使用的示例说明，主题不渲染开发提示。",
-  site: "站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。favicon / appleTouchIcon 使用 public/ 内路径或公开 HTTP(S) URL，自动补部署 base；留空保留空 favicon、不输出 Apple 图标。Apple 图标建议提供 180×180 PNG。",
+  site: "站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。favicon / appleTouchIcon 使用 public/ 内路径或公开 HTTP(S) URL，自动补部署 base；省略或留空自动使用主题内置 favicon.svg 与 180×180 apple-touch-icon.png，不必将默认路径写入配置。自定义图标优先，SVG 声明 image/svg+xml；这两项与 site.avatar 独立。详见 [图标配置](CONFIGURATION-GUIDE.md#浏览器与设备图标) 和 [品牌资源](BRANDING.md)。",
   publishing:
     "language 控制 HTML / SEO 语言与 Intl 日期格式，不自动翻译界面或第三方组件；通过 ui 显式覆盖主题文案，SDK 继续使用自己的 lang / locale。timeZone 为显示时间戳的有效时区（默认 Asia/Shanghai）；date / updated 是日历日期，永远不做时区偏移。页脚年份也按配置时区。发布与 SEO。url 仅源站，不带路径；base 以 / 开始和结束；环境变量 SITE_URL / SITE_BASE 优先。author 未填时使用站名。",
   ui: "集中管理主题自有文案，按 common / navigation / home / sidebar / search / reading / theme / comments / lightbox / markdown 分组。逐字段覆盖、缺省中文；仅纯文本，不解释 HTML。模板必须保留原有 {count} / {title} 等占位符，构建前校验；不会改写文章、评论正文、作者自写指令标题或 SDK 内部语言。ui.sidebar.updates / friends / comments 控制三个侧栏 Tab 名称，内部 ID 与 layout.sidebarTabs 顺序不变；不要用空白文案隐藏模块。参见 PERSONALIZATION.md。",

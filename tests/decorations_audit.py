@@ -206,8 +206,8 @@ def edges(browser, screenshots):
     external_routes(context, '/tmp/nekomi-p11/cdn'); page = context.new_page();requests=[];page.on('request',lambda r:requests.append(r.url))
     page.goto(url); ready(page)
     assert page.locator('[data-decoration], #side-desktop-updates, #side-desktop-friends').count() == 0
-    assert not page.locator('link[rel=apple-touch-icon]').count()
-    expect(page.locator('link[rel=icon]')).to_have_attribute('href','data:,')
+    expect(page.locator('link[rel=apple-touch-icon]')).to_have_attribute('href','/apple-touch-icon.png')
+    expect(page.locator('link[rel=icon]')).to_have_attribute('href','/favicon.svg')
     page.goto(url+'posts/welcome/'); ready(page)
     assert page.locator('[data-comments-section], [data-decoration]').count() == 0
     assert not any('/decorations.' in u for u in requests)

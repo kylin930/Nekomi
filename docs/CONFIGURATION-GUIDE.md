@@ -8,6 +8,7 @@
 
 - [编辑配置与默认值](#编辑配置与默认值)
 - [站点名称与头像](#站点名称与头像)
+- [浏览器与设备图标](#浏览器与设备图标)
 - [主题色与预设](#主题色与预设)
 - [背景壁纸](#背景壁纸)
 - [分类颜色](#分类颜色)
@@ -29,7 +30,7 @@
 - **数组整体替换**：`layout.modules`、`site.social`、`navigation.tabs`、`footer.links` 等不会按位置合并。调整顺序时写出想保留的全部项；`[]` 表示空列表。
 - **显式值优先**：选择预设后，自己写的配色、字体和圆角会覆盖预设对应值。想恢复默认值，应删除对应字段；`false` 是关闭，`""` 是空字符串，不等于“恢复默认”。是否允许留空取决于字段，不要用 `null` 代替省略。
 
-示例中的图片路径和服务地址需要换成自己的资源。缺省评论、壁纸和角色装饰均关闭。使用 `NEKOMI_CONFIG` 指向其他配置文件时，该文件继承主题默认值，**不叠加**仓库根配置；维护个人文件的方法见 [升级与保留个人配置](../README.md#从-p24-迁移与保留个人配置)。
+示例中的图片路径和服务地址需要换成自己的资源。缺省评论、壁纸和角色装饰均关闭。使用 `NEKOMI_CONFIG` 指向其他配置文件时，该文件继承主题默认值，**不叠加**仓库根配置；维护自己的文件见[升级指南](UPDATING.md)。
 
 ## 站点名称与头像
 
@@ -53,6 +54,25 @@
 将头像放入 `src/assets/images/avatar.webp`，填写 `images/avatar.webp`，可使用 Astro 图片优化。也可放在 `public/images/avatar.webp` 并填写 `/images/avatar.webp`，或使用公开的 HTTPS 图片地址。无头像时将 `avatar` 设为 `""`，使用 `avatarFallback` 文字；图片加载失败也会回退。
 
 `site.name` 同时用于默认页脚版权；`publishing.author` 用于发布元数据，留空时使用站名。社交链接、邮箱、Favicon 等见 [站点信息](CONFIGURATION.md#site)，更多图片路径规则见 [图片接入](IMAGES.md)。
+
+## 浏览器与设备图标
+
+不填写 `site.favicon` / `site.appleTouchIcon`，或设为 `""`（纯空白也视为留空），会自动使用主题自带的 `/favicon.svg` 和 180×180 `/apple-touch-icon.png`。不需要把默认路径写进配置。**Favicon 是浏览器标签页图标，头像由 `site.avatar` 独立控制**；主题不会用 Logo 替换你的头像。
+
+使用自己的图标时，把文件放入 `public/icons/` 并配置（文件名需换成实际资源）：
+
+```json
+{
+  "site": {
+    "favicon": "/icons/my-icon.svg",
+    "appleTouchIcon": "/icons/my-touch-icon.png"
+  }
+}
+```
+
+两项都支持公开的 HTTPS 文件地址；自定义 SVG 会声明 `image/svg+xml`，其他类型交给浏览器识别。Apple 图标建议为 180×180 PNG。只覆盖其中一项时，另一项仍使用主题内置资源；缺失的自定义文件不会被静默替换，请确认 URL 可访问。
+
+本地路径不写 `public/` 前缀，主题会自动处理 `publishing.base` 和优先级更高的 `SITE_BASE`，不用手动加 `/Nekomi/`。换图后浏览器可能保留图标缓存，可更换文件名或添加版本查询参数。完整示例见 [icons.config.json](../examples/icons.config.json)；原始 Logo 与转换方式见 [品牌资源](BRANDING.md)。
 
 ## 主题色与预设
 
@@ -259,4 +279,4 @@ npm run preview
 
 构建会校验配置，错误信息包含具体字段路径。编辑器的 [JSON Schema](../site.schema.json) 提供补全，但不能代替构建时的跨字段检查。
 
-首次发布前再设置真实域名、部署路径、`demo` 和索引开关；不要为移除界面提示而修改示例文章的 `demo: true`。操作步骤见 [发布与 SEO](PUBLISHING.md)，托管设置见 [GitHub Pages](../README.md#github-pages) / [Cloudflare Pages](../README.md#cloudflare-pages)。
+首次发布前再设置真实域名、部署路径、`demo` 和索引开关；不要为移除界面提示而修改示例文章的 `demo: true`。操作步骤见 [发布与 SEO](PUBLISHING.md)，托管设置见 [GitHub Pages](PUBLISHING.md#github-pages) / [Cloudflare Pages](PUBLISHING.md#cloudflare-pages)。

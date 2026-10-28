@@ -1,6 +1,6 @@
 # 发布、索引与文章浏览
 
-部署操作：[GitHub Pages](../README.md#github-pages) · [Cloudflare Pages](../README.md#cloudflare-pages)。本文说明发布前的域名、子路径、SEO 和订阅设置；日常修改站点外观见 [简明配置指南](CONFIGURATION-GUIDE.md)，字段查询见 [完整配置参考](CONFIGURATION.md)。
+部署操作：[GitHub Pages](#github-pages) · [Cloudflare Pages](#cloudflare-pages)。本文说明发布前的域名、子路径、SEO 和订阅设置；日常修改站点外观见 [简明配置指南](CONFIGURATION-GUIDE.md)，字段查询见 [完整配置参考](CONFIGURATION.md)。
 
 ## 先配置站点地址与内容性质
 
@@ -67,7 +67,36 @@ SITE_URL=https://username.github.io SITE_BASE=/Nekomi/ npm run build
 
 真实从本站列表进入文章时，历史记录携带来源与返回步数；相邻文章和章节 Hash 继续累计这段历史。文章“返回文章列表”通过原生历史遍历回到那个列表，保留前进记录。直接打开文章、来源已过期或来源不可验证时，使用普通首页链接，不盲目后退到外站。
 
-缓存仅在当前窗口使用，最多八份列表；sessionStorage 辅助保存不超过约 1.8MB，拒绝存储时继续使用内存。内容 / 配置版本变化会使旧缓存失效。壁纸、侧栏、Drawer、主题和 MDUI 注册仍沿用 P2.3 的原位持久化外壳。异步请求、IntersectionObserver、计时器、页面监听随 AbortController 清理；新增卡片的 hover Prefetch 调用 Astro 原生去重 API，标题 / 封面共享过渡也支持分页及分类列表。
+缓存仅在当前窗口使用，最多八份列表；sessionStorage 辅助保存不超过约 1.8MB，拒绝存储时继续使用内存。内容 / 配置版本变化会使旧缓存失效。壁纸、侧栏、Drawer、主题和 MDUI 注册使用原位持久化外壳。异步请求、IntersectionObserver、计时器、页面监听随 AbortController 清理；新增卡片的 hover Prefetch 调用 Astro 原生去重 API，标题 / 封面共享过渡也支持分页及分类列表。
+
+## GitHub Pages
+
+1. 创建自己的仓库，在 **Settings → Pages → Source** 选择 **GitHub Actions**。
+2. 在仓库的 **Settings → Secrets and variables → Actions → Variables** 中添加 `SITE_URL=https://你的用户名.github.io`、`SITE_BASE=/你的仓库名/`。用户主页仓库或自定义根域使用 `SITE_BASE=/`。
+3. 本仓库提供[手动 Pages 工作流](../.github/workflows/pages.yml)，在 Actions 中手动运行。它会检查、构建并部署静态产物，不在克隆后自动发布。
+4. 自定义域名按 GitHub Pages 的要求设置 DNS / HTTPS，在 `public/CNAME` 写入自己的域名，并同步修改 `SITE_URL` / `SITE_BASE`。
+
+## Cloudflare Pages
+
+连接自己的 Git 仓库，使用以下构建设置：
+
+- Node.js 版本：24。
+- 构建命令：`npm run build`。
+- 输出目录：`dist`。
+- 环境变量：`SITE_URL` 为实际站点源站地址，`SITE_BASE=/`。
+
+自定义域名在平台的 **Custom domains** 中设置，并按提示配置 DNS。改地址后重新构建，以更新 Canonical 等元数据；不要为这些静态路由添加全站重写到首页的规则。
+
+## 构建与部署检查
+
+```sh
+npm run check
+npm run test:config
+npm run build
+npm run preview
+```
+
+将 `dist/` 部署到静态托管平台，生产环境无需常驻 Node.js 服务。托管平台应解析目录中的 `index.html`，不存在的路径使用 `404.html` 并返回 HTTP 404；不需要 SPA fallback。用 HTTP(S) 访问预览，不要直接打开 `file://`。
 
 ## 官方资料与测试
 
@@ -76,4 +105,4 @@ SITE_URL=https://username.github.io SITE_BASE=/Nekomi/ npm run build
 - [官方 Sitemap 集成](https://docs.astro.build/en/guides/integrations-guide/sitemap/)
 - [官方 RSS / Content Collections](https://docs.astro.build/en/recipes/rss/)
 
-`tests/browse_audit.py` 在临时 Content Collection 中添加 32 篇测试文章，与原十篇合成 42 篇；其中非 demo 标记只用于验证发布规则，不进入仓库正式文章。验证七页、关闭 JavaScript、慢网 / 失败 / 取消 / 重复请求、精确返回与首帧、全量搜索、分享元数据、索引策略和根 / 子路径。原 P0–P2.3 回归继续覆盖组件、排版、Shiki、图片、动效与壁纸。
+`tests/browse_audit.py` 在临时 Content Collection 中添加 32 篇测试文章，与原十篇合成 42 篇；其中非 demo 标记只用于验证发布规则，不进入仓库正式文章。验证七页、关闭 JavaScript、慢网 / 失败 / 取消 / 重复请求、精确返回与首帧、全量搜索、分享元数据、索引策略和根 / 子路径。其他回归继续覆盖组件、排版、Shiki、图片、动效与壁纸，详见[测试文档](../tests/README.md)。

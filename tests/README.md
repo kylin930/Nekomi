@@ -1,5 +1,17 @@
 # P2–P2.4 静态构建浏览器回归
 
+## 正式品牌与默认图标
+
+```sh
+node --test tests/config.test.mjs
+npm run check
+python3 tests/branding_audit.py --screenshots
+```
+
+`branding_audit.py` 顺序构建默认、留空子路径、自定义本地（环境变量覆盖 base）、HTTPS 和 PNG 五套生产配置；桌面 / 手机 × 浅深模式核对唯一 Favicon、SVG MIME、Apple 图标、真实图像解码与 ClientRouter 往返。外部自定义图标使用正式资源的受控响应，既有 Google Fonts 在此专项检查中隔离为空 CSS，不将其可用性算作品牌验证。
+
+同时检查原 SVG SHA-256 与无外部依赖、Apple / ICO / 社交预览尺寸及 README 本地 Logo 路径。`--screenshots` 保存浏览器实际渲染的浅深图标对照到 `docs/brand/browser-icons.png`，不是页面设计变更；配置和构建位于忽略的 `.astro/brand-tests/`。已有同一源码的专项产物时可用 `--reuse` 只复核浏览器，源码变更后应重新构建。测试不上传 GitHub Social Preview，也不修改用户头像。
+
 ## v1.0.0 个性化审计
 
 ```sh

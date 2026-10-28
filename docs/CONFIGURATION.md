@@ -41,7 +41,7 @@
 
 ## site
 
-站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。favicon / appleTouchIcon 使用 public/ 内路径或公开 HTTP(S) URL，自动补部署 base；留空保留空 favicon、不输出 Apple 图标。Apple 图标建议提供 180×180 PNG。
+站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。favicon / appleTouchIcon 使用 public/ 内路径或公开 HTTP(S) URL，自动补部署 base；省略或留空自动使用主题内置 favicon.svg 与 180×180 apple-touch-icon.png，不必将默认路径写入配置。自定义图标优先，SVG 声明 image/svg+xml；这两项与 site.avatar 独立。详见 [图标配置](CONFIGURATION-GUIDE.md#浏览器与设备图标) 和 [品牌资源](BRANDING.md)。
 
 ## publishing
 
