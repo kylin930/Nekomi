@@ -580,7 +580,11 @@ def visual_fixture_checks(page, context, url, requests, artifacts):
             assert surface_alpha(page,'.reader') > card_alpha
             hero = page.locator('.article-hero').bounding_box()
             header = page.locator('.reader-header').bounding_box()
-            assert abs(hero['y']-header['y']-header['height']-(16 if width<=480 else 24)) <= 1
+            breadcrumb = page.locator('.reader-breadcrumb').bounding_box()
+            gap = 16 if width <= 480 else 24
+            assert abs(hero['y']-breadcrumb['y']-breadcrumb['height']-gap) <= 1
+            assert abs(header['y']-hero['y']-hero['height']-gap) <= 1
+            if width <= 600: assert hero['height'] <= 200
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
             page.goto(url+'posts/md3-palette-for-blog/',wait_until='networkidle');ready(page)
             expect(page.locator('#article-tags mdui-chip')).to_have_count(6)
@@ -599,6 +603,8 @@ def visual_fixture_checks(page, context, url, requests, artifacts):
     # An article without a TOC must not leave an empty section gap either.
     page.evaluate('document.querySelector(".toc-inline").remove();document.querySelector(".reading-toc").hidden=true')
     header=page.locator('.reader-header').bounding_box();body=page.locator('.prose').bounding_box()
+    breadcrumb=page.locator('.reader-breadcrumb').bounding_box()
+    assert abs(header['y']-breadcrumb['y']-breadcrumb['height']-16) <= 1
     assert abs(body['y']-header['y']-header['height']-16) <= 1
     print('PASS P2.1 fixtures: eight viewports × two themes, actual built cover/hero/long-title/six-tag/no-tag states, matching section gaps, native cover SPA links and persistent reader opacity')
 

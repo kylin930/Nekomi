@@ -14,6 +14,8 @@ html:has(body:is([data-page="article"], [data-page="content"])) { scroll-padding
 .reader-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--space-1); margin: 0; color: rgb(var(--mdui-color-on-surface-variant)); font-size: 12px; line-height: 1.7; }
 #article-hero:empty { display: none; }
 .article-hero { margin: 0; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--mdui-shape-corner-large); }
+/* 文章封面先于标题，横幅比例为标题与正文保留首屏空间。 */
+#article-hero .article-hero { aspect-ratio: 21 / 9; }
 .article-hero img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .toc-inline { display: block; --shape-corner: var(--mdui-shape-corner-medium); }
 .toc-toggle { width: 100%; }
@@ -101,6 +103,9 @@ html:has(body:is([data-page="article"], [data-page="content"])) { scroll-padding
   .prose h4 { font-size: 17px; }
   .prose pre { font-size: 12px; padding: 16px; }
   .article-neighbors { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  #article-hero .article-hero { aspect-ratio: 16 / 9; max-height: 200px; }
 }
 @media (max-width: 360px) {
   .reader-header h1 { font-size: 26px; line-height: 1.4; }

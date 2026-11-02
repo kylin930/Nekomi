@@ -148,8 +148,8 @@ def shared_cover_checks(page, context, url, requests):
             probe(page)
             page.locator('.post-cover').click();page.wait_for_url(url+'posts/'+TECH+'/');ready(page)
             shared(finish(page,1),True)
-            # Use history here: a hero sits below the fold on a small viewport,
-            # while returning can still share any currently visible pair.
+            # Use history to preserve the viewport while returning; the title
+            # and leading hero can share whichever pairs are currently visible.
             page.go_back();page.wait_for_url(url+'#recent');ready(page)
             entry=finish(page,2)
             assert entry['names'] and 'post-title' in entry['names'], entry
