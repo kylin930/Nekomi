@@ -68,7 +68,7 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 - 素材权利归各自权利人，不属于主题 MIT 许可，也不表示主题获得了随机池内所有图片的再分发授权。可配置站长已审核的固定图片替换。
 
 
-## P2.5 通用模板与第三方服务
+## 通用模板与第三方服务
 
 默认配置不含个人域名、邮箱、头像 URL 或随机壁纸请求；外部统计脚本 / 评论服务默认关闭。原站完整配置位于 examples/personal，启用前由部署者自行确认图片服务使用权。入门文章均为项目原创示例，明确 demo:true，不进入正式索引。旧十篇示例与项目自身界面截图保留用于迁移 / 回归，不包含打包的第三方动漫原图。
 
@@ -79,7 +79,7 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 构建会运行 `npm run licenses`，在静态产物输出 THIRD-PARTY-LICENSES.txt，保留浏览器分发代码的许可与版权。完整直接依赖及构建工具特殊许可清单见 [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md)，不将 Sharp / 图像编解码器的 LGPL 或 MPL 依赖误标为 MIT。
 
 
-## 可选评论客户端（0.4.0）
+## 可选评论客户端
 
 仅在用户明确配置服务并进入评论区域 / 打开最新评论时，由浏览器载入远程客户端；未把这些 SDK 源码、框架或资源打入 npm 主题依赖。静态框架依然为 Astro + MDUI。远程库可以包含各自的 UI 运行时，遵守相应上游许可。自托管或修改这些资源时需保留上游完整许可与版权。
 
@@ -92,17 +92,17 @@ Material Icons 仅用于单个 UI 图标，没有拼贴成插画、背景或站�
 
 前三者默认 jsDelivr 文件固定版本并配置 SRI，目录见 `src/integrations/comments/catalog.ts`；Giscus 使用官方托管服务。SDK 可能继续请求头像、验证码、登录或服务自身资源，不代表本仓库拥有这些资源的版权或将其作为默认素材分发。主题不提供服务端程序。隐私、跨域、嵌入与资源覆盖说明见 [动态评论服务](docs/COMMENTS.md)。
 
-## P3 品牌图标
+## 品牌图标
 
 GitHub 与 Bilibili 图标为 **Simple Icons 15.1.0** 的原始独立 SVG，许可证 **CC0-1.0**，通过 Astro 静态内联，没有新增图标库或字体请求。文件、来源及许可见 [src/assets/icons](src/assets/icons/README.md)；完整 CC0 条款随静态产物的 THIRD-PARTY-LICENSES.txt 一同提供。普通网站、邮箱、RSS 继续使用既有 Material Icons。
 
 CC0 不授予平台商标权。品牌图标仅用于用户实际配置的链接，不代表平台背书，也没有默认添加个人账号。
 
-## v1.0 个性化装饰验收截图
+## 个性化装饰截图素材
 
-默认主题不提供人物图或壁纸。本轮 `screenshots/v100-decorations-*.png` 的临时素材为 Twemoji Standing Person（Twitter, Inc. and other contributors，CC BY 4.0）与 Fronalpstock big（Hannes Röst，CC BY-SA 3.0）。合成截图使用 CC BY-SA 4.0；原作者、来源、变换方式和许可见 [截图说明](screenshots/DECORATIONS.md)。原图片只在 /tmp 和被忽略的测试产物使用，没有打包为默认静态资源。装饰实现为原创，不复制 Cuckoo 的 GPL 代码 / 主题素材。
+默认主题不提供人物图或壁纸。`screenshots/v100-decorations-*.png` 中的临时素材为 Twemoji Standing Person（Twitter, Inc. and other contributors，CC BY 4.0）与 Fronalpstock big（Hannes Röst，CC BY-SA 3.0）。合成截图使用 CC BY-SA 4.0；原作者、来源、变换方式和许可见 [截图说明](screenshots/decorations.md)。原图片只在临时目录和被忽略的测试产物中使用，没有打包为默认静态资源。装饰实现为原创，不复制 Cuckoo 的 GPL 代码或主题素材。
 
-## P3.1 Markdown 与图片阅读
+## Markdown 与图片阅读
 
 - **PhotoSwipe 5.4.4（MIT）**：本地打包，仅首次打开正文图片时下载 JS / 样式，负责手势、缩放、焦点圈定与图片切换。官方文档 https://photoswipe.com/getting-started/ ，项目 https://github.com/dimsemenov/PhotoSwipe 。
 - **Mermaid 12.2.0（MIT）**：含图表的文章按需载入，strict 安全模式、禁用 HTML labels 和内嵌配置；图表源码不发送到外部服务。官方 API https://mermaid.js.org/config/usage.html ，项目 https://github.com/mermaid-js/mermaid 。

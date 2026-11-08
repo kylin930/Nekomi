@@ -1,6 +1,6 @@
-# v1.0 个性化配置验收
+# 个性化装饰截图
 
-实际 Chromium 154 访问 Astro 生产静态产物。截图使用临时图片验证透明区域、比例、遮挡和加载行为；**不是 Nekomi 默认美术资源**，用户需要提供自己的素材。
+以下截图由 Chromium 154 打开 Astro 生产静态产物生成。截图使用临时图片验证透明区域、比例、遮挡和加载行为；**不是 Nekomi 默认美术资源**，用户需要提供自己的素材。
 
 | 场景 | 浅色 | 深色 |
 | --- | --- | --- |
@@ -11,7 +11,7 @@
 
 [默认无装饰桌面](v100-decorations-default-reader-1440.png) · [默认无装饰手机](v100-decorations-default-reader-390.png) · [默认无装饰 Drawer](v100-decorations-drawer-390.png) · [显式开启 Drawer](v100-decorations-drawer-opt-in-390.png)
 
-评论使用真实 SDK + 受控 API；自定义适配器截图为只读 REST 示例，不代表内置登录 / 编辑功能。导航生命周期、隐藏条件及测试命令见 [测试说明](../tests/README.md)，配置见 [装饰使用指南](../docs/DECORATIONS.md)。
+评论使用真实 SDK + 受控 API；自定义适配器截图为只读 REST 示例，不代表内置登录 / 编辑功能。导航生命周期、隐藏条件及测试命令见[测试说明](../tests/README.md)，配置见[装饰使用指南](../docs/DECORATIONS.md)。
 
 ## 截图素材来源与许可
 

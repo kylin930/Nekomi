@@ -2,6 +2,8 @@
 
 独立页面适合“关于”“项目”“留言”等内容，使用单独的 `pages` Content Collection。与文章共用 Markdown 扩展、Shiki、图片优化、公式、图表、灯箱、代码复制和阅读布局，不需要 MDX 或服务端。
 
+独立页面不会进入文章列表、分类、归档、文章搜索或 RSS；需要出现在首页时，可通过 `navigation.pageTabs` 加入内容面板。
+
 [配置参考](CONFIGURATION.md) · [Markdown 语法](MARKDOWN.md) · [可运行组合示例](../examples/site-features.config.json)
 
 ## 创建页面

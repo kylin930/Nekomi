@@ -1,22 +1,88 @@
 # 图片接入
 
-可优化的本地图片优先放在 `src/assets/images/`，由 Astro 输出响应式 WebP 和固有尺寸；配置路径仍填写 `images/...`。`public/images/` 继续支持原样输出与缺失回退。`src/assets/images/demo-home.png` 是本项目原有界面截图，用于演示文章中的图片排版，不是默认壁纸或动漫素材。
+Nekomi 支持两种图片：放在 `src/assets/images/` 的图片会在构建时优化，放在 `public/images/` 的图片按原路径发布。配置中的路径统一相对站点根目录，主题会自动适配部署子路径。
 
-- **站点头像**：在根目录 `site.config.json` 的 `site.avatar` 填 `images/avatar.webp`，同时填写 `avatarAlt`。保持无边框圆形，缺失或失败时显示 `avatarFallback`。
-- **浏览器 / 设备图标**：主题内置正式 Favicon 与 Apple Touch Icon，省略或留空自动使用；`site.favicon` / `site.appleTouchIcon` 可单独覆盖。它们与站点头像无关，不参与头像优化。详见 [图标配置](CONFIGURATION-GUIDE.md#浏览器与设备图标)。
-- **文章封面**：Markdown frontmatter 填 `cover: images/covers/example.webp` 与 `coverAlt`。宽卡片右图、窄卡片上图；文章阅读页依次显示返回按钮、可选封面、标题与元信息。封面在宽屏为 21:9，600px 及以下为 16:9、最高 200px，保持原有居中裁切；未配置、关闭或加载失败时不留空位。建议至少 800px 的 WebP / AVIF。
-- **正文图片**：`src/assets/images/` 下的图片可继续用原有的 `/images/...` 写法，插件将 Markdown 及 HTML figure 中的本地路径交给 Astro 原生图片流程，正文无需改写。标准 Markdown 的相对图片导入也可直接使用 Astro 的优化。Markdown 中用 `![图片说明](/images/example.webp)`；复杂排版可用 HTML figure，外部或 public 图片建议写自然 width / height 和 figcaption。图片失败保留说明。
-- **壁纸**：壁纸仍须用运行时可访问的 `public/` 路径或 HTTP(S) 地址，不从 `src/assets/` 解析，也不进入构建期图片优化。配置 `appearance.wallpaper.light` / `dark` 为 `images/wallpapers/day.webp` 等。默认关闭且没有外部地址；原站 API 仅保留在 examples/personal 配置中；深色空值沿用浅色图。支持 position / fit、明暗遮罩、表面与缓存时长。
-- **友链 / 评论头像**：配置中填 `images/friends/example.webp`，无图或坏图回退名称首字。
+## 快速选择
 
-配置图片路径相对于站点根目录，可填写 HTTP(S) 外链；本地建议使用 `images/...`，会自动适配 `SITE_BASE`。不要把原项目的 `assets/images/` 路径直接照搬。仅使用有授权的素材，避免超大原图；主题不生成头像、插画或美术资源。
+| 用途 | 推荐位置 | 配置写法 | 说明 |
+| --- | --- | --- | --- |
+| 站点头像 | `src/assets/images/avatar.webp` | `images/avatar.webp` | 同时填写 `site.avatarAlt`；无图或失败时使用 `avatarFallback` |
+| 文章封面 | `src/assets/images/covers/example.webp` | `images/covers/example.webp` | 同时填写 `coverAlt`；建议至少 800px 的 WebP / AVIF |
+| 正文图片 | `src/assets/images/photo.webp` | `images/photo.webp` | Astro 生成响应式图片与固有尺寸，支持灯箱 |
+| 壁纸 | `public/images/wallpaper.webp` | `/images/wallpaper.webp` | 运行时加载，不参与构建期优化 |
+| 友链 / 评论头像 | `public/images/friends/example.webp` | `/images/friends/example.webp` | 无图或坏图时回退名称首字 |
+| Favicon / Apple 图标 | `public/icons/` | `/icons/my-icon.svg` | 省略或留空时使用主题内置图标 |
 
-`SiteImage.astro` 共用 Avatar / 封面 / 头图：Avatar 输出 1x / 2x 候选和固定尺寸，封面 / 头图输出 320 / 640 / 960 / 1440px 候选（不超出原图），结合 `sizes` 和既有 aspect-ratio 保持布局。正文图使用同级宽度候选，保留 width / height、caption 和懒加载。外部地址不在默认优化白名单，保留原地址且不在构建时抓取；头像尺寸与封面容器仍预留空间，外部正文应由作者给出自然尺寸。
+也可以使用公开的 HTTP(S) 图片地址。外链不会在构建时抓取或优化，可靠性与隐私取决于图片来源；重要资源建议自行托管。
 
-随机 `nekopara.uk/pic_api` 始终由现有运行时图片加载器 / Service Worker 处理，不能放进 Astro Image 或远程图片白名单。内部导航保留相同壁纸 DOM、图像与加载任务。所有图片保留失败回退：头像文字、封面 / 头图收起、正文说明。
+## 路径规则
 
-## 正文灯箱
+- `images/...` 对应 `src/assets/images/...`，由 Astro 优化。
+- `/images/...` 对应 `public/images/...`，原样发布。
+- 壁纸必须使用 `public/` 路径或 HTTP(S) 地址，不使用 `src/assets/` 的优化路径。
+- 不要写 `public/` 前缀，也不要手动添加 `/Nekomi/` 等部署子路径。
+- 仅使用有授权的素材，避免过大的原图。
 
-正文 `![替代文字](images/photo.webp "说明")` 中的 images/ 对应 src/assets/images/；Astro 保留响应式优化、srcset 与宽高，灯箱使用原始本地资产。src/ 之外的相对文章资源由公开 getImage API 额外输出同格式的全分辨率版本。public/ 与外部图片仍使用其原地址，不在构建时抓取随机资源。
+## 头像
 
-`reading.lightbox` 可全站或单篇关闭。普通链接中的图片不被接管，损坏图片保留回退；库和 CSS 仅首次打开图片时下载，离页清理。图片组及键盘 / 触控操作见 [Markdown 写作文档](MARKDOWN.md)。壁纸与头像不是正文图片，不加入灯箱。
+在 `site.config.json` 中填写：
+
+```json
+{
+  "site": {
+    "avatar": "images/avatar.webp",
+    "avatarAlt": "站点头像",
+    "avatarFallback": "林"
+  }
+}
+```
+
+头像保持无边框圆形。图片缺失或加载失败时显示 `avatarFallback` 文字。Favicon 与站点头像互相独立，主题不会用 Logo 替换头像。
+
+## 封面与头图
+
+在文章 Frontmatter 中填写：
+
+```yaml
+cover: images/covers/example.webp
+coverAlt: 文章封面说明
+```
+
+宽卡片使用右侧封面，窄卡片改为上方封面，阅读页在标题后显示可选头图。没有封面时不占位，加载失败时收起。
+
+## 正文图片与灯箱
+
+```md
+![图片说明](images/photo.webp "图片说明")
+```
+
+正文图片支持点击或 Enter / Space 打开灯箱：方向键切换、Esc 关闭、滚轮缩放、放大后拖动；触控支持滑动切图与双指缩放。带链接的图片保留原链接，不进入灯箱。
+
+`reading.lightbox` 可以全站或单篇关闭。灯箱库和样式只在首次打开图片时下载，离开页面后清理。图片组、说明文字和键盘操作见 [Markdown 写作](MARKDOWN.md)。
+
+## 壁纸
+
+```json
+{
+  "appearance": {
+    "wallpaper": {
+      "enabled": true,
+      "light": "/images/wallpaper.webp",
+      "dark": "/images/wallpaper-dark.webp",
+      "mobileLight": "/images/wallpaper-portrait.webp"
+    }
+  }
+}
+```
+
+深色留空时复用浅色；移动端未配置时按 `mobileLight` → 浅色、`mobileDark` → 深色 → 浅色的顺序回退。壁纸支持位置、填充方式、明暗遮罩、表面透明度和缓存时长。
+
+## 响应式与回退
+
+- 头像输出 1x / 2x 候选和固定尺寸。
+- 封面 / 头图输出 320 / 640 / 960 / 1440px 候选，不超出原图。
+- 正文图片保留 `width` / `height`、说明文字和懒加载。
+- 外链图片保留原地址，不在构建时抓取；作者应提供合适的自然尺寸。
+- 所有图片都有失败回退：头像显示文字，封面收起，正文保留说明。
+
+随机图片 API 只在浏览器运行时请求，不会在构建时固定成一张图。内部导航会保留同一壁纸 DOM、图像和加载任务。

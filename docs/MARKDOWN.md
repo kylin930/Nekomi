@@ -1,6 +1,22 @@
 # Markdown 写作与内容组件
 
-文章使用普通 `.md`，不需要 MDX。完整可运行样例见 [markdown-extensions.md](../src/content/posts/markdown-extensions.md)，基础语法见 [markdown-guide.md](../src/content/posts/markdown-guide.md)。两者均标记 `demo: true`，不会进入 RSS 或 Sitemap。
+文章使用普通 `.md`，不需要 MDX。本文介绍 Nekomi 额外提供的内容组件、开关和阅读增强；标准 Markdown 语法照常使用。
+
+完整可运行样例见 [markdown-extensions.md](../src/content/posts/markdown-extensions.md)，基础语法见 [markdown-guide.md](../src/content/posts/markdown-guide.md)。两者均标记 `demo: true`，不会进入 RSS 或 Sitemap。
+
+## 语法速查
+
+| 需求 | 写法 | 说明 |
+| --- | --- | --- |
+| 提示块 | `:::note[标题]` … `:::` | 支持 note / info / success / warning / danger，`tip` 是 note 的别名 |
+| 折叠内容 | `:::details[标题]` … `:::` | 使用原生 `<details>`，可键盘操作 |
+| 图片组 | `:::gallery[说明]` … `:::` | 宽屏两列、手机单列，参与正文灯箱 |
+| 链接卡片 | `::link[标题]{href="..." description="..."}` | 使用真实链接，无 JS 仍可访问 |
+| 视频 | `::video[标题]{provider="youtube" id="..."}` | 点击后才加载播放器 |
+| 内容 Tabs | `::::tabs[标题]` + `:::tab[标签]` | 使用 MDUI 原生 Tabs，支持键盘 |
+| 数学公式 | `$...$` 或 `$$...$$` | 构建时由 KaTeX 渲染 |
+| Mermaid | 代码块语言写 `mermaid` | 进入阅读区域时加载并渲染 |
+| 正文图片 | `![说明](images/photo.webp "标题")` | 支持响应式图片与灯箱 |
 
 ## 开关与加载
 

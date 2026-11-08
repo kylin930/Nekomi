@@ -1,6 +1,15 @@
 # 侧栏 Tabs 与常驻模块
 
-桌面侧栏和移动 Drawer 使用同一份配置。[完整配置参考](CONFIGURATION.md#layout) · [组合示例](../examples/site-features.config.json)
+桌面侧栏和移动 Drawer 使用同一份配置。本文介绍如何调整三个侧栏模块的显示方式与顺序。[完整配置参考](CONFIGURATION.md#layout) · [组合示例](../examples/site-features.config.json)
+
+## 两种显示方式
+
+| 方式 | 效果 | 配置 |
+| --- | --- | --- |
+| `tab` | 放进可切换的 Tabs，同一时间显示一个 | `{ "id": "updates", "display": "tab" }` |
+| `standalone` | 常驻显示，可放在 Tabs 上方或下方 | `{ "id": "friends", "display": "standalone", "position": "below" }` |
+
+模块 `id` 只能是 `updates`、`friends`、`comments`，每个最多出现一次。名称由 `ui.sidebar` 设置。
 
 ## 保留旧布局
 

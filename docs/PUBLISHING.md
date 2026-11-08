@@ -2,6 +2,16 @@
 
 部署操作：[GitHub Pages](#github-pages) · [Cloudflare Pages](#cloudflare-pages)。本文说明发布前的域名、子路径、SEO 和订阅设置；日常修改站点外观见 [简明配置指南](CONFIGURATION-GUIDE.md)，字段查询见 [完整配置参考](CONFIGURATION.md)。
 
+## 发布前检查清单
+
+- [ ] 用自己的文章、日期、名称替换示例内容；真实文章设置 `demo: false`。
+- [ ] 站点配置设置 `demo: false`、`publishing.indexing: true`。
+- [ ] 填写 `publishing.url`（源站地址）与 `publishing.base`（部署路径）。
+- [ ] 运行 `npm run check`、`npm run test:config` 和 `npm run build`。
+- [ ] 用 `npm run preview` 检查首页、文章、分类、标签、归档、RSS 和 404。
+- [ ] 确认评论区、统计脚本和自定义脚本只启用了需要的服务。
+- [ ] 部署后检查 Canonical、分享卡片和 `robots.txt` 是否指向实际域名。
+
 ## 先配置站点地址与内容性质
 
 默认配置仍是主题预览：`demo: true`、`publishing.indexing: false`，没有假定正式域名。标题、摘要和分享文案始终生成；没有站点地址时省略 Canonical / `og:url`，不输出虚构的分享图片。RSS 保留有效的空订阅源，Sitemap 不生成，robots 不引用不存在的文件。构建时 sitemap 集成提示没有可收录页面是预期行为。
@@ -98,11 +108,11 @@ npm run preview
 
 将 `dist/` 部署到静态托管平台，生产环境无需常驻 Node.js 服务。托管平台应解析目录中的 `index.html`，不存在的路径使用 `404.html` 并返回 HTTP 404；不需要 SPA fallback。用 HTTP(S) 访问预览，不要直接打开 `file://`。
 
-## 官方资料与测试
+## 参考资料
 
 - [Astro 构建分页](https://docs.astro.build/en/guides/routing/#pagination)
 - [ClientRouter 与生命周期](https://docs.astro.build/en/guides/view-transitions/)
 - [官方 Sitemap 集成](https://docs.astro.build/en/guides/integrations-guide/sitemap/)
 - [官方 RSS / Content Collections](https://docs.astro.build/en/recipes/rss/)
 
-`tests/browse_audit.py` 在临时 Content Collection 中添加 32 篇测试文章，与原十篇合成 42 篇；其中非 demo 标记只用于验证发布规则，不进入仓库正式文章。验证七页、关闭 JavaScript、慢网 / 失败 / 取消 / 重复请求、精确返回与首帧、全量搜索、分享元数据、索引策略和根 / 子路径。其他回归继续覆盖组件、排版、Shiki、图片、动效与壁纸，详见[测试文档](../tests/README.md)。
+发布相关的浏览器检查、慢网与子路径验证见[测试说明](../tests/README.md)与[测试记录](../tests/RESULTS.md)。

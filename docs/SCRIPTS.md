@@ -1,6 +1,8 @@
 # 自定义 JavaScript
 
-默认不加载用户脚本。适合站长接入自己信任的挂件或 SDK；这不是沙箱、CMS 或插件后台。[完整配置参考](CONFIGURATION.md#scripts) · [默认关闭的示例配置](../examples/site-features.config.json)
+本文面向需要接入自己信任的挂件或 SDK 的高级用户。主题默认不加载任何用户脚本；这不是沙箱、CMS 或插件后台。
+
+第三方 JS 拥有本站完整浏览器权限，只加载受信任且有使用权的来源。[完整配置参考](CONFIGURATION.md#scripts) · [默认关闭的示例配置](../examples/site-features.config.json)
 
 ## 配置资源
 

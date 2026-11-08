@@ -16,7 +16,7 @@ const descriptions = {
   'layout.sidebarSections': "默认 null，沿用旧 sidebarTabs；非 null 数组完整替代它。每项 id 为 updates/friends/comments，display 为 tab 或 standalone；standalone 的 position 为 above/below，默认 below，tab 不接受 position。各组按数组顺序排列，模块不可重复；[] 隐藏补充区域，全 standalone 不渲染空 Tabs。仍位于 layout.modules 的 tabs 插槽内，名称/预览限制沿用原配置。最新评论按活动 Tab 或独立模块可见性加载，关闭 Drawer 不查询。见 [侧栏布局](SIDEBAR.md)。",
   'navigation.pageTabs': "默认 []，最多 8 项，slug/label 必填、enabled 默认 true。引用 pages 集合的非草稿页面，启用的引用不存在/为草稿时构建报错；重复引用/路由冲突报错。数组顺序决定四个内建 Tabs 后的追加顺序；是真实 Markdown 面板，页面仍有独立 URL。项目未启用不影响原首页，普通链接继续使用 topLinks/links。见 [独立页面](PAGES.md)。",
   demo: "全站示例保护；true 时禁止公开索引、RSS 条目与 Sitemap 条目。",
-  demoNotice: "供导入方使用的示例说明，主题不渲染开发提示。",
+  demoNotice: "供导入方使用的示例说明，主题不渲染该提示。",
   site: "站点身份。纯文本，不接受任意 HTML。social 支持 auto / github / bilibili 与 MDUI 图标名，链接为 HTTP(S)/mailto/站内路径。默认 auto 按真实平台域名或 mailto 识别；品牌 SVG 在本地，无新增字体请求。email 为空时不显示。favicon / appleTouchIcon 使用 public/ 内路径或公开 HTTP(S) URL，自动补部署 base；省略或留空自动使用主题内置 favicon.svg 与 180×180 apple-touch-icon.png，不必将默认路径写入配置。自定义图标优先，SVG 声明 image/svg+xml；这两项与 site.avatar 独立。详见 [图标配置](CONFIGURATION-GUIDE.md#浏览器与设备图标) 和 [品牌资源](BRANDING.md)。",
   publishing:
     "language 控制 HTML / SEO 语言与 Intl 日期格式，不自动翻译界面或第三方组件；通过 ui 显式覆盖主题文案，SDK 继续使用自己的 lang / locale。timeZone 为显示时间戳的有效时区（默认 Asia/Shanghai）；date / updated 是日历日期，永远不做时区偏移。页脚年份也按配置时区。发布与 SEO。url 仅源站，不带路径；base 以 / 开始和结束；环境变量 SITE_URL / SITE_BASE 优先。author 未填时使用站名。",
@@ -33,7 +33,7 @@ const descriptions = {
     "backToTop 默认 true，启用全站原生 mdui-fab 返回顶部；滚动超过 400px 显示，模态 / 灯箱 / 提示条打开时暂时隐藏，减少动态时立即回顶。ui.navigation.backToTop 设置无障碍名称；false 不渲染按钮或加载对应脚本。width 为页面最大宽度（含栏和间距），readerWidth 为阅读容器最大宽度，sidebarWidth 为桌面栏宽；实际宽度仍受可用空间约束。固定 1120px 切 Drawer、1440px 启用右侧目录；数值范围保留至少约 680px 阅读空间。modules / sidebarTabs 数组按顺序渲染，可删项或用 [] 全关。模块：profile/social/search/tabs；侧栏 Tab：updates/friends/comments。recentPostsLimit / friendsPreviewLimit 为预览数量，0–12，默认 5；0 隐藏相应 Tab，友链独立页不受影响。评论关闭、recent=false 或内置服务不支持最新查询时隐藏评论 Tab。",
   navigation:
     "tabs 的 id 为 recent/categories/tags/archive；recent 必须启用，可改名。enabled 控制主导航可见性；分类/标签的直接索引页面由 content 开关控制。links 显示在公共侧栏底部。topLinks 为独立顶部导航行，含 label / url / enabled（默认 true）/ newTab（默认 false），数组顺序即显示顺序；不伪装成 Tab，不生成面板或页面。站内 / 路径补 base 并走 ClientRouter，HTTP(S) 外链正常跳转，新窗口附安全 rel；空数组 / 全禁用不输出占位。数组替换，不按位置合并。",
-  home: "emptyTitle / emptyDescription 自定义无文章状态，空描述不输出段落。P3 标题区不再显示装饰文字或统计：eyebrow 仅保留旧配置输入兼容；description 改用于全部文章页的 SEO Description，留空沿用站点副标题。搜索计数由独立 live region 按需显示。",
+  home: "emptyTitle / emptyDescription 自定义无文章状态，空描述不输出段落。标题区不显示装饰文字或统计：eyebrow 仅保留旧配置输入兼容；description 用于全部文章页的 SEO Description，留空沿用站点副标题。搜索计数由独立 live region 按需显示。",
   cards:
     "cover:auto 为响应式图文，top 始终图在上，none 隐藏。example / pinned 仅控制示例 / 置顶角标，不改变 demo SEO 保护、pinned 排序。其余开关控制摘要、日期、分类、标签、阅读按钮及首篇强调；标题真实链接始终存在。",
   reading:
@@ -84,7 +84,7 @@ function walk(node, path = "", defaults = resolveConfig({})) {
 }
 walk(schema);
 const intro =
-  "# 配置参考\n\n**第一次配置？先看 [简明配置指南](CONFIGURATION-GUIDE.md)**，按需求修改名称、头像、主题色、壁纸、侧栏、页脚和评论；分类配色、文案、日期、导航和字体的进阶示例见 [个性化配置](PERSONALIZATION.md)。[返回 README](../README.md)。\n\n修改 `site.config.json` 后重新构建。未填写字段使用主题默认值；嵌套对象逐字段补全，数组整体替换。未知字段、重复模块、危险 URL、越界数值会在构建前报出完整字段路径。编辑器使用根目录 [site.schema.json](../site.schema.json) 补全；下面的默认值由同一 Zod schema 生成（`npm run config:docs`），无需手动维护参数表。\n\n最小起点见 [site.config.json](../site.config.json)，完整可复制配置见 [full.config.json](../examples/full.config.json)，另外提供 [Fresh](../examples/fresh.config.json)、[Minimal](../examples/minimal.config.json) 与 [原站个人配置](../examples/personal/site.config.json)。\n\n";
+  "# 配置参考\n\n**第一次配置？先看 [简明配置指南](CONFIGURATION-GUIDE.md)**，按需求修改名称、头像、主题色、壁纸、侧栏、页脚和评论；分类配色、文案、日期、导航和字体的进阶示例见 [个性化配置](PERSONALIZATION.md)。[返回 README](../README.md)。\n\n修改 `site.config.json` 后重新构建。未填写字段使用主题默认值；嵌套对象逐字段补全，数组整体替换。未知字段、重复模块、危险 URL、越界数值会在构建前报出完整字段路径。编辑器使用根目录 [site.schema.json](../site.schema.json) 补全；下面的默认值由同一 Zod schema 生成（`npm run config:docs`），无需手动维护参数表。\n\n下面按配置键列出说明，节标题就是字段名，便于直接搜索。最小起点见 [site.config.json](../site.config.json)，完整可复制配置见 [full.config.json](../examples/full.config.json)，另外提供 [Fresh](../examples/fresh.config.json)、[Minimal](../examples/minimal.config.json) 与 [原站个人配置](../examples/personal/site.config.json)。\n\n";
 const contents = `## 目录
 
 - [站点信息](#site) · [界面文案](#ui)

@@ -1,6 +1,8 @@
 # 编写 CommentAdapter
 
-这是浏览器前端扩展接口，不是服务端插件系统。模块在 Astro / Vite 构建中解析、按需加载；生产仍输出纯静态文件。无需修改 runtime.js、registry.ts 或维护第二套路由。
+本文面向需要接入自有评论服务的开发者。CommentAdapter 是浏览器前端扩展接口，不是服务端插件系统；模块在 Astro / Vite 构建中解析、按需加载，生产仍输出纯静态文件。无需修改 `runtime.js`、`registry.ts` 或维护第二套路由。
+
+如果你只是使用 Waline、Twikoo、Giscus 或 Artalk，直接看[评论接入](COMMENTS.md)，不需要编写适配器。
 
 ## 选择模块
 
@@ -117,6 +119,6 @@ destroy 应幂等。推荐事件监听传 `{ signal }`，fetch 传 signal；定�
 
 认证、审核、反垃圾、CSRF / 权限检查属于服务器。需要私密凭据时创建独立服务代理，不能把 API key、管理 token 或私钥传入浏览器。跨域 Cookie / Bearer 用户会话由自有服务设计；主题默认公开查询不带管理凭据。
 
-`npm run check` 检查 TS；`node --test tests/comments.test.mjs` 校验配置 / 身份；`python3 tests/comments_audit.py --stress` 使用真实 SDK 和 API 回放；`python3 tests/comments_edges.py` 覆盖关闭、空文章、稳定键、无能力、自定义超时迟到与构建错误。测试本地静态产物，不要求 Node 后端。进一步回归命令见 CONTRIBUTING。
+`npm run check` 检查 TS；`node --test tests/comments.test.mjs` 校验配置 / 身份；`python3 tests/comments_audit.py --stress` 使用真实 SDK 和 API 回放；`python3 tests/comments_edges.py` 覆盖关闭、空文章、稳定键、无能力、自定义超时迟到与构建错误。测试本地静态产物，不要求 Node 后端。完整测试命令见 [CONTRIBUTING](../CONTRIBUTING.md)。
 
 更新主题时保留 src/custom、site.config.json、Markdown 与自有资源，审阅类型 / CHANGELOG 变更。此接口的源码入口和生命周期是扩展契约；不要依赖内置适配器内部的 SDK DOM 或私有方法。

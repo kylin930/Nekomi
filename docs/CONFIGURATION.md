@@ -4,7 +4,7 @@
 
 修改 `site.config.json` 后重新构建。未填写字段使用主题默认值；嵌套对象逐字段补全，数组整体替换。未知字段、重复模块、危险 URL、越界数值会在构建前报出完整字段路径。编辑器使用根目录 [site.schema.json](../site.schema.json) 补全；下面的默认值由同一 Zod schema 生成（`npm run config:docs`），无需手动维护参数表。
 
-最小起点见 [site.config.json](../site.config.json)，完整可复制配置见 [full.config.json](../examples/full.config.json)，另外提供 [Fresh](../examples/fresh.config.json)、[Minimal](../examples/minimal.config.json) 与 [原站个人配置](../examples/personal/site.config.json)。
+下面按配置键列出说明，节标题就是字段名，便于直接搜索。最小起点见 [site.config.json](../site.config.json)，完整可复制配置见 [full.config.json](../examples/full.config.json)，另外提供 [Fresh](../examples/fresh.config.json)、[Minimal](../examples/minimal.config.json) 与 [原站个人配置](../examples/personal/site.config.json)。
 
 ## 目录
 
@@ -37,7 +37,7 @@
 
 ## demoNotice
 
-供导入方使用的示例说明，主题不渲染开发提示。
+供导入方使用的示例说明，主题不渲染该提示。
 
 ## site
 
@@ -81,7 +81,7 @@ tabs 的 id 为 recent/categories/tags/archive；recent 必须启用，可改名
 
 ## home
 
-emptyTitle / emptyDescription 自定义无文章状态，空描述不输出段落。P3 标题区不再显示装饰文字或统计：eyebrow 仅保留旧配置输入兼容；description 改用于全部文章页的 SEO Description，留空沿用站点副标题。搜索计数由独立 live region 按需显示。
+emptyTitle / emptyDescription 自定义无文章状态，空描述不输出段落。标题区不显示装饰文字或统计：eyebrow 仅保留旧配置输入兼容；description 用于全部文章页的 SEO Description，留空沿用站点副标题。搜索计数由独立 live region 按需显示。
 
 ## cards
 
